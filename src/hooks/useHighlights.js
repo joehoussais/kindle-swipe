@@ -2,37 +2,71 @@ import { useState, useEffect, useCallback } from 'react';
 import { parseClippings } from '../utils/parseClippings';
 import { parseAmazonNotebook } from '../utils/parseAmazonNotebook';
 import { preloadCovers } from '../utils/bookCovers';
+import { generateStarterHighlights } from '../utils/starterPack';
+import { saveHighlightsToDb, loadHighlightsFromDb } from '../utils/supabase';
 
 const STORAGE_KEY = 'kindle-swipe-highlights';
 const INDEX_KEY = 'kindle-swipe-index';
 
-export function useHighlights() {
+export function useHighlights(onBooksImported, userId = null) {
   const [highlights, setHighlights] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [coversLoaded, setCoversLoaded] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
-  // Load from localStorage on mount
+  // Load from Supabase if logged in, otherwise localStorage
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      const storedIndex = localStorage.getItem(INDEX_KEY);
+    async function loadHighlights() {
+      setIsLoading(true);
+      try {
+        if (userId) {
+          // Load from Supabase
+          const { highlights: dbHighlights } = await loadHighlightsFromDb(userId);
+          if (dbHighlights.length > 0) {
+            setHighlights(dbHighlights);
+            const storedIndex = localStorage.getItem(INDEX_KEY);
+            if (storedIndex) {
+              const idx = parseInt(storedIndex, 10);
+              setCurrentIndex(Math.min(idx, dbHighlights.length - 1));
+            }
+          }
+        } else {
+          // Load from localStorage
+          const stored = localStorage.getItem(STORAGE_KEY);
+          const storedIndex = localStorage.getItem(INDEX_KEY);
 
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setHighlights(parsed);
-        if (storedIndex) {
-          const idx = parseInt(storedIndex, 10);
-          setCurrentIndex(Math.min(idx, parsed.length - 1));
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            setHighlights(parsed);
+            if (storedIndex) {
+              const idx = parseInt(storedIndex, 10);
+              setCurrentIndex(Math.min(idx, parsed.length - 1));
+            }
+          }
         }
+      } catch (e) {
+        console.error('Failed to load highlights:', e);
       }
-    } catch (e) {
-      console.error('Failed to load highlights from storage:', e);
+      setIsLoading(false);
     }
-    setIsLoading(false);
-  }, []);
+    loadHighlights();
+  }, [userId]);
 
-  // Save to localStorage when highlights change
+  // Save to Supabase when highlights change (if logged in)
+  useEffect(() => {
+    if (highlights.length > 0 && userId && !isLoading) {
+      setIsSyncing(true);
+      saveHighlightsToDb(userId, highlights)
+        .then(() => setIsSyncing(false))
+        .catch(e => {
+          console.error('Failed to sync highlights:', e);
+          setIsSyncing(false);
+        });
+    }
+  }, [highlights, userId, isLoading]);
+
+  // Also save to localStorage as backup
   useEffect(() => {
     if (highlights.length > 0) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(highlights));
@@ -67,6 +101,22 @@ export function useHighlights() {
 
   // Merge new highlights with existing, deduplicating
   const mergeHighlights = useCallback((newHighlights) => {
+    // Track books that were imported
+    if (onBooksImported && newHighlights.length > 0) {
+      const bookMap = new Map();
+      for (const h of newHighlights) {
+        const key = h.title;
+        if (!bookMap.has(key)) {
+          bookMap.set(key, { title: h.title, author: h.author, count: 0 });
+        }
+        bookMap.get(key).count++;
+      }
+      // Notify about imported books
+      for (const book of bookMap.values()) {
+        onBooksImported(book.title, book.author, book.count);
+      }
+    }
+
     setHighlights(prev => {
       const existing = new Set(prev.map(h => h.id));
       const unique = newHighlights.filter(h => !existing.has(h.id));
@@ -76,7 +126,7 @@ export function useHighlights() {
       return shuffleArray(merged);
     });
     setCoversLoaded(false); // Trigger cover preload
-  }, []);
+  }, [onBooksImported]);
 
   // Navigation
   const goNext = useCallback(() => {
@@ -98,13 +148,25 @@ export function useHighlights() {
   }, []);
 
   // Clear all data
-  const clearAll = useCallback(() => {
+  const clearAll = useCallback(async () => {
     setHighlights([]);
     setCurrentIndex(0);
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(INDEX_KEY);
     setCoversLoaded(false);
-  }, []);
+
+    // Also clear from Supabase if logged in
+    if (userId) {
+      await saveHighlightsToDb(userId, []);
+    }
+  }, [userId]);
+
+  // Load starter pack
+  const loadStarterPack = useCallback(() => {
+    const starterHighlights = generateStarterHighlights();
+    mergeHighlights(starterHighlights);
+    return starterHighlights.length;
+  }, [mergeHighlights]);
 
   // Delete a single highlight
   const deleteHighlight = useCallback((id) => {
@@ -146,12 +208,14 @@ export function useHighlights() {
     currentIndex,
     currentHighlight: highlights[currentIndex] || null,
     isLoading,
+    isSyncing,
     coversLoaded,
     hasHighlights: highlights.length > 0,
     isFirst: currentIndex === 0,
     isLast: currentIndex === highlights.length - 1,
     importClippings,
     importAmazonNotebook,
+    loadStarterPack,
     goNext,
     goPrev,
     goTo,

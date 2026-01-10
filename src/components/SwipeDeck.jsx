@@ -10,8 +10,10 @@ export function SwipeDeck({
   onShuffle,
   onSettings,
   onLibrary,
+  onBooksHistory,
   onGoTo,
-  totalCount
+  totalCount,
+  user
 }) {
   const [direction, setDirection] = useState(0);
   const containerRef = useRef(null);
@@ -159,6 +161,17 @@ export function SwipeDeck({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
+          {user && (
+            <button
+              onClick={onBooksHistory}
+              className="p-1 rounded-full hover:bg-white/10 transition ml-1"
+              aria-label="Your account"
+            >
+              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-medium">
+                {user.name?.charAt(0).toUpperCase() || 'U'}
+              </div>
+            </button>
+          )}
         </div>
       </div>
 

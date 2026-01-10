@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-export function SettingsPanel({ onClose, onClear, onImportMore, onOpenLibrary, stats }) {
+export function SettingsPanel({ onClose, onClear, onImportMore, onOpenLibrary, onOpenBooksHistory, onLogout, stats, user }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -18,17 +18,31 @@ export function SettingsPanel({ onClose, onClear, onImportMore, onOpenLibrary, s
         onClick={e => e.stopPropagation()}
       >
         <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Settings</h2>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-full hover:bg-white/10 transition"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+          {/* Header with user info */}
+          <div className="p-4 border-b border-gray-800">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Settings</h2>
+              <button
+                onClick={onClose}
+                className="p-2 rounded-full hover:bg-white/10 transition"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {/* User card */}
+            {user && (
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium">
+                  {user.name?.charAt(0).toUpperCase() || 'U'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-medium truncate">{user.name}</p>
+                  <p className="text-white/50 text-sm truncate">{user.email}</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Stats */}
@@ -85,6 +99,17 @@ export function SettingsPanel({ onClose, onClear, onImportMore, onOpenLibrary, s
             </button>
 
             <button
+              onClick={onOpenBooksHistory}
+              className="w-full py-3 px-4 rounded-xl bg-white/10 hover:bg-white/15
+                         transition font-medium flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Books History
+            </button>
+
+            <button
               onClick={onImportMore}
               className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-500
                          transition font-medium"
@@ -102,6 +127,21 @@ export function SettingsPanel({ onClose, onClear, onImportMore, onOpenLibrary, s
                          text-red-400 transition font-medium"
             >
               Clear All Data
+            </button>
+
+            <button
+              onClick={() => {
+                if (confirm('Are you sure you want to sign out?')) {
+                  onLogout();
+                }
+              }}
+              className="w-full py-3 px-4 rounded-xl border border-white/20 hover:bg-white/5
+                         text-white/70 transition font-medium flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              Sign Out
             </button>
           </div>
 
