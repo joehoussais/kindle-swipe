@@ -49,11 +49,20 @@ export function AuthProvider({ children }) {
       email,
       password,
       options: {
-        data: { name }
+        data: { name },
+        emailRedirectTo: window.location.origin
       }
     });
 
     if (error) throw error;
+
+    // Check if email confirmation is required
+    // Supabase returns user but no session when confirmation is needed
+    if (data.user && !data.session) {
+      const error = new Error('Please check your email to confirm your account before signing in.');
+      error.isConfirmationNeeded = true;
+      throw error;
+    }
 
     return {
       id: data.user.id,
@@ -89,7 +98,10 @@ export function AuthProvider({ children }) {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin
+        redirectTo: window.location.origin,
+        queryParams: {
+          prompt: 'select_account'
+        }
       }
     });
     if (error) throw error;

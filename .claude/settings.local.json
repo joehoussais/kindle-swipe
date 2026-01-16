@@ -16,7 +16,26 @@
       "Bash(npx vercel:*)",
       "Bash(npx netlify:*)",
       "Bash(gh auth status:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(git push:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(npx expo install:*)",
+      "Bash(npm start:*)",
+      "Bash(xcode-select:*)",
+      "Bash(sudo npm install:*)",
+      "Bash(xcrun simctl list devices available:*)",
+      "Bash(open:*)",
+      "Bash(pkill:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npx expo start:*)",
+      "Bash(kill:*)",
+      "Bash(xcrun simctl shutdown:*)",
+      "Bash(xcrun simctl:*)",
+      "Bash(xcrun simctl boot:*)",
+      "Bash(tail:*)",
+      "Bash(npx eas login:*)",
+      "Bash(npx eas:*)",
+      "Bash(CI=1 npx eas init:*)"
     ]
   }
 }

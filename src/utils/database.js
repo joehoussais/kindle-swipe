@@ -1,6 +1,6 @@
 // IndexedDB database for user authentication and book tracking
 
-const DB_NAME = 'kindle-swipe-db';
+const DB_NAME = 'highlight-app-db';
 const DB_VERSION = 1;
 
 let db = null;
@@ -50,7 +50,7 @@ export function initDatabase() {
 // Hash password (simple hash for demo - in production use bcrypt on server)
 async function hashPassword(password) {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password + 'kindle-swipe-salt');
+  const data = encoder.encode(password + 'highlight-app-salt');
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
@@ -135,7 +135,7 @@ export async function createSession(userEmail) {
     const request = store.add(session);
 
     request.onsuccess = () => {
-      localStorage.setItem('kindle-swipe-session', token);
+      localStorage.setItem('highlight-app-session', token);
       resolve(token);
     };
     request.onerror = () => reject(request.error);
@@ -144,7 +144,7 @@ export async function createSession(userEmail) {
 
 // Get current session
 export async function getCurrentSession() {
-  const token = localStorage.getItem('kindle-swipe-session');
+  const token = localStorage.getItem('highlight-app-session');
   if (!token) return null;
 
   await initDatabase();
@@ -157,14 +157,14 @@ export async function getCurrentSession() {
     request.onsuccess = () => {
       const session = request.result;
       if (!session) {
-        localStorage.removeItem('kindle-swipe-session');
+        localStorage.removeItem('highlight-app-session');
         resolve(null);
         return;
       }
 
       // Check if session expired
       if (new Date(session.expiresAt) < new Date()) {
-        localStorage.removeItem('kindle-swipe-session');
+        localStorage.removeItem('highlight-app-session');
         resolve(null);
         return;
       }
@@ -189,11 +189,11 @@ export async function getCurrentSession() {
 
 // Logout - remove session
 export async function logout() {
-  const token = localStorage.getItem('kindle-swipe-session');
+  const token = localStorage.getItem('highlight-app-session');
   if (!token) return;
 
   await initDatabase();
-  localStorage.removeItem('kindle-swipe-session');
+  localStorage.removeItem('highlight-app-session');
 
   return new Promise((resolve) => {
     const transaction = db.transaction(['sessions'], 'readwrite');

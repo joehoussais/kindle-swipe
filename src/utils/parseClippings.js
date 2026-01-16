@@ -63,7 +63,7 @@ export function parseClippings(text) {
       location,
       page,
       date: dateStr,
-      source: 'clippings'
+      source: 'kindle'
     });
   }
 

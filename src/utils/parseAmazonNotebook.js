@@ -35,8 +35,9 @@ export function parseAmazonNotebook(input) {
 }
 
 /**
- * Parse Bookcision JSON export
- * Format: { title, authors, highlights: [{ text, location, ... }] }
+ * Parse Bookcision JSON export or Kindle Scraper bookmarklet export
+ * Bookcision format: { title, authors, highlights: [{ text, location, ... }] }
+ * Bookmarklet format: { books: [{ asin, title, author, highlights: [{ text, location, note }] }] }
  * Or array of books
  */
 function parseBookcisionJson(jsonStr) {
@@ -44,7 +45,34 @@ function parseBookcisionJson(jsonStr) {
     const data = JSON.parse(jsonStr);
     const highlights = [];
 
-    // Handle single book or array of books
+    // Handle bookmarklet export format: { books: [...], exportedAt, bookCount, totalHighlights }
+    if (data.books && Array.isArray(data.books)) {
+      for (const book of data.books) {
+        const title = book.title || 'Unknown Title';
+        const author = book.author || 'Unknown Author';
+
+        if (book.highlights && Array.isArray(book.highlights)) {
+          for (const h of book.highlights) {
+            if (!h.text?.trim()) continue;
+
+            highlights.push({
+              id: generateId(title, h.text),
+              title,
+              author,
+              text: h.text.trim(),
+              location: h.location?.toString() || null,
+              page: null,
+              note: h.note || null,
+              color: h.color || 'yellow',
+              source: 'kindle'
+            });
+          }
+        }
+      }
+      return highlights;
+    }
+
+    // Handle single book or array of books (Bookcision format)
     const books = Array.isArray(data) ? data : [data];
 
     for (const book of books) {
@@ -64,7 +92,7 @@ function parseBookcisionJson(jsonStr) {
             page: h.page || null,
             note: h.note || null,
             color: h.color || null,
-            source: 'amazon'
+            source: 'kindle'
           });
         }
       }
@@ -132,7 +160,7 @@ function parseNotebookHtml(html) {
           text,
           location: null,
           page: null,
-          source: 'amazon'
+          source: 'kindle'
         });
       }
     }
@@ -213,7 +241,7 @@ function parseAmazonPlainText(text) {
             location: currentLocation,
             page: null,
             color: highlightMatch[1].toLowerCase(),
-            source: 'amazon'
+            source: 'kindle'
           });
         }
       }
@@ -252,7 +280,7 @@ function parseAmazonPlainText(text) {
         text: quoteText,
         location: currentLocation,
         page: null,
-        source: 'amazon'
+        source: 'kindle'
       });
     }
   }
@@ -294,7 +322,7 @@ function parseHighlightPatterns(text) {
         text: highlightText,
         location: null,
         page: null,
-        source: 'amazon'
+        source: 'kindle'
       });
     }
   }

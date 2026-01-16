@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 
-export function SettingsPanel({ onClose, onClear, onImportMore, onOpenLibrary, onOpenBooksHistory, onLogout, stats, user }) {
+export function SettingsPanel({ onClose, onClear, onImportMore, onOpenLibrary, onOpenBooksHistory, onShare, onLogout, stats, recallStats, user }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -14,70 +14,108 @@ export function SettingsPanel({ onClose, onClear, onImportMore, onOpenLibrary, o
         animate={{ x: 0 }}
         exit={{ x: '-100%' }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        className="absolute left-0 top-0 bottom-0 w-80 max-w-[85vw] bg-gray-900 border-r border-gray-800"
+        className="absolute left-0 top-0 bottom-0 w-80 max-w-[85vw] bg-[#1a1916] border-r border-[#2d2a26]"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex flex-col h-full">
           {/* Header with user info */}
-          <div className="p-4 border-b border-gray-800">
+          <div className="p-4 border-b border-[#2d2a26]">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Settings</h2>
+              <h2 className="text-xl font-semibold text-[#ebe6dc]">Settings</h2>
               <button
                 onClick={onClose}
-                className="p-2 rounded-full hover:bg-white/10 transition"
+                className="p-2 rounded-full hover:bg-white/10 transition text-[#8a8578]"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
             {/* User card */}
             {user && (
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-[#2d2a26]/50 border border-[#3d3a36]">
+                <div className="w-10 h-10 rounded-full bg-[#3d3a36] flex items-center justify-center text-[#c4a882] font-medium border border-[#4d4a46]">
                   {user.name?.charAt(0).toUpperCase() || 'U'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white font-medium truncate">{user.name}</p>
-                  <p className="text-white/50 text-sm truncate">{user.email}</p>
+                  <p className="text-[#ebe6dc] font-medium truncate">{user.name}</p>
+                  <p className="text-[#6b5c4c] text-sm truncate">{user.email}</p>
                 </div>
               </div>
             )}
           </div>
 
           {/* Stats */}
-          <div className="p-4 border-b border-gray-800">
-            <h3 className="text-sm font-medium text-gray-400 mb-3">Your Library</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/5 rounded-xl p-4">
-                <div className="text-3xl font-bold text-purple-400">
+          <div className="p-4 border-b border-[#2d2a26]">
+            <h3 className="text-xs font-medium text-[#6b5c4c] uppercase tracking-wider mb-3">Your Collection</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-[#2d2a26]/50 rounded-lg p-4 border border-[#3d3a36]">
+                <div className="text-2xl font-light text-[#c4a882]">
                   {stats.totalHighlights}
                 </div>
-                <div className="text-sm text-gray-400">Highlights</div>
+                <div className="text-xs text-[#6b5c4c] mt-1">Passages</div>
               </div>
-              <div className="bg-white/5 rounded-xl p-4">
-                <div className="text-3xl font-bold text-blue-400">
+              <div className="bg-[#2d2a26]/50 rounded-lg p-4 border border-[#3d3a36]">
+                <div className="text-2xl font-light text-[#a08060]">
                   {stats.totalBooks}
                 </div>
-                <div className="text-sm text-gray-400">Books</div>
+                <div className="text-xs text-[#6b5c4c] mt-1">Sources</div>
               </div>
             </div>
           </div>
 
-          {/* Top books */}
+          {/* Recall Stats */}
+          {recallStats && (
+            <div className="p-4 border-b border-[#2d2a26]">
+              <h3 className="text-xs font-medium text-[#6b5c4c] uppercase tracking-wider mb-3">Memory Integration</h3>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-[#2d2a26]/50 rounded-lg p-3 border border-[#3d3a36] text-center">
+                  <div className="text-xl font-light text-green-400">
+                    {recallStats.highIntegration}
+                  </div>
+                  <div className="text-xs text-[#6b5c4c] mt-1">Strong</div>
+                </div>
+                <div className="bg-[#2d2a26]/50 rounded-lg p-3 border border-[#3d3a36] text-center">
+                  <div className="text-xl font-light text-yellow-400">
+                    {recallStats.mediumIntegration}
+                  </div>
+                  <div className="text-xs text-[#6b5c4c] mt-1">Building</div>
+                </div>
+                <div className="bg-[#2d2a26]/50 rounded-lg p-3 border border-[#3d3a36] text-center">
+                  <div className="text-xl font-light text-red-400">
+                    {recallStats.lowIntegration}
+                  </div>
+                  <div className="text-xs text-[#6b5c4c] mt-1">Fading</div>
+                </div>
+              </div>
+              {recallStats.totalChallenges > 0 && (
+                <div className="mt-3 flex items-center justify-between text-sm">
+                  <span className="text-[#6b5c4c]">Challenges completed</span>
+                  <span className="text-[#ebe6dc]">
+                    {recallStats.successfulChallenges}/{recallStats.totalChallenges}
+                    <span className="text-[#6b5c4c] ml-1">
+                      ({Math.round(recallStats.successfulChallenges / recallStats.totalChallenges * 100)}%)
+                    </span>
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Top sources */}
           {stats.bookCounts.length > 0 && (
-            <div className="p-4 border-b border-gray-800 flex-1 overflow-y-auto">
-              <h3 className="text-sm font-medium text-gray-400 mb-3">Top Books</h3>
-              <div className="space-y-2">
+            <div className="p-4 border-b border-[#2d2a26] flex-1 overflow-y-auto">
+              <h3 className="text-xs font-medium text-[#6b5c4c] uppercase tracking-wider mb-3">Most Read</h3>
+              <div className="space-y-1">
                 {stats.bookCounts.slice(0, 10).map((book, i) => (
                   <div
                     key={book.title}
-                    className="flex items-center gap-3 p-2 rounded-lg bg-white/5"
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#2d2a26]/30 transition"
                   >
-                    <span className="text-gray-500 text-sm w-5">{i + 1}</span>
+                    <span className="text-[#4d4a46] text-xs w-4 font-light">{i + 1}</span>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">{book.title}</div>
-                      <div className="text-xs text-gray-500">{book.count} highlights</div>
+                      <div className="text-sm text-[#ebe6dc] truncate">{book.title}</div>
+                      <div className="text-xs text-[#6b5c4c]">{book.count} passages</div>
                     </div>
                   </div>
                 ))}
@@ -86,68 +124,92 @@ export function SettingsPanel({ onClose, onClear, onImportMore, onOpenLibrary, o
           )}
 
           {/* Actions */}
-          <div className="p-4 space-y-3 mt-auto">
+          <div className="p-4 space-y-2 mt-auto">
             <button
               onClick={onOpenLibrary}
-              className="w-full py-3 px-4 rounded-xl bg-white/10 hover:bg-white/15
-                         transition font-medium flex items-center justify-center gap-2"
+              className="w-full py-3 px-4 rounded-lg bg-[#2d2a26]/50 hover:bg-[#2d2a26]
+                         border border-[#3d3a36] transition text-[#ebe6dc] text-sm
+                         flex items-center justify-center gap-2"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              <svg className="w-4 h-4 text-[#8a8578]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
               Browse Library
             </button>
 
             <button
               onClick={onOpenBooksHistory}
-              className="w-full py-3 px-4 rounded-xl bg-white/10 hover:bg-white/15
-                         transition font-medium flex items-center justify-center gap-2"
+              className="w-full py-3 px-4 rounded-lg bg-[#2d2a26]/50 hover:bg-[#2d2a26]
+                         border border-[#3d3a36] transition text-[#ebe6dc] text-sm
+                         flex items-center justify-center gap-2"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg className="w-4 h-4 text-[#8a8578]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Books History
+              Reading History
+            </button>
+
+            <button
+              onClick={() => {
+                onShare();
+                onClose();
+              }}
+              className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-[#a08060] to-[#c4a882]
+                         hover:from-[#b08c6a] hover:to-[#d4b892] transition text-[#1a1916] text-sm font-medium
+                         flex items-center justify-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              Share My Top 5
             </button>
 
             <button
               onClick={onImportMore}
-              className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-500
-                         transition font-medium"
+              className="w-full py-3 px-4 rounded-lg bg-[#2d2a26]/50 hover:bg-[#2d2a26]
+                         border border-[#3d3a36] transition text-[#ebe6dc] text-sm
+                         flex items-center justify-center gap-2"
             >
-              Import More Highlights
-            </button>
-
-            <button
-              onClick={() => {
-                if (confirm('Are you sure you want to clear all highlights? This cannot be undone.')) {
-                  onClear();
-                }
-              }}
-              className="w-full py-3 px-4 rounded-xl bg-red-500/20 hover:bg-red-500/30
-                         text-red-400 transition font-medium"
-            >
-              Clear All Data
-            </button>
-
-            <button
-              onClick={() => {
-                if (confirm('Are you sure you want to sign out?')) {
-                  onLogout();
-                }
-              }}
-              className="w-full py-3 px-4 rounded-xl border border-white/20 hover:bg-white/5
-                         text-white/70 transition font-medium flex items-center justify-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              <svg className="w-4 h-4 text-[#8a8578]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
               </svg>
-              Sign Out
+              Add More Content
             </button>
+
+            <div className="pt-2 border-t border-[#2d2a26] mt-3">
+              <button
+                onClick={() => {
+                  if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+                    onClear();
+                  }
+                }}
+                className="w-full py-2.5 px-4 rounded-lg hover:bg-[#2d2a26]/50
+                           text-[#6b5c4c] hover:text-[#a08060] transition text-sm"
+              >
+                Clear All Data
+              </button>
+
+              <button
+                onClick={() => {
+                  if (confirm('Are you sure you want to sign out?')) {
+                    onLogout();
+                  }
+                }}
+                className="w-full py-2.5 px-4 rounded-lg hover:bg-[#2d2a26]/50
+                           text-[#6b5c4c] hover:text-[#ebe6dc] transition text-sm
+                           flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Sign Out
+              </button>
+            </div>
           </div>
 
           {/* Footer */}
-          <div className="p-4 text-center text-xs text-gray-500">
-            Kindle Swipe v1.0
+          <div className="p-4 text-center text-xs text-[#4d4a46] italic">
+            Highlight · MMXXV
           </div>
         </div>
       </motion.div>
