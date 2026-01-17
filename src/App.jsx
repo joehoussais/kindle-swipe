@@ -8,12 +8,11 @@ import { SwipeDeck } from './components/SwipeDeck';
 import { SettingsPanel } from './components/SettingsPanel';
 import { LibraryPanel } from './components/LibraryPanel';
 import { BooksHistory } from './components/BooksHistory';
-import { ChallengeMode } from './components/ChallengeMode';
 import { ShareModal } from './components/ShareModal';
 import { QuoteExport } from './components/QuoteExport';
 
 function AppContent() {
-  const { isAuthenticated, trackBook, logout, user } = useAuth();
+  const { isAuthenticated, isGuestMode, trackBook, logout, user } = useAuth();
 
   const {
     highlights,
@@ -21,6 +20,7 @@ function AppContent() {
     isLoading,
     isSyncing,
     hasHighlights,
+    hasCheckedDb,
     importClippings,
     importAmazonNotebook,
     importJournal,
@@ -70,8 +70,6 @@ function AppContent() {
   const [showImport, setShowImport] = useState(false);
   const [showLibrary, setShowLibrary] = useState(false);
   const [showBooksHistory, setShowBooksHistory] = useState(false);
-  const [showChallenge, setShowChallenge] = useState(false);
-  const [challengeHighlight, setChallengeHighlight] = useState(null);
   const [showShare, setShowShare] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [exportHighlight, setExportHighlight] = useState(null);
@@ -140,24 +138,17 @@ function AppContent() {
     }
   }, [highlights, showReturnPrompt, getOnThisDay]);
 
+  // Auto-load starter pack for guest users who have no highlights
+  useEffect(() => {
+    if (isGuestMode && hasCheckedDb && !hasHighlights && !isLoading) {
+      loadStarterPack();
+    }
+  }, [isGuestMode, hasCheckedDb, hasHighlights, isLoading, loadStarterPack]);
+
   // Handle export mode
   const handleExport = (highlight) => {
     setExportHighlight(highlight);
     setShowExport(true);
-  };
-
-  // Handle challenge mode
-  const handleChallenge = (highlight) => {
-    setChallengeHighlight(highlight);
-    setShowChallenge(true);
-  };
-
-  const handleChallengeComplete = (wasSuccessful) => {
-    if (challengeHighlight) {
-      recordRecallAttempt(challengeHighlight.id, wasSuccessful);
-    }
-    setShowChallenge(false);
-    setChallengeHighlight(null);
   };
 
   // Get unique sources that exist in the data
@@ -237,8 +228,8 @@ function AppContent() {
     setFilteredIndex(0);
   };
 
-  // Show loading state
-  if (isLoading) {
+  // Show loading state - also wait for DB check to complete before showing import screen
+  if (isLoading || !hasCheckedDb) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-[#0a0a0a]">
         <div className="text-white/50">Loading...</div>
@@ -260,16 +251,27 @@ function AppContent() {
             </svg>
           </button>
         )}
-        {/* User menu button */}
-        <button
-          onClick={() => setShowBooksHistory(true)}
-          className="absolute top-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 transition"
-        >
-          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-medium">
-            {user?.name?.charAt(0).toUpperCase() || 'U'}
+        {/* User menu button - only show for logged in users */}
+        {user && (
+          <button
+            onClick={() => setShowBooksHistory(true)}
+            className="absolute top-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 transition"
+          >
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-medium">
+              {user.name?.charAt(0).toUpperCase() || 'U'}
+            </div>
+            <span className="text-white/80 text-sm">{user.name}</span>
+          </button>
+        )}
+        {/* Guest mode indicator */}
+        {isGuestMode && !user && (
+          <div className="absolute top-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-full bg-white/5 border border-white/10">
+            <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-white/50 text-xs">
+              G
+            </div>
+            <span className="text-white/50 text-sm">Guest</span>
           </div>
-          <span className="text-white/80 text-sm">{user?.name}</span>
-        </button>
+        )}
         <DropZone
           onImportClippings={(content) => {
             const count = importClippings(content);
@@ -336,7 +338,6 @@ function AppContent() {
         availableTags={availableTags}
         onDelete={deleteHighlight}
         onAddNote={addComment}
-        onChallenge={handleChallenge}
         onRecordView={recordView}
         onAddTag={handleAddTag}
         onRemoveTag={handleRemoveTag}
@@ -520,19 +521,6 @@ function AppContent() {
       <AnimatePresence>
         {showBooksHistory && (
           <BooksHistory onClose={() => setShowBooksHistory(false)} />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {showChallenge && challengeHighlight && (
-          <ChallengeMode
-            highlight={challengeHighlight}
-            onComplete={handleChallengeComplete}
-            onCancel={() => {
-              setShowChallenge(false);
-              setChallengeHighlight(null);
-            }}
-          />
         )}
       </AnimatePresence>
 

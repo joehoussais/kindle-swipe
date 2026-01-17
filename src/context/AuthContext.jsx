@@ -3,14 +3,26 @@ import { supabase } from '../utils/supabase';
 
 const AuthContext = createContext(null);
 
+// Key for persisting guest mode
+const GUEST_MODE_KEY = 'highlight-guest-mode';
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isGuestMode, setIsGuestMode] = useState(false);
 
   // Check for existing session on mount
   useEffect(() => {
     async function checkSession() {
       try {
+        // Check for guest mode first
+        const wasGuest = localStorage.getItem(GUEST_MODE_KEY) === 'true';
+        if (wasGuest) {
+          setIsGuestMode(true);
+          setIsLoading(false);
+          return;
+        }
+
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           setUser({
@@ -91,6 +103,14 @@ export function AuthProvider({ children }) {
   const logout = useCallback(async () => {
     await supabase.auth.signOut();
     setUser(null);
+    setIsGuestMode(false);
+    localStorage.removeItem(GUEST_MODE_KEY);
+  }, []);
+
+  // Continue as guest (no account needed)
+  const continueAsGuest = useCallback(() => {
+    setIsGuestMode(true);
+    localStorage.setItem(GUEST_MODE_KEY, 'true');
   }, []);
 
   // Login with Google
@@ -117,12 +137,14 @@ export function AuthProvider({ children }) {
   const value = {
     user,
     isLoading,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user || isGuestMode,
+    isGuestMode,
     userBooks: [], // Placeholder - books are tracked via highlights table
     register,
     login,
     loginWithGoogle,
     logout,
+    continueAsGuest,
     trackBook,
     removeBook: async () => {} // Placeholder
   };

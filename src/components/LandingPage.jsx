@@ -14,16 +14,34 @@ export function LandingPage({ onGetStarted }) {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login, register, loginWithGoogle } = useAuth();
+  const { login, register, loginWithGoogle, continueAsGuest } = useAuth();
+
+  // Basic email validation
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
 
+    // Validate email before sending to Supabase
+    if (!email.trim()) {
+      setError('Please enter your email address');
+      setIsSubmitting(false);
+      return;
+    }
+    if (!isValidEmail(email.trim())) {
+      setError('Please enter a valid email address');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       if (mode === 'login') {
-        await login(email, password);
+        await login(email.trim(), password);
       } else {
         if (!name.trim()) {
           setError('Please enter your name');
@@ -35,10 +53,22 @@ export function LandingPage({ onGetStarted }) {
           setIsSubmitting(false);
           return;
         }
-        await register(email, password, name);
+        await register(email.trim(), password, name.trim());
       }
     } catch (err) {
-      setError(err.message);
+      // Map common Supabase errors to user-friendly messages
+      const message = err.message?.toLowerCase() || '';
+      if (message.includes('invalid email') || message.includes('email not valid')) {
+        setError('Please enter a valid email address');
+      } else if (message.includes('email already')) {
+        setError('An account with this email already exists. Try signing in instead.');
+      } else if (message.includes('invalid login')) {
+        setError('Invalid email or password');
+      } else if (message.includes('confirmation')) {
+        setError(err.message);
+      } else {
+        setError(err.message || 'Something went wrong. Please try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -118,6 +148,23 @@ export function LandingPage({ onGetStarted }) {
                   Sign in with Email
                 </motion.button>
               </div>
+
+              {/* Divider */}
+              <div className="mt-8 flex items-center gap-3">
+                <div className="flex-1 h-px bg-white/10" />
+                <span className="text-white/30 text-xs uppercase tracking-wider">or</span>
+                <div className="flex-1 h-px bg-white/10" />
+              </div>
+
+              {/* Continue without account */}
+              <motion.button
+                onClick={continueAsGuest}
+                className="mt-4 w-full text-center text-white/40 hover:text-white/60 text-sm transition-colors"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+              >
+                Continue without account
+              </motion.button>
 
               {/* Subtle tagline */}
               <p className="mt-6 text-sm text-white/40 italic">
