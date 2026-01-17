@@ -57,7 +57,7 @@ function ParchmentTemplate({ highlight, format, showCover, cover }) {
       style={{
         width: `${width}px`,
         height: `${height}px`,
-        background: 'linear-gradient(180deg, #0f0f0d 0%, #1a1916 50%, #0f0f0d 100%)',
+        background: 'linear-gradient(180deg, #0f0f0d 0%, #191919 50%, #0f0f0d 100%)',
         fontFamily: "'Playfair Display', 'Cormorant Garamond', Georgia, serif"
       }}
     >
@@ -70,8 +70,8 @@ function ParchmentTemplate({ highlight, format, showCover, cover }) {
       />
 
       {/* Decorative border */}
-      <div className="absolute inset-8 border border-[#3d3a36]/50 rounded-sm" />
-      <div className="absolute inset-12 border border-[#3d3a36]/30 rounded-sm" />
+      <div className="absolute inset-8 border border-[#ffffff14]/50 rounded-sm" />
+      <div className="absolute inset-12 border border-[#ffffff14]/30 rounded-sm" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col h-full p-16 justify-center">
@@ -89,10 +89,10 @@ function ParchmentTemplate({ highlight, format, showCover, cover }) {
 
         {/* Quote */}
         <div className="text-center px-8">
-          <div className="w-16 h-px bg-[#a08060] mx-auto mb-8" />
+          <div className="w-16 h-px bg-[#2383e2] mx-auto mb-8" />
 
           <p
-            className="text-[#ebe6dc] font-light leading-relaxed italic"
+            className="text-[#ffffffeb] font-light leading-relaxed italic"
             style={{
               fontFamily: "'Cormorant Garamond', Georgia, serif",
               fontSize: `${fontSize}px`,
@@ -102,14 +102,14 @@ function ParchmentTemplate({ highlight, format, showCover, cover }) {
             "{displayText}"
           </p>
 
-          <div className="w-16 h-px bg-[#a08060] mx-auto mt-8 mb-8" />
+          <div className="w-16 h-px bg-[#2383e2] mx-auto mt-8 mb-8" />
 
           {/* Attribution */}
-          <p className="text-[#8a8578]" style={{ fontSize: `${fontSize * 0.4}px` }}>
+          <p className="text-[#9b9a97]" style={{ fontSize: `${fontSize * 0.4}px` }}>
             {highlight.title}
           </p>
           {highlight.author && highlight.author !== 'You' && highlight.author !== 'Unknown' && (
-            <p className="text-[#6b5c4c] mt-2" style={{ fontSize: `${fontSize * 0.35}px` }}>
+            <p className="text-[#787774] mt-2" style={{ fontSize: `${fontSize * 0.35}px` }}>
               {highlight.author}
             </p>
           )}
@@ -117,7 +117,7 @@ function ParchmentTemplate({ highlight, format, showCover, cover }) {
 
         {/* Watermark */}
         <div className="absolute bottom-8 left-0 right-0 text-center">
-          <p className="text-[#3d3a36] text-sm tracking-widest uppercase">
+          <p className="text-[#ffffff14] text-sm tracking-widest uppercase">
             Highlight
           </p>
         </div>
@@ -220,7 +220,7 @@ function InkTemplate({ highlight, format, showCover, cover }) {
       style={{
         width: `${width}px`,
         height: `${height}px`,
-        background: '#1a1916',
+        background: '#191919',
         fontFamily: "'Playfair Display', Georgia, serif"
       }}
     >
@@ -228,7 +228,7 @@ function InkTemplate({ highlight, format, showCover, cover }) {
       <div
         className="absolute inset-0"
         style={{
-          background: 'radial-gradient(ellipse at center, #242220 0%, #1a1916 70%)'
+          background: 'radial-gradient(ellipse at center, #242220 0%, #191919 70%)'
         }}
       />
 
@@ -251,11 +251,11 @@ function InkTemplate({ highlight, format, showCover, cover }) {
         <div className="text-center px-12">
           {/* Opening accent */}
           <div className="flex justify-center mb-6">
-            <div className="w-1 h-12 bg-[#a08060]" />
+            <div className="w-1 h-12 bg-[#2383e2]" />
           </div>
 
           <p
-            className="text-[#ebe6dc] font-light leading-relaxed"
+            className="text-[#ffffffeb] font-light leading-relaxed"
             style={{
               fontFamily: "'Cormorant Garamond', Georgia, serif",
               fontSize: `${fontSize}px`,
@@ -268,15 +268,15 @@ function InkTemplate({ highlight, format, showCover, cover }) {
 
           {/* Closing accent */}
           <div className="flex justify-center mt-6 mb-8">
-            <div className="w-1 h-12 bg-[#a08060]" />
+            <div className="w-1 h-12 bg-[#2383e2]" />
           </div>
 
           {/* Attribution */}
-          <p className="text-[#a08060]" style={{ fontSize: `${fontSize * 0.4}px` }}>
+          <p className="text-[#2383e2]" style={{ fontSize: `${fontSize * 0.4}px` }}>
             {highlight.title}
           </p>
           {highlight.author && highlight.author !== 'You' && highlight.author !== 'Unknown' && (
-            <p className="text-[#6b5c4c] mt-2" style={{ fontSize: `${fontSize * 0.35}px` }}>
+            <p className="text-[#787774] mt-2" style={{ fontSize: `${fontSize * 0.35}px` }}>
               {highlight.author}
             </p>
           )}
@@ -284,7 +284,7 @@ function InkTemplate({ highlight, format, showCover, cover }) {
 
         {/* Watermark */}
         <div className="absolute bottom-8 left-0 right-0 text-center">
-          <p className="text-[#2d2a26] text-sm tracking-widest uppercase">
+          <p className="text-[#252525] text-sm tracking-widest uppercase">
             Highlight
           </p>
         </div>
@@ -426,18 +426,18 @@ export function QuoteExport({ highlight, onClose }) {
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="w-full max-w-md max-h-[90vh] bg-[#1a1916] rounded-2xl overflow-hidden border border-[#2d2a26] flex flex-col"
+        className="w-full max-w-md max-h-[90vh] bg-[#191919] rounded-2xl overflow-hidden border border-[#252525] flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 border-b border-[#2d2a26] flex items-center justify-between">
+        <div className="p-4 border-b border-[#252525] flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-[#ebe6dc]">Export Quote</h2>
-            <p className="text-sm text-[#6b5c4c]">Choose a style</p>
+            <h2 className="text-lg font-semibold text-[#ffffffeb]">Export Quote</h2>
+            <p className="text-sm text-[#787774]">Choose a style</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-white/10 transition text-[#8a8578]"
+            className="p-2 rounded-full hover:bg-white/10 transition text-[#9b9a97]"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
@@ -472,10 +472,10 @@ export function QuoteExport({ highlight, onClose }) {
         </div>
 
         {/* Options */}
-        <div className="p-4 border-t border-[#2d2a26] space-y-4">
+        <div className="p-4 border-t border-[#252525] space-y-4">
           {/* Template selector */}
           <div>
-            <p className="text-xs text-[#6b5c4c] uppercase tracking-wider mb-2">Style</p>
+            <p className="text-xs text-[#787774] uppercase tracking-wider mb-2">Style</p>
             <div className="flex gap-2">
               {Object.entries(TEMPLATES).map(([key, label]) => (
                 <button
@@ -483,8 +483,8 @@ export function QuoteExport({ highlight, onClose }) {
                   onClick={() => setTemplate(key)}
                   className={`flex-1 py-2 px-3 rounded-lg text-sm transition ${
                     template === key
-                      ? 'bg-[#a08060] text-[#1a1916]'
-                      : 'bg-[#2d2a26] text-[#ebe6dc] hover:bg-[#3d3a36]'
+                      ? 'bg-[#2383e2] text-[#191919]'
+                      : 'bg-[#252525] text-[#ffffffeb] hover:bg-[#ffffff14]'
                   }`}
                 >
                   {label}
@@ -495,7 +495,7 @@ export function QuoteExport({ highlight, onClose }) {
 
           {/* Format selector */}
           <div>
-            <p className="text-xs text-[#6b5c4c] uppercase tracking-wider mb-2">Format</p>
+            <p className="text-xs text-[#787774] uppercase tracking-wider mb-2">Format</p>
             <div className="flex gap-2">
               {Object.entries(FORMATS).map(([key, { label, ratio }]) => (
                 <button
@@ -503,8 +503,8 @@ export function QuoteExport({ highlight, onClose }) {
                   onClick={() => setFormat(key)}
                   className={`flex-1 py-2 px-3 rounded-lg text-sm transition ${
                     format === key
-                      ? 'bg-[#a08060] text-[#1a1916]'
-                      : 'bg-[#2d2a26] text-[#ebe6dc] hover:bg-[#3d3a36]'
+                      ? 'bg-[#2383e2] text-[#191919]'
+                      : 'bg-[#252525] text-[#ffffffeb] hover:bg-[#ffffff14]'
                   }`}
                 >
                   <span className="block">{label}</span>
@@ -520,12 +520,12 @@ export function QuoteExport({ highlight, onClose }) {
               onClick={() => setShowCover(!showCover)}
               className={`w-full py-2 px-3 rounded-lg text-sm transition flex items-center justify-between ${
                 showCover
-                  ? 'bg-[#a08060]/20 border border-[#a08060]/50 text-[#ebe6dc]'
-                  : 'bg-[#2d2a26] border border-[#3d3a36] text-[#8a8578]'
+                  ? 'bg-[#2383e2]/20 border border-[#2383e2]/50 text-[#ffffffeb]'
+                  : 'bg-[#252525] border border-[#ffffff14] text-[#9b9a97]'
               }`}
             >
               <span>Include book cover</span>
-              <div className={`w-8 h-5 rounded-full transition ${showCover ? 'bg-[#a08060]' : 'bg-[#3d3a36]'}`}>
+              <div className={`w-8 h-5 rounded-full transition ${showCover ? 'bg-[#2383e2]' : 'bg-[#ffffff14]'}`}>
                 <div
                   className={`w-4 h-4 rounded-full bg-white shadow transition-transform mt-0.5 ${
                     showCover ? 'translate-x-3.5' : 'translate-x-0.5'
@@ -537,11 +537,11 @@ export function QuoteExport({ highlight, onClose }) {
         </div>
 
         {/* Actions */}
-        <div className="p-4 border-t border-[#2d2a26] flex gap-2">
+        <div className="p-4 border-t border-[#252525] flex gap-2">
           <button
             onClick={handleShare}
             disabled={isExporting}
-            className="flex-1 py-3 px-4 rounded-lg bg-[#a08060] hover:bg-[#b08c6a] transition text-[#1a1916] font-medium text-sm flex items-center justify-center gap-2"
+            className="flex-1 py-3 px-4 rounded-lg bg-[#2383e2] hover:bg-[#b08c6a] transition text-[#191919] font-medium text-sm flex items-center justify-center gap-2"
           >
             {exportSuccess ? (
               <>
@@ -562,7 +562,7 @@ export function QuoteExport({ highlight, onClose }) {
           <button
             onClick={handleCopy}
             disabled={isExporting}
-            className="py-3 px-4 rounded-lg bg-[#2d2a26] hover:bg-[#3d3a36] transition text-[#ebe6dc] text-sm"
+            className="py-3 px-4 rounded-lg bg-[#252525] hover:bg-[#ffffff14] transition text-[#ffffffeb] text-sm"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -571,7 +571,7 @@ export function QuoteExport({ highlight, onClose }) {
           <button
             onClick={handleDownload}
             disabled={isExporting}
-            className="py-3 px-4 rounded-lg bg-[#2d2a26] hover:bg-[#3d3a36] transition text-[#ebe6dc] text-sm"
+            className="py-3 px-4 rounded-lg bg-[#252525] hover:bg-[#ffffff14] transition text-[#ffffffeb] text-sm"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

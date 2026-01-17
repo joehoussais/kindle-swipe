@@ -5,16 +5,18 @@
 @tailwind utilities;
 
 :root {
-  /* Imperial palette - muted, stoic, crafted */
-  --ink: #1a1a1a;
-  --parchment: #f5f0e8;
-  --stone: #8a8578;
-  --bronze: #a08060;
-  --bronze-light: #c4a882;
-  --oxide: #6b5c4c;
-  --charcoal: #2d2a26;
-  --warm-white: #ebe6dc;
-  --sepia: #d4c4a8;
+  /* Notion-style palette - clean, fresh, modern */
+  --ink: #191919;
+  --parchment: #ffffff;
+  --stone: #9b9b9b;
+  --accent: #2383e2;
+  --accent-light: #529cca;
+  --muted: #787774;
+  --surface: #252525;
+  --surface-hover: #2f2f2f;
+  --text-primary: #ffffffeb;
+  --text-secondary: #9b9a97;
+  --border: #ffffff14;
 }
 
 * {

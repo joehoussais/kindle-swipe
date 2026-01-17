@@ -122,7 +122,7 @@ export function IntegrationBar({ highlight, compact = false }) {
             <div className="text-[#8a8578] text-xs mb-2">
               {message}
             </div>
-            <div className="text-[#6b5c4c] text-xs">
+            <div className="text-[#787774] text-xs">
               {timeSince}
               {highlight.viewCount > 0 && ` · Viewed ${highlight.viewCount} times`}
               {highlight.recallAttempts > 0 && ` · ${highlight.recallSuccesses || 0}/${highlight.recallAttempts} recalls`}

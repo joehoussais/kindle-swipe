@@ -337,7 +337,7 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
               {/* Highlighted first sentence */}
               <span
                 style={{
-                  backgroundColor: 'rgba(196, 168, 130, 0.25)',
+                  backgroundColor: 'rgba(35, 131, 226, 0.15)',
                   padding: '1px 0',
                   boxDecorationBreak: 'clone',
                   WebkitBoxDecorationBreak: 'clone'
@@ -405,10 +405,10 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
               e.stopPropagation();
               onExport(highlight);
             }}
-            className="p-3 rounded-full bg-[#a08060]/30 backdrop-blur-sm hover:bg-[#a08060]/50 transition-colors group"
+            className="p-3 rounded-full bg-[#2383e2]/30 backdrop-blur-sm hover:bg-[#2383e2]/50 transition-colors group"
             title="Export as image"
           >
-            <svg className="w-5 h-5 text-[#c4a882] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-[#2383e2] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </button>
@@ -421,10 +421,10 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
               e.stopPropagation();
               onChallenge(highlight);
             }}
-            className="p-3 rounded-full bg-[#c4a882]/30 backdrop-blur-sm hover:bg-[#c4a882]/50 transition-colors group"
+            className="p-3 rounded-full bg-[#2383e2]/30 backdrop-blur-sm hover:bg-[#2383e2]/50 transition-colors group"
             title="Challenge me"
           >
-            <svg className="w-5 h-5 text-[#c4a882] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-[#2383e2] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
             </svg>
           </button>
@@ -443,7 +443,7 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
           </svg>
           {(notes.length > 0 || highlight.comment) && (
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#c4a882] text-[#1a1916] text-xs rounded-full flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#2383e2] text-[#191919] text-xs rounded-full flex items-center justify-center">
               {notes.length || (highlight.comment ? 1 : 0)}
             </span>
           )}
@@ -472,18 +472,18 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
           initial={{ opacity: 0, x: 100 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 100 }}
-          className="absolute top-20 right-4 bottom-24 w-72 bg-[#1a1916]/95 backdrop-blur-xl rounded-2xl border border-[#3d3a36] overflow-hidden flex flex-col"
+          className="absolute top-20 right-4 bottom-24 w-72 bg-[#191919]/95 backdrop-blur-xl rounded-2xl border border-[#ffffff14] overflow-hidden flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="p-4 border-b border-[#3d3a36] flex items-center justify-between">
-            <h3 className="text-[#ebe6dc] font-semibold" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+          <div className="p-4 border-b border-[#ffffff14] flex items-center justify-between">
+            <h3 className="text-[#ffffffeb] font-semibold" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
               Notes
             </h3>
             <button
               onClick={() => setShowNoteInput(false)}
               className="p-1 rounded-full hover:bg-white/10 transition"
             >
-              <svg className="w-5 h-5 text-[#6b5c4c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-[#787774]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -492,32 +492,32 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
           {/* Existing notes */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {highlight.comment && (
-              <div className="p-3 bg-[#2d2a26] rounded-lg">
-                <p className="text-[#ebe6dc] text-sm">{highlight.comment}</p>
-                <p className="text-[#6b5c4c] text-xs mt-1">Earlier</p>
+              <div className="p-3 bg-[#252525] rounded-lg">
+                <p className="text-[#ffffffeb] text-sm">{highlight.comment}</p>
+                <p className="text-[#787774] text-xs mt-1">Earlier</p>
               </div>
             )}
             {notes.map((note, i) => (
-              <div key={i} className="p-3 bg-[#2d2a26] rounded-lg">
-                <p className="text-[#ebe6dc] text-sm">{note.text}</p>
-                <p className="text-[#6b5c4c] text-xs mt-1">{note.timestamp}</p>
+              <div key={i} className="p-3 bg-[#252525] rounded-lg">
+                <p className="text-[#ffffffeb] text-sm">{note.text}</p>
+                <p className="text-[#787774] text-xs mt-1">{note.timestamp}</p>
               </div>
             ))}
             {!highlight.comment && notes.length === 0 && (
-              <p className="text-[#6b5c4c] text-sm italic text-center py-4">
+              <p className="text-[#787774] text-sm italic text-center py-4">
                 No notes yet. Add your thoughts below.
               </p>
             )}
           </div>
 
           {/* Add note input */}
-          <div className="p-4 border-t border-[#3d3a36]">
+          <div className="p-4 border-t border-[#ffffff14]">
             <textarea
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
               onKeyDown={(e) => e.stopPropagation()}
               placeholder="What does this inspire in you?"
-              className="w-full h-20 p-3 rounded-lg bg-[#0a0a0a] border border-[#3d3a36] focus:border-[#a08060] focus:outline-none resize-none text-[#ebe6dc] text-sm"
+              className="w-full h-20 p-3 rounded-lg bg-[#0a0a0a] border border-[#ffffff14] focus:border-[#2383e2] focus:outline-none resize-none text-[#ffffffeb] text-sm"
               autoFocus
             />
             <button
@@ -528,7 +528,7 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
                 }
               }}
               disabled={!noteText.trim()}
-              className="w-full mt-2 py-2 rounded-lg bg-[#a08060] hover:bg-[#b08c6a] disabled:opacity-50 disabled:cursor-not-allowed transition text-[#1a1916] font-medium text-sm"
+              className="w-full mt-2 py-2 rounded-lg bg-[#2383e2] hover:bg-[#b08c6a] disabled:opacity-50 disabled:cursor-not-allowed transition text-[#191919] font-medium text-sm"
             >
               Add Note
             </button>
@@ -548,19 +548,19 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
           }}
         >
           <div
-            className="bg-[#1a1916] rounded-2xl p-6 border border-[#3d3a36] max-w-sm mx-4"
+            className="bg-[#191919] rounded-2xl p-6 border border-[#ffffff14] max-w-sm mx-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-[#ebe6dc] font-semibold text-lg mb-2" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+            <h3 className="text-[#ffffffeb] font-semibold text-lg mb-2" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
               Delete this highlight?
             </h3>
-            <p className="text-[#8a8578] text-sm mb-4">
+            <p className="text-[#9b9a97] text-sm mb-4">
               This will permanently remove it from your collection.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowConfirmDelete(false)}
-                className="flex-1 py-2 rounded-lg bg-[#2d2a26] hover:bg-[#3d3a36] transition text-[#ebe6dc]"
+                className="flex-1 py-2 rounded-lg bg-[#252525] hover:bg-[#ffffff14] transition text-[#ffffffeb]"
               >
                 Cancel
               </button>

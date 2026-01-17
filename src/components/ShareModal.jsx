@@ -232,16 +232,16 @@ export function ShareModal({ highlights, onClose, userName }) {
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="w-full max-w-lg max-h-[90vh] bg-[#1a1916] rounded-2xl overflow-hidden border border-[#2d2a26] flex flex-col relative"
+        className="w-full max-w-lg max-h-[90vh] bg-[#191919] rounded-2xl overflow-hidden border border-[#252525] flex flex-col relative"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 border-b border-[#2d2a26] flex items-center justify-between">
+        <div className="p-4 border-b border-[#252525] flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-[#ebe6dc]">
+            <h2 className="text-lg font-semibold text-[#ffffffeb]">
               {step === 'select' ? 'Share Your Top 5' : 'Preview'}
             </h2>
-            <p className="text-sm text-[#6b5c4c]">
+            <p className="text-sm text-[#787774]">
               {step === 'select'
                 ? `Select ${5 - selectedIds.size} more highlight${5 - selectedIds.size !== 1 ? 's' : ''}`
                 : 'Ready to share'
@@ -250,7 +250,7 @@ export function ShareModal({ highlights, onClose, userName }) {
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-white/10 transition text-[#8a8578]"
+            className="p-2 rounded-full hover:bg-white/10 transition text-[#9b9a97]"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
@@ -275,7 +275,7 @@ export function ShareModal({ highlights, onClose, userName }) {
                     <button
                       key={h.id}
                       onClick={() => toggleSelect(h.id)}
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#a08060] text-[#1a1916] text-sm"
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#2383e2] text-[#191919] text-sm"
                     >
                       <span className="font-medium">{i + 1}</span>
                       <span className="truncate max-w-[150px]">{truncateText(h.text, 30)}</span>
@@ -300,14 +300,14 @@ export function ShareModal({ highlights, onClose, userName }) {
                       disabled={isDisabled}
                       className={`w-full text-left p-3 rounded-lg border transition ${
                         isSelected
-                          ? 'bg-[#a08060]/20 border-[#a08060]'
+                          ? 'bg-[#2383e2]/20 border-[#2383e2]'
                           : isDisabled
-                            ? 'bg-[#2d2a26]/30 border-[#2d2a26] opacity-50 cursor-not-allowed'
-                            : 'bg-[#2d2a26]/50 border-[#3d3a36] hover:bg-[#2d2a26]'
+                            ? 'bg-[#252525]/30 border-[#252525] opacity-50 cursor-not-allowed'
+                            : 'bg-[#252525]/50 border-[#ffffff14] hover:bg-[#252525]'
                       }`}
                     >
-                      <p className="text-sm text-[#ebe6dc] line-clamp-2">{h.text}</p>
-                      <p className="text-xs text-[#6b5c4c] mt-1 truncate">
+                      <p className="text-sm text-[#ffffffeb] line-clamp-2">{h.text}</p>
+                      <p className="text-xs text-[#787774] mt-1 truncate">
                         {h.title} {h.author && h.author !== 'You' ? `— ${h.author}` : ''}
                       </p>
                     </button>
@@ -341,13 +341,13 @@ export function ShareModal({ highlights, onClose, userName }) {
         </AnimatePresence>
 
         {/* Footer - always visible */}
-        <div className="p-4 border-t border-[#2d2a26] flex gap-3 flex-shrink-0">
+        <div className="p-4 border-t border-[#252525] flex gap-3 flex-shrink-0">
           {step === 'select' ? (
             <>
               <button
                 onClick={onClose}
-                className="flex-1 py-3 px-4 rounded-lg bg-[#2d2a26]/50 hover:bg-[#2d2a26]
-                           border border-[#3d3a36] transition text-[#ebe6dc] text-sm"
+                className="flex-1 py-3 px-4 rounded-lg bg-[#252525]/50 hover:bg-[#252525]
+                           border border-[#ffffff14] transition text-[#ffffffeb] text-sm"
               >
                 Cancel
               </button>
@@ -356,8 +356,8 @@ export function ShareModal({ highlights, onClose, userName }) {
                 disabled={selectedIds.size !== 5}
                 className={`flex-1 py-3 px-4 rounded-lg transition text-sm font-medium ${
                   selectedIds.size === 5
-                    ? 'bg-[#a08060] hover:bg-[#b08c6a] text-[#1a1916]'
-                    : 'bg-[#2d2a26]/50 border border-[#3d3a36] text-[#6b5c4c] cursor-not-allowed'
+                    ? 'bg-[#2383e2] hover:bg-[#b08c6a] text-[#191919]'
+                    : 'bg-[#252525]/50 border border-[#ffffff14] text-[#787774] cursor-not-allowed'
                 }`}
               >
                 Preview ({selectedIds.size}/5)
@@ -397,8 +397,8 @@ export function ShareModal({ highlights, onClose, userName }) {
                 <button
                   onClick={handleGenericShare}
                   disabled={isExporting}
-                  className="flex-1 py-3 px-3 rounded-lg bg-[#2d2a26] hover:bg-[#3d3a36]
-                             transition text-[#ebe6dc] text-sm font-medium flex items-center justify-center gap-2 border border-[#3d3a36]"
+                  className="flex-1 py-3 px-3 rounded-lg bg-[#252525] hover:bg-[#ffffff14]
+                             transition text-[#ffffffeb] text-sm font-medium flex items-center justify-center gap-2 border border-[#ffffff14]"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -411,16 +411,16 @@ export function ShareModal({ highlights, onClose, userName }) {
               <div className="flex gap-2">
                 <button
                   onClick={() => setStep('select')}
-                  className="py-2.5 px-4 rounded-lg bg-[#2d2a26]/50 hover:bg-[#2d2a26]
-                             border border-[#3d3a36] transition text-[#8a8578] text-sm"
+                  className="py-2.5 px-4 rounded-lg bg-[#252525]/50 hover:bg-[#252525]
+                             border border-[#ffffff14] transition text-[#9b9a97] text-sm"
                 >
                   Back
                 </button>
                 <button
                   onClick={handleCopy}
                   disabled={isExporting}
-                  className="flex-1 py-2.5 px-4 rounded-lg bg-[#2d2a26]/50 hover:bg-[#2d2a26]
-                             border border-[#3d3a36] transition text-[#ebe6dc] text-sm flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 px-4 rounded-lg bg-[#252525]/50 hover:bg-[#252525]
+                             border border-[#ffffff14] transition text-[#ffffffeb] text-sm flex items-center justify-center gap-2"
                 >
                   {exportSuccess ? (
                     <>
@@ -441,8 +441,8 @@ export function ShareModal({ highlights, onClose, userName }) {
                 <button
                   onClick={handleDownload}
                   disabled={isExporting}
-                  className="flex-1 py-2.5 px-4 rounded-lg bg-[#2d2a26]/50 hover:bg-[#2d2a26]
-                             border border-[#3d3a36] transition text-[#ebe6dc] text-sm flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 px-4 rounded-lg bg-[#252525]/50 hover:bg-[#252525]
+                             border border-[#ffffff14] transition text-[#ffffffeb] text-sm flex items-center justify-center gap-2"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -479,7 +479,7 @@ function ShareTemplate({ highlights, userName }) {
     <div
       className="w-[1080px] h-[1920px] relative overflow-hidden"
       style={{
-        background: 'linear-gradient(180deg, #0f0f0d 0%, #1a1916 50%, #0f0f0d 100%)',
+        background: 'linear-gradient(180deg, #0f0f0d 0%, #191919 50%, #0f0f0d 100%)',
         fontFamily: "'Playfair Display', 'Cormorant Garamond', Georgia, serif"
       }}
     >
@@ -492,20 +492,20 @@ function ShareTemplate({ highlights, userName }) {
       />
 
       {/* Decorative border */}
-      <div className="absolute inset-8 border border-[#3d3a36]/50 rounded-sm" />
-      <div className="absolute inset-12 border border-[#3d3a36]/30 rounded-sm" />
+      <div className="absolute inset-8 border border-[#ffffff14]/50 rounded-sm" />
+      <div className="absolute inset-12 border border-[#ffffff14]/30 rounded-sm" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col h-full p-16">
         {/* Header */}
         <div className="text-center mb-12">
-          <p className="text-[#6b5c4c] text-2xl tracking-[0.3em] uppercase mb-4">
+          <p className="text-[#787774] text-2xl tracking-[0.3em] uppercase mb-4">
             My Top 5
           </p>
-          <h1 className="text-[#ebe6dc] text-6xl font-light tracking-wide">
+          <h1 className="text-[#ffffffeb] text-6xl font-light tracking-wide">
             {monthYear}
           </h1>
-          <div className="w-24 h-px bg-[#a08060] mx-auto mt-8" />
+          <div className="w-24 h-px bg-[#2383e2] mx-auto mt-8" />
         </div>
 
         {/* Highlights */}
@@ -513,22 +513,22 @@ function ShareTemplate({ highlights, userName }) {
           {highlights.map((h, index) => (
             <div key={h.id} className="relative">
               {/* Number */}
-              <div className="absolute -left-4 top-0 text-[#a08060]/30 text-8xl font-light leading-none">
+              <div className="absolute -left-4 top-0 text-[#2383e2]/30 text-8xl font-light leading-none">
                 {index + 1}
               </div>
 
               {/* Quote */}
               <div className="pl-16">
                 <p
-                  className="text-[#ebe6dc] text-3xl font-light leading-relaxed italic"
+                  className="text-[#ffffffeb] text-3xl font-light leading-relaxed italic"
                   style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
                 >
                   "{truncateText(h.text, 180)}"
                 </p>
-                <p className="text-[#8a8578] text-xl mt-3">
+                <p className="text-[#9b9a97] text-xl mt-3">
                   — {h.title}
                   {h.author && h.author !== 'You' && h.author !== 'Unknown' && (
-                    <span className="text-[#6b5c4c]">, {h.author}</span>
+                    <span className="text-[#787774]">, {h.author}</span>
                   )}
                 </p>
               </div>
@@ -538,9 +538,9 @@ function ShareTemplate({ highlights, userName }) {
 
         {/* Footer */}
         <div className="text-center mt-12">
-          <div className="w-24 h-px bg-[#a08060] mx-auto mb-8" />
+          <div className="w-24 h-px bg-[#2383e2] mx-auto mb-8" />
           {userName && (
-            <p className="text-[#8a8578] text-2xl mb-3">
+            <p className="text-[#9b9a97] text-2xl mb-3">
               Curated by {userName}
             </p>
           )}

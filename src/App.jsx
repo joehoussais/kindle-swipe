@@ -358,13 +358,13 @@ function AppContent() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="w-full max-w-lg bg-[#1a1916] rounded-2xl border border-[#3d3a36] overflow-hidden shadow-2xl"
+              className="w-full max-w-lg bg-[#191919] rounded-2xl border border-[#ffffff14] overflow-hidden shadow-2xl"
               onClick={e => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="p-5 border-b border-[#2d2a26] text-center">
-                <p className="text-[#6b5c4c] text-xs uppercase tracking-widest mb-2">On This Day</p>
-                <h2 className="text-[#ebe6dc] text-xl" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+              <div className="p-5 border-b border-[#252525] text-center">
+                <p className="text-[#787774] text-xs uppercase tracking-widest mb-2">On This Day</p>
+                <h2 className="text-[#ffffffeb] text-xl" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
                   {onThisDayHighlights[0].yearsAgo === 1
                     ? 'A year ago today'
                     : `${onThisDayHighlights[0].yearsAgo} years ago today`}
@@ -374,33 +374,33 @@ function AppContent() {
               {/* Content */}
               <div className="p-5 max-h-[60vh] overflow-y-auto">
                 {onThisDayHighlights.slice(0, 3).map((h, i) => (
-                  <div key={h.id} className={`${i > 0 ? 'mt-4 pt-4 border-t border-[#2d2a26]' : ''}`}>
+                  <div key={h.id} className={`${i > 0 ? 'mt-4 pt-4 border-t border-[#252525]' : ''}`}>
                     <p
-                      className="text-[#ebe6dc] text-lg italic leading-relaxed"
+                      className="text-[#ffffffeb] text-lg italic leading-relaxed"
                       style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
                     >
                       "{h.text.length > 200 ? h.text.slice(0, 200) + '...' : h.text}"
                     </p>
-                    <p className="text-[#6b5c4c] text-sm mt-3">
+                    <p className="text-[#787774] text-sm mt-3">
                       — {h.title}
                       {h.author && h.author !== 'You' && h.author !== 'Unknown' && (
-                        <span className="text-[#4d4a46]">, {h.author}</span>
+                        <span className="text-[#37352f]">, {h.author}</span>
                       )}
                     </p>
                   </div>
                 ))}
                 {onThisDayHighlights.length > 3 && (
-                  <p className="text-[#4d4a46] text-sm text-center mt-4 italic">
+                  <p className="text-[#37352f] text-sm text-center mt-4 italic">
                     +{onThisDayHighlights.length - 3} more from this day
                   </p>
                 )}
               </div>
 
               {/* Footer */}
-              <div className="p-4 border-t border-[#2d2a26]">
+              <div className="p-4 border-t border-[#252525]">
                 <button
                   onClick={() => setShowOnThisDay(false)}
-                  className="w-full py-3 px-4 rounded-lg bg-[#a08060] hover:bg-[#b08c6a] transition text-[#1a1916] font-medium"
+                  className="w-full py-3 px-4 rounded-lg bg-[#2383e2] hover:bg-[#1a73d1] transition text-[#191919] font-medium"
                 >
                   Continue
                 </button>
@@ -419,22 +419,22 @@ function AppContent() {
             exit={{ opacity: 0, y: 50 }}
             className="fixed bottom-24 left-4 right-4 z-30 flex justify-center"
           >
-            <div className="bg-[#1a1916]/95 backdrop-blur-xl rounded-2xl border border-[#3d3a36] p-4 max-w-sm shadow-2xl">
+            <div className="bg-[#191919]/95 backdrop-blur-xl rounded-2xl border border-[#ffffff14] p-4 max-w-sm shadow-2xl">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#a08060]/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-[#c4a882] text-lg">◐</span>
+                <div className="w-10 h-10 rounded-full bg-[#2383e2]/20 flex items-center justify-center flex-shrink-0">
+                  <span className="text-[#2383e2] text-lg">◐</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[#ebe6dc] text-sm font-medium" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+                  <p className="text-[#ffffffeb] text-sm font-medium" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
                     Some passages have been waiting for you
                   </p>
-                  <p className="text-[#6b5c4c] text-xs mt-1">
+                  <p className="text-[#787774] text-xs mt-1">
                     {reviewQueueStats.fadingCount} {reviewQueueStats.fadingCount === 1 ? 'highlight is' : 'highlights are'} fading from memory
                   </p>
                 </div>
                 <button
                   onClick={() => setShowReturnPrompt(false)}
-                  className="p-1 rounded-full hover:bg-white/10 transition text-[#6b5c4c]"
+                  className="p-1 rounded-full hover:bg-white/10 transition text-[#787774]"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -448,13 +448,13 @@ function AppContent() {
                     setFilteredIndex(0);
                     setShowReturnPrompt(false);
                   }}
-                  className="flex-1 py-2 px-3 rounded-lg bg-[#a08060] hover:bg-[#b08c6a] transition text-[#1a1916] text-sm font-medium"
+                  className="flex-1 py-2 px-3 rounded-lg bg-[#2383e2] hover:bg-[#1a73d1] transition text-[#191919] text-sm font-medium"
                 >
                   Review Now
                 </button>
                 <button
                   onClick={() => setShowReturnPrompt(false)}
-                  className="py-2 px-3 rounded-lg bg-[#2d2a26] hover:bg-[#3d3a36] transition text-[#8a8578] text-sm"
+                  className="py-2 px-3 rounded-lg bg-[#252525] hover:bg-[#ffffff14] transition text-[#9b9a97] text-sm"
                 >
                   Later
                 </button>

@@ -14,7 +14,7 @@ function getPersonalCover(title, source) {
 
   // Imperial/stoic color palettes for personal entries
   const palettes = [
-    { bg: '#2d2a26', accent: '#c4a882', icon: '◇' }, // Charcoal & bronze
+    { bg: '#252525', accent: '#2383e2', icon: '◇' }, // Charcoal & bronze
     { bg: '#1a2a2a', accent: '#7ab3a2', icon: '◎' }, // Deep teal
     { bg: '#2a1a2a', accent: '#a87ca8', icon: '❧' }, // Plum
     { bg: '#2a2a1a', accent: '#a8a87c', icon: '▣' }, // Olive
@@ -100,7 +100,7 @@ function BookCoverImage({ title, author, source, size = 'medium' }) {
   if (cover.type === 'image') {
     return (
       <div
-        className={`${sizeClasses[size]} rounded-lg overflow-hidden bg-[#2d2a26]`}
+        className={`${sizeClasses[size]} rounded-lg overflow-hidden bg-[#252525]`}
         style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}
       >
         <img
@@ -235,10 +235,10 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
     >
       <div className="h-full flex flex-col">
         {/* Header */}
-        <div className="flex-shrink-0 p-4 border-b border-[#2d2a26]">
+        <div className="flex-shrink-0 p-4 border-b border-[#252525]">
           <div className="flex items-center justify-between mb-4">
             <h2
-              className="text-xl font-semibold text-[#ebe6dc]"
+              className="text-xl font-semibold text-[#ffffffeb]"
               style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
               {selectedBook ? selectedBook.title : 'Your Library'}
@@ -246,10 +246,10 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
             <div className="flex items-center gap-2">
               {/* View toggle - only show when not in book detail */}
               {!selectedBook && (
-                <div className="flex rounded-lg overflow-hidden border border-[#3d3a36]">
+                <div className="flex rounded-lg overflow-hidden border border-[#ffffff14]">
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`p-2 transition ${viewMode === 'list' ? 'bg-[#2d2a26] text-[#c4a882]' : 'text-[#6b5c4c] hover:bg-[#2d2a26]/50'}`}
+                    className={`p-2 transition ${viewMode === 'list' ? 'bg-[#252525] text-[#2383e2]' : 'text-[#787774] hover:bg-[#252525]/50'}`}
                     title="List view"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -258,7 +258,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                   </button>
                   <button
                     onClick={() => setViewMode('gallery')}
-                    className={`p-2 transition ${viewMode === 'gallery' ? 'bg-[#2d2a26] text-[#c4a882]' : 'text-[#6b5c4c] hover:bg-[#2d2a26]/50'}`}
+                    className={`p-2 transition ${viewMode === 'gallery' ? 'bg-[#252525] text-[#2383e2]' : 'text-[#787774] hover:bg-[#252525]/50'}`}
                     title="Gallery view"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -269,7 +269,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
               )}
               <button
                 onClick={selectedBook ? () => setSelectedBook(null) : onClose}
-                className="p-2 rounded-full hover:bg-[#2d2a26] transition text-[#8a8578]"
+                className="p-2 rounded-full hover:bg-[#252525] transition text-[#9b9a97]"
               >
                 {selectedBook ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -286,7 +286,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
 
           {/* Search */}
           <div className="relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6b5c4c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#787774]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
@@ -294,8 +294,8 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search passages..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl bg-[#1a1916] border border-[#3d3a36]
-                         focus:border-[#a08060] focus:outline-none text-sm text-[#ebe6dc] placeholder-[#6b5c4c]"
+              className="w-full pl-10 pr-4 py-2 rounded-xl bg-[#191919] border border-[#ffffff14]
+                         focus:border-[#2383e2] focus:outline-none text-sm text-[#ffffffeb] placeholder-[#787774]"
             />
           </div>
         </div>
@@ -329,10 +329,10 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                         size="gallery"
                       />
                       <div className="mt-2 w-full text-center">
-                        <h3 className="text-xs text-[#ebe6dc] truncate font-medium">
+                        <h3 className="text-xs text-[#ffffffeb] truncate font-medium">
                           {book.title}
                         </h3>
-                        <p className="text-[10px] text-[#6b5c4c] truncate">
+                        <p className="text-[10px] text-[#787774] truncate">
                           {book.highlights.length} passage{book.highlights.length !== 1 ? 's' : ''}
                         </p>
                       </div>
@@ -352,8 +352,8 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                     <motion.button
                       key={book.title}
                       onClick={() => setSelectedBook(book)}
-                      className="w-full p-3 rounded-xl bg-[#1a1916] hover:bg-[#2d2a26]/50
-                                 border border-[#2d2a26] hover:border-[#3d3a36]
+                      className="w-full p-3 rounded-xl bg-[#191919] hover:bg-[#252525]/50
+                                 border border-[#252525] hover:border-[#ffffff14]
                                  transition text-left group"
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}
@@ -366,18 +366,18 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                           size="small"
                         />
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-[#ebe6dc] truncate">
+                          <h3 className="font-medium text-[#ffffffeb] truncate">
                             {book.title}
                           </h3>
-                          <p className="text-sm text-[#8a8578] truncate">
+                          <p className="text-sm text-[#9b9a97] truncate">
                             {book.author}
                           </p>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-sm text-[#6b5c4c]">
+                          <span className="text-sm text-[#787774]">
                             {book.highlights.length} passage{book.highlights.length !== 1 ? 's' : ''}
                           </span>
-                          <svg className="w-4 h-4 text-[#4d4a46] group-hover:text-[#8a8578] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 text-[#4d4a46] group-hover:text-[#9b9a97] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
                           </svg>
                         </div>
@@ -386,7 +386,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                   ))}
 
                   {filteredBooks.length === 0 && (
-                    <div className="text-center text-[#6b5c4c] py-12">
+                    <div className="text-center text-[#787774] py-12">
                       No sources found
                     </div>
                   )}
@@ -402,7 +402,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                 className="space-y-3"
               >
                 {/* Book header with cover and delete option */}
-                <div className="flex items-start gap-4 mb-6 pb-4 border-b border-[#2d2a26]">
+                <div className="flex items-start gap-4 mb-6 pb-4 border-b border-[#252525]">
                   <BookCoverImage
                     title={selectedBook.title}
                     author={selectedBook.author}
@@ -411,13 +411,13 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                   />
                   <div className="flex-1">
                     <h3
-                      className="text-lg text-[#ebe6dc] font-medium"
+                      className="text-lg text-[#ffffffeb] font-medium"
                       style={{ fontFamily: "'Cormorant Garamond', serif" }}
                     >
                       {selectedBook.title}
                     </h3>
-                    <p className="text-sm text-[#8a8578] mt-1">{selectedBook.author}</p>
-                    <p className="text-xs text-[#6b5c4c] mt-2">
+                    <p className="text-sm text-[#9b9a97] mt-1">{selectedBook.author}</p>
+                    <p className="text-xs text-[#787774] mt-2">
                       {selectedBook.highlights.length} passage{selectedBook.highlights.length !== 1 ? 's' : ''}
                     </p>
                     <button
@@ -438,7 +438,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.03 }}
-                    className="p-4 rounded-xl bg-[#1a1916] border border-[#2d2a26] group"
+                    className="p-4 rounded-xl bg-[#191919] border border-[#252525] group"
                   >
                     {editingHighlight?.id === highlight.id ? (
                       // Edit mode
@@ -446,20 +446,20 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                         <textarea
                           value={editText}
                           onChange={(e) => setEditText(e.target.value)}
-                          className="w-full h-32 p-3 rounded-lg bg-[#0a0a0a] border border-[#3d3a36]
-                                     focus:border-[#a08060] focus:outline-none resize-none text-sm text-[#ebe6dc]"
+                          className="w-full h-32 p-3 rounded-lg bg-[#0a0a0a] border border-[#ffffff14]
+                                     focus:border-[#2383e2] focus:outline-none resize-none text-sm text-[#ffffffeb]"
                           autoFocus
                         />
                         <div className="flex gap-2">
                           <button
                             onClick={() => setEditingHighlight(null)}
-                            className="flex-1 py-2 rounded-lg bg-[#2d2a26] hover:bg-[#3d3a36] text-sm text-[#ebe6dc] transition"
+                            className="flex-1 py-2 rounded-lg bg-[#252525] hover:bg-[#ffffff14] text-sm text-[#ffffffeb] transition"
                           >
                             Cancel
                           </button>
                           <button
                             onClick={handleSaveEdit}
-                            className="flex-1 py-2 rounded-lg bg-[#a08060] hover:bg-[#b08c6a] text-sm text-[#1a1916] font-medium transition"
+                            className="flex-1 py-2 rounded-lg bg-[#2383e2] hover:bg-[#b08c6a] text-sm text-[#191919] font-medium transition"
                           >
                             Save
                           </button>
@@ -468,28 +468,28 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                     ) : commentingHighlight?.id === highlight.id ? (
                       // Comment mode
                       <div className="space-y-3">
-                        <p className="text-[#8a8578] text-sm leading-relaxed mb-2 italic">
+                        <p className="text-[#9b9a97] text-sm leading-relaxed mb-2 italic">
                           "{highlight.text.slice(0, 100)}..."
                         </p>
                         <textarea
                           value={commentText}
                           onChange={(e) => setCommentText(e.target.value)}
                           placeholder="Add your thoughts about this passage..."
-                          className="w-full h-24 p-3 rounded-lg bg-[#0a0a0a] border border-[#3d3a36]
-                                     focus:border-[#a08060] focus:outline-none resize-none text-sm text-[#ebe6dc]
-                                     placeholder-[#6b5c4c]"
+                          className="w-full h-24 p-3 rounded-lg bg-[#0a0a0a] border border-[#ffffff14]
+                                     focus:border-[#2383e2] focus:outline-none resize-none text-sm text-[#ffffffeb]
+                                     placeholder-[#787774]"
                           autoFocus
                         />
                         <div className="flex gap-2">
                           <button
                             onClick={() => setCommentingHighlight(null)}
-                            className="flex-1 py-2 rounded-lg bg-[#2d2a26] hover:bg-[#3d3a36] text-sm text-[#ebe6dc] transition"
+                            className="flex-1 py-2 rounded-lg bg-[#252525] hover:bg-[#ffffff14] text-sm text-[#ffffffeb] transition"
                           >
                             Cancel
                           </button>
                           <button
                             onClick={handleSaveComment}
-                            className="flex-1 py-2 rounded-lg bg-[#a08060] hover:bg-[#b08c6a] text-sm text-[#1a1916] font-medium transition"
+                            className="flex-1 py-2 rounded-lg bg-[#2383e2] hover:bg-[#b08c6a] text-sm text-[#191919] font-medium transition"
                           >
                             Save Comment
                           </button>
@@ -498,20 +498,20 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                     ) : (
                       // View mode
                       <>
-                        <p className="text-[#ebe6dc]/90 text-sm leading-relaxed mb-2">
+                        <p className="text-[#ffffffeb]/90 text-sm leading-relaxed mb-2">
                           "{highlight.text}"
                         </p>
 
                         {/* Show existing comment */}
                         {highlight.comment && (
-                          <div className="mt-3 p-3 rounded-lg bg-[#2d2a26]/50 border-l-2 border-[#a08060]">
-                            <p className="text-xs text-[#6b5c4c] mb-1">Your note:</p>
-                            <p className="text-sm text-[#c4a882] italic">{highlight.comment}</p>
+                          <div className="mt-3 p-3 rounded-lg bg-[#252525]/50 border-l-2 border-[#2383e2]">
+                            <p className="text-xs text-[#787774] mb-1">Your note:</p>
+                            <p className="text-sm text-[#2383e2] italic">{highlight.comment}</p>
                           </div>
                         )}
 
                         <div className="flex items-center justify-between mt-3">
-                          <p className="text-xs text-[#6b5c4c]">
+                          <p className="text-xs text-[#787774]">
                             {highlight.location && `Location ${highlight.location}`}
                             {highlight.page && `Page ${highlight.page}`}
                           </p>
@@ -524,7 +524,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                                   onClose();
                                 }
                               }}
-                              className="p-1.5 rounded-lg hover:bg-[#2d2a26] text-[#6b5c4c] hover:text-[#c4a882] transition"
+                              className="p-1.5 rounded-lg hover:bg-[#252525] text-[#787774] hover:text-[#2383e2] transition"
                               title="View in swiper"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -534,7 +534,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                             </button>
                             <button
                               onClick={() => handleStartComment(highlight)}
-                              className="p-1.5 rounded-lg hover:bg-[#2d2a26] text-[#6b5c4c] hover:text-[#c4a882] transition"
+                              className="p-1.5 rounded-lg hover:bg-[#252525] text-[#787774] hover:text-[#2383e2] transition"
                               title="Add comment"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -543,7 +543,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                             </button>
                             <button
                               onClick={() => handleStartEdit(highlight)}
-                              className="p-1.5 rounded-lg hover:bg-[#2d2a26] text-[#6b5c4c] hover:text-[#c4a882] transition"
+                              className="p-1.5 rounded-lg hover:bg-[#252525] text-[#787774] hover:text-[#2383e2] transition"
                               title="Edit"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -552,7 +552,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                             </button>
                             <button
                               onClick={() => handleDelete(highlight.id)}
-                              className="p-1.5 rounded-lg hover:bg-red-500/20 text-[#6b5c4c] hover:text-red-400 transition"
+                              className="p-1.5 rounded-lg hover:bg-red-500/20 text-[#787774] hover:text-red-400 transition"
                               title="Delete"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -570,14 +570,14 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
           </AnimatePresence>
 
           {filteredBooks.length === 0 && !selectedBook && (
-            <div className="text-center text-[#6b5c4c] py-12">
+            <div className="text-center text-[#787774] py-12">
               No sources found
             </div>
           )}
         </div>
 
         {/* Footer stats */}
-        <div className="flex-shrink-0 p-4 border-t border-[#2d2a26] text-center text-xs text-[#6b5c4c]">
+        <div className="flex-shrink-0 p-4 border-t border-[#252525] text-center text-xs text-[#787774]">
           {highlights.length} passages from {bookGroups.length} sources
         </div>
       </div>
