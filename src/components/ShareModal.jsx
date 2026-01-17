@@ -1,6 +1,7 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
+import { getBookCover, getCachedCover } from '../utils/bookCovers';
 
 // Get current month/year for display
 function getCurrentMonthYear() {
@@ -8,10 +9,38 @@ function getCurrentMonthYear() {
   return now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 }
 
-// Truncate text with ellipsis
-function truncateText(text, maxLength) {
-  if (!text || text.length <= maxLength) return text;
-  return text.slice(0, maxLength).trim() + '...';
+// Extract unique books from highlights with stats
+function extractBooks(highlights) {
+  const bookMap = new Map();
+
+  for (const h of highlights) {
+    // Skip personal thoughts/quotes
+    if (h.title === 'Personal Thoughts' || h.title === 'Saved Quotes') continue;
+    // Skip tweets
+    if (h.source === 'tweet') continue;
+
+    const key = `${h.title}|${h.author || 'Unknown'}`;
+    if (!bookMap.has(key)) {
+      bookMap.set(key, {
+        id: key,
+        title: h.title,
+        author: h.author || 'Unknown',
+        highlightCount: 0,
+        latestDate: null
+      });
+    }
+
+    const book = bookMap.get(key);
+    book.highlightCount++;
+
+    const date = new Date(h.capturedAt || h.dateHighlighted);
+    if (!book.latestDate || date > book.latestDate) {
+      book.latestDate = date;
+    }
+  }
+
+  return Array.from(bookMap.values())
+    .sort((a, b) => b.highlightCount - a.highlightCount);
 }
 
 export function ShareModal({ highlights, onClose, userName }) {
@@ -20,34 +49,30 @@ export function ShareModal({ highlights, onClose, userName }) {
   const [isExporting, setIsExporting] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
   const [imageBlob, setImageBlob] = useState(null);
+  const [bookCovers, setBookCovers] = useState({});
   const templateRef = useRef(null);
 
-  // Get highlights from this month for suggestions
-  const thisMonthHighlights = useMemo(() => {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    return highlights.filter(h => {
-      const date = new Date(h.capturedAt || h.dateHighlighted);
-      return date >= startOfMonth;
-    });
-  }, [highlights]);
+  // Extract books from highlights
+  const books = useMemo(() => extractBooks(highlights), [highlights]);
 
-  // Suggested highlights (most viewed or recent)
-  const suggestedHighlights = useMemo(() => {
-    // Sort by integration score (most engaged with) then by recency
-    return [...highlights]
-      .sort((a, b) => {
-        const scoreA = a.integrationScore || 0;
-        const scoreB = b.integrationScore || 0;
-        if (scoreB !== scoreA) return scoreB - scoreA;
-        return new Date(b.capturedAt || 0) - new Date(a.capturedAt || 0);
-      })
-      .slice(0, 20);
-  }, [highlights]);
+  const selectedBooks = useMemo(() => {
+    return books.filter(b => selectedIds.has(b.id));
+  }, [books, selectedIds]);
 
-  const selectedHighlights = useMemo(() => {
-    return highlights.filter(h => selectedIds.has(h.id));
-  }, [highlights, selectedIds]);
+  // Load book covers for selected books
+  useEffect(() => {
+    async function loadCovers() {
+      const covers = {};
+      for (const book of selectedBooks) {
+        const cover = await getBookCover(book.title, book.author);
+        covers[book.id] = cover;
+      }
+      setBookCovers(covers);
+    }
+    if (selectedBooks.length > 0) {
+      loadCovers();
+    }
+  }, [selectedBooks]);
 
   const toggleSelect = (id) => {
     setSelectedIds(prev => {
@@ -87,7 +112,7 @@ export function ShareModal({ highlights, onClose, userName }) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `top-5-highlights-${new Date().toISOString().slice(0, 7)}.png`;
+      a.download = `top-5-books-${new Date().toISOString().slice(0, 7)}.png`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -133,11 +158,11 @@ export function ShareModal({ highlights, onClose, userName }) {
 
       // Check if Web Share API is available with files
       if (navigator.share && navigator.canShare) {
-        const file = new File([blob], 'highlights.png', { type: 'image/png' });
+        const file = new File([blob], 'books.png', { type: 'image/png' });
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
-            title: 'My Top 5 Highlights',
+            title: 'My Top 5 Books',
           });
           setIsExporting(false);
           return;
@@ -165,12 +190,12 @@ export function ShareModal({ highlights, onClose, userName }) {
 
       // Check if Web Share API is available
       if (navigator.share && navigator.canShare) {
-        const file = new File([blob], 'highlights.png', { type: 'image/png' });
+        const file = new File([blob], 'books.png', { type: 'image/png' });
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
-            title: 'My Top 5 Highlights',
-            text: 'My top 5 reading highlights this month',
+            title: 'My Top 5 Books',
+            text: 'My top 5 books this month',
           });
           setIsExporting(false);
           return;
@@ -179,7 +204,7 @@ export function ShareModal({ highlights, onClose, userName }) {
 
       // Fallback: copy image and open Twitter compose
       await handleCopy();
-      const tweetText = encodeURIComponent('My top 5 reading highlights this month ✨📚');
+      const tweetText = encodeURIComponent('My top 5 books this month 📚');
       window.open(`https://twitter.com/intent/tweet?text=${tweetText}`, '_blank');
     } catch (err) {
       if (err.name !== 'AbortError') {
@@ -197,12 +222,12 @@ export function ShareModal({ highlights, onClose, userName }) {
       if (!imageBlob) setImageBlob(blob);
 
       if (navigator.share && navigator.canShare) {
-        const file = new File([blob], 'highlights.png', { type: 'image/png' });
+        const file = new File([blob], 'books.png', { type: 'image/png' });
         if (navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
-            title: 'My Top 5 Highlights',
-            text: 'My top 5 reading highlights this month',
+            title: 'My Top 5 Books',
+            text: 'My top 5 books this month',
           });
           setIsExporting(false);
           return;
@@ -239,11 +264,11 @@ export function ShareModal({ highlights, onClose, userName }) {
         <div className="p-4 border-b border-[#252525] flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-[#ffffffeb]">
-              {step === 'select' ? 'Share Your Top 5' : 'Preview'}
+              {step === 'select' ? 'Share Your Top 5 Books' : 'Preview'}
             </h2>
             <p className="text-sm text-[#787774]">
               {step === 'select'
-                ? `Select ${5 - selectedIds.size} more highlight${5 - selectedIds.size !== 1 ? 's' : ''}`
+                ? `Select ${5 - selectedIds.size} more book${5 - selectedIds.size !== 1 ? 's' : ''}`
                 : 'Ready to share'
               }
             </p>
@@ -271,14 +296,14 @@ export function ShareModal({ highlights, onClose, userName }) {
               {/* Selected pills */}
               {selectedIds.size > 0 && (
                 <div className="mb-4 flex flex-wrap gap-2">
-                  {selectedHighlights.map((h, i) => (
+                  {selectedBooks.map((book, i) => (
                     <button
-                      key={h.id}
-                      onClick={() => toggleSelect(h.id)}
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#2383e2] text-[#191919] text-sm"
+                      key={book.id}
+                      onClick={() => toggleSelect(book.id)}
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#2383e2] text-white text-sm"
                     >
                       <span className="font-medium">{i + 1}</span>
-                      <span className="truncate max-w-[150px]">{truncateText(h.text, 30)}</span>
+                      <span className="truncate max-w-[150px]">{book.title}</span>
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
@@ -287,33 +312,80 @@ export function ShareModal({ highlights, onClose, userName }) {
                 </div>
               )}
 
-              {/* Highlight list */}
-              <div className="space-y-2">
-                {suggestedHighlights.map(h => {
-                  const isSelected = selectedIds.has(h.id);
-                  const isDisabled = !isSelected && selectedIds.size >= 5;
+              {/* Book list */}
+              {books.length === 0 ? (
+                <div className="text-center py-8 text-[#787774]">
+                  <p>No books found in your highlights.</p>
+                  <p className="text-sm mt-2">Import some Kindle highlights to get started!</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {books.map(book => {
+                    const isSelected = selectedIds.has(book.id);
+                    const isDisabled = !isSelected && selectedIds.size >= 5;
+                    const cover = getCachedCover(book.title, book.author);
 
-                  return (
-                    <button
-                      key={h.id}
-                      onClick={() => !isDisabled && toggleSelect(h.id)}
-                      disabled={isDisabled}
-                      className={`w-full text-left p-3 rounded-lg border transition ${
-                        isSelected
-                          ? 'bg-[#2383e2]/20 border-[#2383e2]'
-                          : isDisabled
-                            ? 'bg-[#252525]/30 border-[#252525] opacity-50 cursor-not-allowed'
-                            : 'bg-[#252525]/50 border-[#ffffff14] hover:bg-[#252525]'
-                      }`}
-                    >
-                      <p className="text-sm text-[#ffffffeb] line-clamp-2">{h.text}</p>
-                      <p className="text-xs text-[#787774] mt-1 truncate">
-                        {h.title} {h.author && h.author !== 'You' ? `— ${h.author}` : ''}
-                      </p>
-                    </button>
-                  );
-                })}
-              </div>
+                    return (
+                      <button
+                        key={book.id}
+                        onClick={() => !isDisabled && toggleSelect(book.id)}
+                        disabled={isDisabled}
+                        className={`w-full text-left p-3 rounded-lg border transition flex items-center gap-3 ${
+                          isSelected
+                            ? 'bg-[#2383e2]/20 border-[#2383e2]'
+                            : isDisabled
+                              ? 'bg-[#252525]/30 border-[#252525] opacity-50 cursor-not-allowed'
+                              : 'bg-[#252525]/50 border-[#ffffff14] hover:bg-[#252525]'
+                        }`}
+                      >
+                        {/* Book cover thumbnail */}
+                        <div className="w-10 h-14 rounded overflow-hidden flex-shrink-0 bg-[#252525]">
+                          {cover?.type === 'image' ? (
+                            <img
+                              src={cover.value}
+                              alt=""
+                              className="w-full h-full object-cover"
+                              crossOrigin="anonymous"
+                            />
+                          ) : (
+                            <div
+                              className="w-full h-full"
+                              style={{
+                                background: cover?.value
+                                  ? `rgb(${cover.value.r}, ${cover.value.g}, ${cover.value.b})`
+                                  : '#252525'
+                              }}
+                            />
+                          )}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-[#ffffffeb] truncate font-medium">{book.title}</p>
+                          <p className="text-xs text-[#9b9a97] truncate">
+                            {book.author !== 'Unknown' && book.author !== 'You' ? book.author : ''}
+                          </p>
+                          <p className="text-xs text-[#787774] mt-1">
+                            {book.highlightCount} highlight{book.highlightCount !== 1 ? 's' : ''}
+                          </p>
+                        </div>
+
+                        {/* Selection indicator */}
+                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                          isSelected
+                            ? 'bg-[#2383e2] border-[#2383e2]'
+                            : 'border-[#4d4a46]'
+                        }`}>
+                          {isSelected && (
+                            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </motion.div>
           ) : (
             <motion.div
@@ -331,7 +403,8 @@ export function ShareModal({ highlights, onClose, userName }) {
                   style={{ transform: 'scale(0.185)', transformOrigin: 'top left' }}
                 >
                   <ShareTemplate
-                    highlights={selectedHighlights}
+                    books={selectedBooks}
+                    bookCovers={bookCovers}
                     userName={userName}
                   />
                 </div>
@@ -356,7 +429,7 @@ export function ShareModal({ highlights, onClose, userName }) {
                 disabled={selectedIds.size !== 5}
                 className={`flex-1 py-3 px-4 rounded-lg transition text-sm font-medium ${
                   selectedIds.size === 5
-                    ? 'bg-[#2383e2] hover:bg-[#b08c6a] text-[#191919]'
+                    ? 'bg-[#2383e2] hover:bg-[#1a6dc0] text-white'
                     : 'bg-[#252525]/50 border border-[#ffffff14] text-[#787774] cursor-not-allowed'
                 }`}
               >
@@ -472,7 +545,7 @@ export function ShareModal({ highlights, onClose, userName }) {
 }
 
 // The shareable template (1080x1920 for stories)
-function ShareTemplate({ highlights, userName }) {
+function ShareTemplate({ books, bookCovers, userName }) {
   const monthYear = getCurrentMonthYear();
 
   return (
@@ -500,7 +573,7 @@ function ShareTemplate({ highlights, userName }) {
         {/* Header */}
         <div className="text-center mb-12">
           <p className="text-[#787774] text-2xl tracking-[0.3em] uppercase mb-4">
-            My Top 5
+            My Top 5 Books
           </p>
           <h1 className="text-[#ffffffeb] text-6xl font-light tracking-wide">
             {monthYear}
@@ -508,32 +581,63 @@ function ShareTemplate({ highlights, userName }) {
           <div className="w-24 h-px bg-[#2383e2] mx-auto mt-8" />
         </div>
 
-        {/* Highlights */}
-        <div className="flex-1 flex flex-col justify-center space-y-8 px-8">
-          {highlights.map((h, index) => (
-            <div key={h.id} className="relative">
-              {/* Number */}
-              <div className="absolute -left-4 top-0 text-[#2383e2]/30 text-8xl font-light leading-none">
-                {index + 1}
-              </div>
+        {/* Books grid */}
+        <div className="flex-1 flex flex-col justify-center space-y-10 px-8">
+          {books.map((book, index) => {
+            const cover = bookCovers[book.id];
 
-              {/* Quote */}
-              <div className="pl-16">
-                <p
-                  className="text-[#ffffffeb] text-3xl font-light leading-relaxed italic"
-                  style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
-                >
-                  "{truncateText(h.text, 180)}"
-                </p>
-                <p className="text-[#9b9a97] text-xl mt-3">
-                  — {h.title}
-                  {h.author && h.author !== 'You' && h.author !== 'Unknown' && (
-                    <span className="text-[#787774]">, {h.author}</span>
+            return (
+              <div key={book.id} className="flex items-center gap-8">
+                {/* Number */}
+                <div className="text-[#2383e2]/40 text-8xl font-light w-24 text-right">
+                  {index + 1}
+                </div>
+
+                {/* Book cover */}
+                <div className="w-24 h-36 rounded-lg overflow-hidden shadow-2xl flex-shrink-0 bg-[#252525]">
+                  {cover?.type === 'image' ? (
+                    <img
+                      src={cover.value}
+                      alt=""
+                      className="w-full h-full object-cover"
+                      crossOrigin="anonymous"
+                    />
+                  ) : (
+                    <div
+                      className="w-full h-full flex items-center justify-center"
+                      style={{
+                        background: cover?.value
+                          ? `linear-gradient(135deg, rgb(${cover.value.r + 20}, ${cover.value.g + 20}, ${cover.value.b + 20}), rgb(${cover.value.r}, ${cover.value.g}, ${cover.value.b}))`
+                          : 'linear-gradient(135deg, #3d3a36, #252525)'
+                      }}
+                    >
+                      <span className="text-[#9b9a97] text-3xl">
+                        {book.title.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
                   )}
-                </p>
+                </div>
+
+                {/* Book info */}
+                <div className="flex-1 min-w-0">
+                  <p
+                    className="text-[#ffffffeb] text-4xl font-light leading-tight"
+                    style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                  >
+                    {book.title.length > 40 ? book.title.slice(0, 40) + '...' : book.title}
+                  </p>
+                  {book.author && book.author !== 'Unknown' && book.author !== 'You' && (
+                    <p className="text-[#9b9a97] text-2xl mt-2">
+                      {book.author}
+                    </p>
+                  )}
+                  <p className="text-[#787774] text-xl mt-2">
+                    {book.highlightCount} highlight{book.highlightCount !== 1 ? 's' : ''}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Footer */}
