@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue } from 'framer-motion';
 import { getBookCover, getCachedCover } from '../utils/bookCovers';
 import { getAuthorPhoto, getGoodreadsUrl } from '../utils/authorPhotos';
 import { getBackgroundForHighlight } from '../utils/backgrounds';
@@ -58,7 +58,7 @@ function getSourceIcon(source) {
   }
 }
 
-export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onChallenge, onAddTag, onRemoveTag, onExport, notes = [] }) {
+export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onChallenge, onAddTag, onRemoveTag, onExport, notes = [], backgroundY }) {
   const [cover, setCover] = useState(() => getCachedCover(highlight.title, highlight.author));
   const [imageLoaded, setImageLoaded] = useState(false);
   const [bgLoaded, setBgLoaded] = useState(false);
@@ -134,15 +134,23 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
   const goodreadsUrl = getGoodreadsUrl(highlight.title, highlight.author);
 
   return (
-    <div className="absolute inset-0 overflow-hidden">
-      {/* Background image */}
-      <div
-        className="absolute inset-0 transition-opacity duration-700"
+    <div className="absolute inset-0 overflow-hidden" style={{ willChange: 'transform' }}>
+      {/* Background image with parallax effect */}
+      <motion.div
+        className="absolute transition-opacity duration-700"
         style={{
+          // Extend beyond bounds for parallax room
+          top: '-5%',
+          left: '-2%',
+          right: '-2%',
+          bottom: '-5%',
           backgroundImage: `url(${background.src})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          opacity: bgLoaded ? 1 : 0
+          opacity: bgLoaded ? 1 : 0,
+          y: backgroundY || 0,
+          willChange: 'transform',
+          transform: 'translateZ(0)' // GPU acceleration
         }}
       />
 
@@ -280,18 +288,27 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
         style={{ paddingTop: '12%', paddingRight: '2%' }}
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
+          initial={{ opacity: 0, scale: 0.9, y: 30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{
+            delay: 0.15,
+            type: 'spring',
+            stiffness: 300,
+            damping: 24
+          }}
           className="w-full max-w-xl"
+          style={{ willChange: 'transform, opacity' }}
         >
           {/* The Digital Marginalia Card */}
-          <div
+          <motion.div
             className="rounded-2xl md:rounded-3xl p-6 md:p-8 relative"
             style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.96)',
-              boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.5)'
+              backgroundColor: 'rgba(255, 255, 255, 0.97)',
+              boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.5), 0 10px 25px -10px rgba(0, 0, 0, 0.3)'
             }}
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
           >
             {/* Opening quote mark - positioned absolutely */}
             <span
@@ -345,7 +362,7 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
             >
               "
             </span>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
 

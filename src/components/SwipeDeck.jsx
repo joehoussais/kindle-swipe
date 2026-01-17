@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { SwipeCard } from './SwipeCard';
 import { SOURCE_TYPES } from '../hooks/useHighlights';
 
@@ -83,10 +83,23 @@ export function SwipeDeck({
 }) {
   const [direction, setDirection] = useState(0);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef(null);
   const touchStartY = useRef(0);
   const touchStartTime = useRef(0);
   const isScrolling = useRef(false);
+
+  // Smooth drag motion values
+  const dragY = useMotionValue(0);
+  const dragProgress = useTransform(dragY, [-200, 0, 200], [-1, 0, 1]);
+
+  // Parallax effect - background moves slower than content
+  const backgroundY = useTransform(dragY, [-200, 0, 200], [-30, 0, 30]);
+  const smoothBackgroundY = useSpring(backgroundY, { stiffness: 300, damping: 30 });
+
+  // Card scale/rotation based on drag
+  const cardScale = useTransform(dragY, [-200, 0, 200], [0.95, 1, 0.95]);
+  const cardOpacity = useTransform(dragY, [-200, -100, 0, 100, 200], [0.5, 0.8, 1, 0.8, 0.5]);
 
   const currentHighlight = highlights[currentIndex];
   const lastRecordedId = useRef(null);
@@ -220,23 +233,57 @@ export function SwipeDeck({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentIndex, highlights.length, onNext, onPrev, showFilterMenu]);
 
+  // Buttery smooth variants with overshoot
   const variants = {
     enter: (direction) => ({
       y: direction > 0 ? '100%' : '-100%',
-      opacity: 0.5,
-      scale: 0.95
+      opacity: 0,
+      scale: 0.92,
+      filter: 'blur(4px)'
     }),
     center: {
       y: 0,
       opacity: 1,
-      scale: 1
+      scale: 1,
+      filter: 'blur(0px)'
     },
     exit: (direction) => ({
       y: direction > 0 ? '-100%' : '100%',
-      opacity: 0.5,
-      scale: 0.95
+      opacity: 0,
+      scale: 0.92,
+      filter: 'blur(4px)'
     })
   };
+
+  // Handle drag end with velocity-based navigation
+  const handleDragEnd = useCallback((event, info) => {
+    setIsDragging(false);
+    const { offset, velocity } = info;
+    const swipeThreshold = 80;
+    const velocityThreshold = 300;
+
+    // Swipe up (next) - drag negative Y
+    if (offset.y < -swipeThreshold || velocity.y < -velocityThreshold) {
+      if (currentIndex < highlights.length - 1) {
+        setDirection(1);
+        onNext();
+      }
+    }
+    // Swipe down (prev) - drag positive Y
+    else if (offset.y > swipeThreshold || velocity.y > velocityThreshold) {
+      if (currentIndex > 0) {
+        setDirection(-1);
+        onPrev();
+      }
+    }
+
+    // Reset drag position
+    dragY.set(0);
+  }, [currentIndex, highlights.length, onNext, onPrev, dragY]);
+
+  const handleDragStart = useCallback(() => {
+    setIsDragging(true);
+  }, []);
 
   return (
     <div
@@ -434,13 +481,26 @@ export function SwipeDeck({
             initial="enter"
             animate="center"
             exit="exit"
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={0.15}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            style={{
+              y: dragY,
+              scale: isDragging ? cardScale : 1,
+              willChange: 'transform',
+              transform: 'translateZ(0)' // GPU acceleration
+            }}
             transition={{
               type: 'spring',
-              stiffness: 350,
-              damping: 35,
-              mass: 0.8
+              stiffness: 260,
+              damping: 26,
+              mass: 0.6,
+              restDelta: 0.001,
+              restSpeed: 0.001
             }}
-            className="absolute inset-0"
+            className="absolute inset-0 touch-pan-x"
           >
             <SwipeCard
               highlight={currentHighlight}
@@ -451,8 +511,40 @@ export function SwipeDeck({
               onAddTag={onAddTag}
               onRemoveTag={onRemoveTag}
               onExport={onExport}
+              backgroundY={smoothBackgroundY}
             />
           </motion.div>
+        </AnimatePresence>
+
+        {/* Swipe hint indicators */}
+        <AnimatePresence>
+          {isDragging && (
+            <>
+              {/* Next hint (swiping up) */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: dragY.get() < -30 ? 0.8 : 0 }}
+                exit={{ opacity: 0 }}
+                className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 pointer-events-none"
+              >
+                <div className="px-4 py-2 rounded-full bg-[#c4a882]/20 backdrop-blur-sm border border-[#c4a882]/30">
+                  <span className="text-[#c4a882] text-sm">Next</span>
+                </div>
+              </motion.div>
+
+              {/* Prev hint (swiping down) */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: dragY.get() > 30 ? 0.8 : 0 }}
+                exit={{ opacity: 0 }}
+                className="absolute top-20 left-1/2 -translate-x-1/2 z-30 pointer-events-none"
+              >
+                <div className="px-4 py-2 rounded-full bg-[#c4a882]/20 backdrop-blur-sm border border-[#c4a882]/30">
+                  <span className="text-[#c4a882] text-sm">Previous</span>
+                </div>
+              </motion.div>
+            </>
+          )}
         </AnimatePresence>
       </div>
 
