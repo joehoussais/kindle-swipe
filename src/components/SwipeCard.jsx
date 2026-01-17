@@ -58,7 +58,7 @@ function getSourceIcon(source) {
   }
 }
 
-export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onChallenge, onAddTag, onRemoveTag, notes = [] }) {
+export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onChallenge, onAddTag, onRemoveTag, onExport, notes = [] }) {
   const [cover, setCover] = useState(() => getCachedCover(highlight.title, highlight.author));
   const [imageLoaded, setImageLoaded] = useState(false);
   const [bgLoaded, setBgLoaded] = useState(false);
@@ -381,6 +381,22 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
         transition={{ delay: 0.3 }}
         className="absolute bottom-20 right-4 flex flex-col gap-2"
       >
+        {/* Export/Share button */}
+        {onExport && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onExport(highlight);
+            }}
+            className="p-3 rounded-full bg-[#a08060]/30 backdrop-blur-sm hover:bg-[#a08060]/50 transition-colors group"
+            title="Export as image"
+          >
+            <svg className="w-5 h-5 text-[#c4a882] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </button>
+        )}
+
         {/* Challenge me button */}
         {onChallenge && (
           <button

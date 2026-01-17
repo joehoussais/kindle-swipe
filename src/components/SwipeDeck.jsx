@@ -12,6 +12,13 @@ const FILTER_OPTIONS = [
     icon: '◉'
   },
   {
+    id: 'focus-review',
+    label: 'Focus Review',
+    description: 'Revisit fading wisdom',
+    icon: '◐',
+    special: true
+  },
+  {
     id: SOURCE_TYPES.KINDLE,
     label: 'Books',
     description: 'The authors that shaped you',
@@ -70,7 +77,9 @@ export function SwipeDeck({
   onChallenge,
   onRecordView,
   onAddTag,
-  onRemoveTag
+  onRemoveTag,
+  onExport,
+  focusReviewCount = 0
 }) {
   const [direction, setDirection] = useState(0);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -107,7 +116,9 @@ export function SwipeDeck({
 
   // Filter options that have content
   const availableFilters = FILTER_OPTIONS.filter(f =>
-    f.id === 'all' || availableSources?.includes(f.id)
+    f.id === 'all' ||
+    (f.id === 'focus-review' && focusReviewCount > 0) ||
+    availableSources?.includes(f.id)
   );
 
   // Handle wheel scroll (desktop)
@@ -330,14 +341,23 @@ export function SwipeDeck({
                     className={`w-full flex items-center gap-3 p-3 rounded-lg transition
                       ${activeFilter === filter.id
                         ? 'bg-[#2d2a26] text-[#ebe6dc]'
-                        : 'hover:bg-[#2d2a26]/50 text-[#8a8578] hover:text-[#ebe6dc]'
+                        : filter.special
+                          ? 'hover:bg-[#a08060]/10 text-[#c4a882] hover:text-[#ebe6dc]'
+                          : 'hover:bg-[#2d2a26]/50 text-[#8a8578] hover:text-[#ebe6dc]'
                       }`}
                   >
-                    <span className={`text-lg ${activeFilter === filter.id ? 'text-[#c4a882]' : 'text-[#6b5c4c]'}`}>
+                    <span className={`text-lg ${activeFilter === filter.id ? 'text-[#c4a882]' : filter.special ? 'text-[#a08060]' : 'text-[#6b5c4c]'}`}>
                       {filter.icon}
                     </span>
                     <div className="flex-1 text-left">
-                      <div className="text-sm">{filter.label}</div>
+                      <div className="text-sm flex items-center gap-2">
+                        {filter.label}
+                        {filter.id === 'focus-review' && focusReviewCount > 0 && (
+                          <span className="px-1.5 py-0.5 text-[10px] bg-[#a08060]/30 text-[#c4a882] rounded">
+                            {focusReviewCount}
+                          </span>
+                        )}
+                      </div>
                       <div className="text-xs text-[#6b5c4c] italic">{filter.description}</div>
                     </div>
                     {activeFilter === filter.id && (
@@ -430,6 +450,7 @@ export function SwipeDeck({
               onChallenge={onChallenge}
               onAddTag={onAddTag}
               onRemoveTag={onRemoveTag}
+              onExport={onExport}
             />
           </motion.div>
         </AnimatePresence>

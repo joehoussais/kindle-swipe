@@ -37,6 +37,10 @@ const SCORE_INCREMENTS = {
 // Decay rate: points lost per day of inactivity
 const DECAY_RATE_PER_DAY = 0.7; // ~5 points per week
 
+// Thresholds for review status
+const FADING_THRESHOLD = 30; // Below this, highlight is "fading"
+const FOCUS_REVIEW_THRESHOLD = 40; // Focus review mode shows highlights below this
+
 /**
  * Calculate the decayed integration score based on time since last view
  */
@@ -905,6 +909,58 @@ export function useHighlights(onBooksImported, userId = null) {
         totalChallenges,
         successfulChallenges
       };
+    },
+    // Review queue stats - highlights that are fading from memory
+    getReviewQueueStats: () => {
+      let fadingCount = 0;
+      let needsAttentionCount = 0;
+
+      for (const h of highlights) {
+        const score = calculateDecayedScore(h);
+        if (score < FADING_THRESHOLD && h.viewCount > 0) {
+          fadingCount++;
+        }
+        if (score < FOCUS_REVIEW_THRESHOLD && h.viewCount > 0) {
+          needsAttentionCount++;
+        }
+      }
+
+      return {
+        fadingCount,
+        needsAttentionCount,
+        totalReviewed: highlights.filter(h => h.viewCount > 0).length,
+        totalUnseen: highlights.filter(h => !h.viewCount || h.viewCount === 0).length
+      };
+    },
+    // Get highlights for focus review mode (fading highlights only)
+    getFocusReviewHighlights: () => {
+      return highlights
+        .filter(h => {
+          const score = calculateDecayedScore(h);
+          return score < FOCUS_REVIEW_THRESHOLD && h.viewCount > 0;
+        })
+        .sort((a, b) => calculateDecayedScore(a) - calculateDecayedScore(b));
+    },
+    // Get "On This Day" highlights - same calendar day in previous years
+    getOnThisDay: () => {
+      const today = new Date();
+      const todayMonth = today.getMonth();
+      const todayDate = today.getDate();
+
+      return highlights.filter(h => {
+        const capturedDate = new Date(h.capturedAt || h.dateHighlighted);
+        if (isNaN(capturedDate.getTime())) return false;
+
+        // Check if same month and day, but different year
+        const sameDay = capturedDate.getMonth() === todayMonth &&
+                        capturedDate.getDate() === todayDate;
+        const differentYear = capturedDate.getFullYear() < today.getFullYear();
+
+        return sameDay && differentYear;
+      }).map(h => ({
+        ...h,
+        yearsAgo: today.getFullYear() - new Date(h.capturedAt || h.dateHighlighted).getFullYear()
+      }));
     }
   };
 }

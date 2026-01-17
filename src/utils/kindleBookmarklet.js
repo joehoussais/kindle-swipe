@@ -54,16 +54,16 @@ export const bookmarkletSource = `
     return { asin, title, author, highlights };
   }
 
-  // Get all book ASINs from the sidebar
-  function getAllBookASINs() {
-    const asins = [];
+  // Get all book elements from the sidebar
+  function getAllBooks() {
+    const books = [];
     document.querySelectorAll('#kp-notebook-library .kp-notebook-library-each-book').forEach(book => {
       const asin = book.id;
       if (asin && asin.match(/^B[A-Z0-9]+$/)) {
-        asins.push(asin);
+        books.push({ asin, element: book });
       }
     });
-    return asins;
+    return books;
   }
 
   // Show progress overlay
@@ -72,7 +72,7 @@ export const bookmarkletSource = `
     if (!overlay) {
       overlay = document.createElement('div');
       overlay.id = 'kindle-scraper-overlay';
-      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;color:white;font-family:system-ui,-apple-system,sans-serif;';
+      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;color:white;font-family:system-ui,-apple-system,sans-serif;pointer-events:none;';
       document.body.appendChild(overlay);
     }
     const pct = Math.round((done / total) * 100);
@@ -87,49 +87,29 @@ export const bookmarkletSource = `
       '</div>';
   }
 
-  // Main logic
-  let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-  const allASINs = getAllBookASINs();
-
-  // Initialize state if this is a fresh start
-  if (!state || !state.pendingASINs) {
-    state = { books: [], pendingASINs: allASINs, total: allASINs.length };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  // Wait for ASIN to change (content loaded)
+  function waitForAsin(expectedAsin, timeout) {
+    return new Promise(function(resolve) {
+      const start = Date.now();
+      function check() {
+        const currentAsin = document.querySelector('#kp-notebook-annotations-asin')?.value;
+        if (currentAsin === expectedAsin) {
+          resolve(true);
+        } else if (Date.now() - start > timeout) {
+          resolve(false);
+        } else {
+          setTimeout(check, 200);
+        }
+      }
+      check();
+    });
   }
 
-  // Scrape current book
-  const current = scrapeCurrentBook();
-  if (current.asin && current.highlights.length > 0 && !state.books.find(b => b.asin === current.asin)) {
-    state.books.push(current);
-    state.pendingASINs = state.pendingASINs.filter(a => a !== current.asin);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }
-
-  // Show progress
-  showProgress(state.books.length, state.total, state.pendingASINs.length > 0 ? 'Loading next book...' : 'Finishing up...');
-
-  // Continue or finish
-  if (state.pendingASINs.length > 0) {
-    // Navigate to next book after short delay
-    setTimeout(function() {
-      window.location.href = '/notebook?asin=' + state.pendingASINs[0];
-    }, 800);
-  } else {
-    // Done! Create export data
-    const exportData = {
-      exportedAt: new Date().toISOString(),
-      source: 'kindle-notebook-scraper',
-      bookCount: state.books.length,
-      totalHighlights: state.books.reduce(function(sum, b) { return sum + b.highlights.length; }, 0),
-      books: state.books
-    };
-
-    // Clear scraper state
-    localStorage.removeItem(STORAGE_KEY);
-
-    // Update overlay with success message
+  // Show completion
+  function showComplete(exportData) {
     const overlay = document.getElementById('kindle-scraper-overlay');
     if (overlay) {
+      overlay.style.pointerEvents = 'auto';
       overlay.innerHTML =
         '<div style="text-align:center;max-width:500px;padding:20px;">' +
           '<div style="font-size:48px;margin-bottom:16px;">✓</div>' +
@@ -142,31 +122,106 @@ export const bookmarkletSource = `
           '</div>' +
           '<button id="kindle-scraper-close" style="background:#4CAF50;color:white;border:none;padding:12px 32px;font-size:16px;border-radius:8px;cursor:pointer;">Close</button>' +
         '</div>';
+      document.getElementById('kindle-scraper-close').onclick = function() {
+        overlay.remove();
+      };
+    }
+  }
 
+  // Main async scraper
+  async function scrapeAll() {
+    const allBooks = getAllBooks();
+    const total = allBooks.length;
+    const scrapedBooks = [];
+
+    for (let i = 0; i < allBooks.length; i++) {
+      const book = allBooks[i];
+      showProgress(i, total, 'Loading ' + (i + 1) + ' of ' + total + '...');
+
+      // Click on the book to load it
+      book.element.click();
+
+      // Wait for content to load
+      const loaded = await waitForAsin(book.asin, 10000);
+      if (!loaded) {
+        console.log('Timeout waiting for book:', book.asin);
+        continue;
+      }
+
+      // Small delay to ensure highlights are rendered
+      await new Promise(r => setTimeout(r, 500));
+
+      // Scrape the book
+      const data = scrapeCurrentBook();
+      if (data.highlights.length > 0) {
+        scrapedBooks.push(data);
+      }
+    }
+
+    // Create export data
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      source: 'kindle-notebook-scraper',
+      bookCount: scrapedBooks.length,
+      totalHighlights: scrapedBooks.reduce(function(sum, b) { return sum + b.highlights.length; }, 0),
+      books: scrapedBooks
+    };
+
+    showProgress(total, total, 'Finishing up...');
+
+    // Open the app and send data via postMessage
+    const appUrl = 'https://high-light.netlify.app/?import=kindle';
+    const appWindow = window.open(appUrl, '_blank');
+
+    // Wait for app to load and send data
+    const sendData = () => {
+      if (appWindow && !appWindow.closed) {
+        appWindow.postMessage({
+          type: 'kindle-highlights-import',
+          data: exportData
+        }, 'https://high-light.netlify.app');
+      }
+    };
+
+    // Send multiple times to ensure delivery
+    setTimeout(sendData, 1500);
+    setTimeout(sendData, 3000);
+    setTimeout(sendData, 5000);
+
+    // Update overlay
+    const overlay = document.getElementById('kindle-scraper-overlay');
+    if (overlay) {
+      overlay.style.pointerEvents = 'auto';
+      overlay.innerHTML =
+        '<div style="text-align:center;max-width:500px;padding:20px;">' +
+          '<div style="font-size:48px;margin-bottom:16px;">✓</div>' +
+          '<div style="font-size:28px;margin-bottom:16px;font-weight:600;">Done!</div>' +
+          '<div style="font-size:18px;margin-bottom:24px;opacity:0.9;">' +
+            exportData.totalHighlights + ' highlights from ' + exportData.bookCount + ' books' +
+          '</div>' +
+          '<div style="font-size:14px;opacity:0.7;margin-bottom:24px;">' +
+            'Sending to Highlight app...' +
+          '</div>' +
+          '<button id="kindle-scraper-close" style="background:#4CAF50;color:white;border:none;padding:12px 32px;font-size:16px;border-radius:8px;cursor:pointer;">Close</button>' +
+        '</div>';
       document.getElementById('kindle-scraper-close').onclick = function() {
         overlay.remove();
       };
     }
 
-    // Copy to clipboard
-    navigator.clipboard.writeText(JSON.stringify(exportData, null, 2))
-      .then(function() { console.log('Highlights copied to clipboard!'); })
-      .catch(function(err) {
-        // Fallback: show in a textarea
-        const ta = document.createElement('textarea');
-        ta.value = JSON.stringify(exportData, null, 2);
-        ta.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;height:60%;z-index:100000;font-family:monospace;font-size:12px;';
-        document.body.appendChild(ta);
-        ta.select();
-        alert('Could not copy automatically. Please copy the text from the textarea, then paste it into the app.');
-      });
+    // Also copy to clipboard as backup
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(exportData, null, 2));
+    } catch (err) {}
   }
+
+  scrapeAll();
 })();
 `;
 
 // Minified version for the actual bookmarklet URL
 // Generated by minifying the source above
-export const bookmarkletCode = `javascript:(function(){const e="kindleHighlightsScraper";function t(){const e=[];const t=document.querySelector("h3.kp-notebook-metadata")?.innerText?.trim()||"";const n=document.querySelector("h3.kp-notebook-metadata")?.parentElement?.querySelector("p.a-spacing-none");const o=n?.innerText?.trim()||"";const i=document.querySelector("#kp-notebook-annotations-asin")?.value||"";document.querySelectorAll("#kp-notebook-annotations .a-row.a-spacing-base").forEach(t=>{const n=t.querySelector('input[type="hidden"]');const o=n?.value||null;const i=t.querySelector('span[id*="highlight"]');const s=i?.innerText?.trim()||"";const a=t.querySelector('span[id*="note"]');let r=a?.innerText?.trim()||"";if(r==="Note:")r="";if(s){e.push({text:s,location:o?parseInt(o):null,note:r||null})}});return{asin:i,title:t,author:o,highlights:e}}function n(){const e=[];document.querySelectorAll("#kp-notebook-library .kp-notebook-library-each-book").forEach(t=>{const n=t.id;if(n&&n.match(/^B[A-Z0-9]+$/)){e.push(n)}});return e}function o(e,t,n){let o=document.getElementById("kindle-scraper-overlay");if(!o){o=document.createElement("div");o.id="kindle-scraper-overlay";o.style.cssText="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;color:white;font-family:system-ui,-apple-system,sans-serif;";document.body.appendChild(o)}const i=Math.round(e/t*100);o.innerHTML='<div style="text-align:center;max-width:400px;padding:20px;"><div style="font-size:28px;margin-bottom:24px;font-weight:600;">Scraping Kindle Highlights</div><div style="width:300px;height:8px;background:#333;border-radius:4px;overflow:hidden;margin:0 auto;"><div style="width:'+i+'%;height:100%;background:linear-gradient(90deg,#4CAF50,#8BC34A);transition:width 0.3s;"></div></div><div style="margin-top:16px;font-size:20px;">'+e+" / "+t+'</div><div style="margin-top:8px;font-size:14px;opacity:0.7;">'+(n||"Processing...")+"</div></div>"}let i=JSON.parse(localStorage.getItem(e)||"null");const s=n();if(!i||!i.pendingASINs){i={books:[],pendingASINs:s,total:s.length};localStorage.setItem(e,JSON.stringify(i))}const a=t();if(a.asin&&a.highlights.length>0&&!i.books.find(e=>e.asin===a.asin)){i.books.push(a);i.pendingASINs=i.pendingASINs.filter(e=>e!==a.asin);localStorage.setItem(e,JSON.stringify(i))}o(i.books.length,i.total,i.pendingASINs.length>0?"Loading next book...":"Finishing up...");if(i.pendingASINs.length>0){setTimeout(function(){window.location.href="/notebook?asin="+i.pendingASINs[0]},800)}else{const t={exportedAt:new Date().toISOString(),source:"kindle-notebook-scraper",bookCount:i.books.length,totalHighlights:i.books.reduce(function(e,t){return e+t.highlights.length},0),books:i.books};localStorage.removeItem(e);const n=document.getElementById("kindle-scraper-overlay");if(n){n.innerHTML='<div style="text-align:center;max-width:500px;padding:20px;"><div style="font-size:48px;margin-bottom:16px;">✓</div><div style="font-size:28px;margin-bottom:16px;font-weight:600;">Done!</div><div style="font-size:18px;margin-bottom:24px;opacity:0.9;">'+t.totalHighlights+" highlights from "+t.bookCount+' books</div><div style="font-size:14px;opacity:0.7;margin-bottom:24px;">Copied to clipboard! Now paste into the app import.</div><button id="kindle-scraper-close" style="background:#4CAF50;color:white;border:none;padding:12px 32px;font-size:16px;border-radius:8px;cursor:pointer;">Close</button></div>';document.getElementById("kindle-scraper-close").onclick=function(){n.remove()}}navigator.clipboard.writeText(JSON.stringify(t,null,2)).then(function(){console.log("Highlights copied to clipboard!")}).catch(function(e){const n=document.createElement("textarea");n.value=JSON.stringify(t,null,2);n.style.cssText="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;height:60%;z-index:100000;font-family:monospace;font-size:12px;";document.body.appendChild(n);n.select();alert("Could not copy automatically. Please copy the text from the textarea, then paste it into the app.")})}})();`;
+export const bookmarkletCode = `javascript:(function(){function e(){const e=[],t=document.querySelector("h3.kp-notebook-metadata")?.innerText?.trim()||"",n=document.querySelector("h3.kp-notebook-metadata")?.parentElement?.querySelector("p.a-spacing-none")?.innerText?.trim()||"",o=document.querySelector("#kp-notebook-annotations-asin")?.value||"";return document.querySelectorAll("#kp-notebook-annotations .a-row.a-spacing-base").forEach(t=>{const n=t.querySelector('input[type="hidden"]')?.value||null,o=t.querySelector('span[id*="highlight"]')?.innerText?.trim()||"";let i=t.querySelector('span[id*="note"]')?.innerText?.trim()||"";"Note:"===i&&(i=""),o&&e.push({text:o,location:n?parseInt(n):null,note:i||null})}),{asin:o,title:t,author:n,highlights:e}}function t(){const e=[];return document.querySelectorAll("#kp-notebook-library .kp-notebook-library-each-book").forEach(t=>{const n=t.id;n&&n.match(/^B[A-Z0-9]+$/)&&e.push({asin:n,element:t})}),e}function n(e,t,n){let o=document.getElementById("kindle-scraper-overlay");o||(o=document.createElement("div"),o.id="kindle-scraper-overlay",o.style.cssText="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;color:white;font-family:system-ui,-apple-system,sans-serif;pointer-events:none;",document.body.appendChild(o));const i=Math.round(e/t*100);o.innerHTML='<div style="text-align:center;max-width:400px;padding:20px;"><div style="font-size:28px;margin-bottom:24px;font-weight:600;">Scraping Kindle Highlights</div><div style="width:300px;height:8px;background:#333;border-radius:4px;overflow:hidden;margin:0 auto;"><div style="width:'+i+'%;height:100%;background:linear-gradient(90deg,#4CAF50,#8BC34A);transition:width 0.3s;"></div></div><div style="margin-top:16px;font-size:20px;">'+e+" / "+t+'</div><div style="margin-top:8px;font-size:14px;opacity:0.7;">'+(n||"Processing...")+"</div></div>"}function o(e,t){return new Promise(n=>{const o=Date.now();!function i(){document.querySelector("#kp-notebook-annotations-asin")?.value===e?n(!0):Date.now()-o>t?n(!1):setTimeout(i,200)}()})}!async function(){const i=t(),s=i.length,a=[];for(let t=0;t<i.length;t++){const r=i[t];n(t,s,"Loading "+(t+1)+" of "+s+"..."),r.element.click(),await o(r.asin,1e4)&&(await new Promise(e=>setTimeout(e,500)),(l=e()).highlights.length>0&&a.push(l))}var l;const r={exportedAt:(new Date).toISOString(),source:"kindle-notebook-scraper",bookCount:a.length,totalHighlights:a.reduce((e,t)=>e+t.highlights.length,0),books:a};n(s,s,"Finishing up...");const c="https://high-light.netlify.app/?import=kindle",d=window.open(c,"_blank"),p=()=>{d&&!d.closed&&d.postMessage({type:"kindle-highlights-import",data:r},"https://high-light.netlify.app")};setTimeout(p,1500),setTimeout(p,3e3),setTimeout(p,5e3);const u=document.getElementById("kindle-scraper-overlay");u&&(u.style.pointerEvents="auto",u.innerHTML='<div style="text-align:center;max-width:500px;padding:20px;"><div style="font-size:48px;margin-bottom:16px;">✓</div><div style="font-size:28px;margin-bottom:16px;font-weight:600;">Done!</div><div style="font-size:18px;margin-bottom:24px;opacity:0.9;">'+r.totalHighlights+" highlights from "+r.bookCount+' books</div><div style="font-size:14px;opacity:0.7;margin-bottom:24px;">Sending to Highlight app...</div><button id="kindle-scraper-close" style="background:#4CAF50;color:white;border:none;padding:12px 32px;font-size:16px;border-radius:8px;cursor:pointer;">Close</button></div>',document.getElementById("kindle-scraper-close").onclick=function(){u.remove()});try{await navigator.clipboard.writeText(JSON.stringify(r,null,2))}catch(e){}}()})();`;
 
 // Export instructions for displaying in the UI
 export const importInstructions = {

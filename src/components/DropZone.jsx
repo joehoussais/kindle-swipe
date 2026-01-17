@@ -18,6 +18,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
   const [tweetsContent, setTweetsContent] = useState('');
   const [importResult, setImportResult] = useState(null);
   const [bgLoaded, setBgLoaded] = useState(false);
+  const [userPath, setUserPath] = useState(null); // null = choosing, 'kindle' = has kindle, 'explore' = no kindle
   const [activeTab, setActiveTab] = useState('kindle'); // 'kindle', 'journal', 'tweets', 'thought'
 
   // Pick a random background on mount
@@ -32,6 +33,28 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
     img.onload = () => setBgLoaded(true);
     img.src = background.src;
   }, [background.src]);
+
+  // Listen for postMessage from Kindle bookmarklet
+  useEffect(() => {
+    const handleMessage = (event) => {
+      // Only accept messages from Amazon's Kindle Notebook
+      if (!event.origin.includes('amazon.com')) return;
+
+      if (event.data?.type === 'kindle-highlights-import' && event.data?.data) {
+        const exportData = event.data.data;
+        if (exportData.source === 'kindle-notebook-scraper' && exportData.books) {
+          // Convert to JSON string and import
+          const jsonStr = JSON.stringify(exportData);
+          const count = onImportAmazon(jsonStr);
+          setImportResult({ type: 'cloud', count });
+          setTimeout(() => setImportResult(null), 3000);
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [onImportAmazon]);
 
   const handleDragOver = useCallback((e) => {
     e.preventDefault();
@@ -199,11 +222,91 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
               textShadow: isDark ? '0 1px 10px rgba(0,0,0,0.5)' : 'none'
             }}
           >
-            Nothing to recall yet. Import your first highlights.
+            {userPath === null ? "Rediscover what you've read" : 'Import your highlights'}
           </p>
         </motion.div>
 
-        {/* Source tabs */}
+        {/* Initial choice: Kindle or Explore */}
+        {userPath === null && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="space-y-4"
+          >
+            {/* I have a Kindle option */}
+            <button
+              onClick={() => setUserPath('kindle')}
+              className={`w-full p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 text-left
+                         ${borderColor} ${bgCard} hover:ring-2 hover:ring-[#a08060]/60`}
+              style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
+            >
+              <div className="flex items-start gap-4">
+                <span className="text-3xl">◈</span>
+                <div>
+                  <h3
+                    className={`text-xl font-semibold mb-2 ${textPrimary}`}
+                    style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+                  >
+                    I have a Kindle
+                  </h3>
+                  <p className={`text-sm ${textSecondary}`}>
+                    Import your highlights from Kindle, Amazon Cloud, or other reading apps
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            {/* No Kindle - Explore option */}
+            <button
+              onClick={() => {
+                onLoadStarterPack();
+              }}
+              className={`w-full p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 text-left
+                         ${borderColor} ${bgCard} hover:ring-2 hover:ring-[#c4a882]/60`}
+              style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
+            >
+              <div className="flex items-start gap-4">
+                <span className="text-3xl text-[#c4a882]">&#10022;</span>
+                <div>
+                  <h3
+                    className={`text-xl font-semibold mb-2 ${textPrimary}`}
+                    style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+                  >
+                    Explore Great Ideas
+                  </h3>
+                  <p className={`text-sm ${textSecondary}`}>
+                    Start with curated wisdom from history's greatest books. Add your own quotes as you discover them.
+                  </p>
+                  <div className={`mt-3 flex flex-wrap gap-2`}>
+                    {['Stoicism', 'Philosophy', 'Literature', 'Psychology'].map(tag => (
+                      <span key={tag} className={`text-xs px-2 py-1 rounded-full ${isDark ? 'bg-white/10' : 'bg-black/10'} ${textSecondary}`}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </button>
+
+            <p className={`text-center text-xs ${textMuted} mt-6`}>
+              You can always import more later from Settings
+            </p>
+          </motion.div>
+        )}
+
+        {/* Source tabs - only show after choosing Kindle path */}
+        {userPath === 'kindle' && (
+          <>
+            {/* Back button */}
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              onClick={() => setUserPath(null)}
+              className={`mb-4 text-sm ${textSecondary} hover:${textPrimary} transition flex items-center gap-1`}
+            >
+              <span>&#8592;</span> Back to options
+            </motion.button>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -230,9 +333,11 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
             </button>
           ))}
         </motion.div>
+          </>
+        )}
 
         {/* Kindle import */}
-        {activeTab === 'kindle' && (
+        {userPath === 'kindle' && activeTab === 'kindle' && (
           <>
             {/* Drop zone for file */}
             <motion.div
@@ -355,17 +460,15 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                       className={`font-semibold text-sm ${textPrimary}`}
                       style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
                     >
-                      Just Start with 50 Classic Quotes
+                      Just Start with 100 Classic Quotes
                     </h3>
                   </div>
                 </div>
               </button>
             </motion.div>
-          </>
-        )}
 
         {/* Tweets import */}
-        {activeTab === 'tweets' && (
+        {userPath === 'kindle' && activeTab === 'tweets' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -401,7 +504,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
         )}
 
         {/* Journal import */}
-        {activeTab === 'journal' && (
+        {userPath === 'kindle' && activeTab === 'journal' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -437,7 +540,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
         )}
 
         {/* Quick thought capture */}
-        {activeTab === 'thought' && (
+        {userPath === 'kindle' && activeTab === 'thought' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -473,7 +576,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
         )}
 
         {/* Instructions */}
-        {activeTab === 'kindle' && (
+        {userPath === 'kindle' && activeTab === 'kindle' && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -489,6 +592,8 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
               <li>Drag and drop it here</li>
             </ol>
           </motion.div>
+        )}
+          </>
         )}
       </div>
 

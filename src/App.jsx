@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { useState, useMemo, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useHighlights, SOURCE_TYPES } from './hooks/useHighlights';
 import { useAuth } from './context/AuthContext';
 import { LandingPage } from './components/LandingPage';
@@ -10,6 +10,7 @@ import { LibraryPanel } from './components/LibraryPanel';
 import { BooksHistory } from './components/BooksHistory';
 import { ChallengeMode } from './components/ChallengeMode';
 import { ShareModal } from './components/ShareModal';
+import { QuoteExport } from './components/QuoteExport';
 
 function AppContent() {
   const { isAuthenticated, trackBook, logout, user } = useAuth();
@@ -40,7 +41,10 @@ function AppContent() {
     updateTags,
     getRecallStats,
     getGlobalRecallStats,
-    getAllTags
+    getAllTags,
+    getReviewQueueStats,
+    getFocusReviewHighlights,
+    getOnThisDay
   } = useHighlights(isAuthenticated ? trackBook : null, user?.id);
 
   // Tag handlers
@@ -69,11 +73,78 @@ function AppContent() {
   const [showChallenge, setShowChallenge] = useState(false);
   const [challengeHighlight, setChallengeHighlight] = useState(null);
   const [showShare, setShowShare] = useState(false);
+  const [showExport, setShowExport] = useState(false);
+  const [exportHighlight, setExportHighlight] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all'); // 'all', source type, or 'tag:tagname'
   const [filteredIndex, setFilteredIndex] = useState(0);
 
   // Get available tags for filtering
   const availableTags = useMemo(() => getAllTags(), [highlights]);
+
+  // Get review queue stats
+  const reviewQueueStats = useMemo(() => getReviewQueueStats(), [highlights]);
+
+  // Get focus review highlights
+  const focusReviewHighlights = useMemo(() => getFocusReviewHighlights(), [highlights]);
+
+  // State for return prompt
+  const [showReturnPrompt, setShowReturnPrompt] = useState(false);
+  const [daysSinceVisit, setDaysSinceVisit] = useState(0);
+
+  // State for On This Day
+  const [showOnThisDay, setShowOnThisDay] = useState(false);
+  const [onThisDayHighlights, setOnThisDayHighlights] = useState([]);
+
+  // Check for returning user and show gentle prompt
+  useEffect(() => {
+    const LAST_VISIT_KEY = 'highlight-last-visit';
+    const DAYS_THRESHOLD = 3;
+
+    const lastVisit = localStorage.getItem(LAST_VISIT_KEY);
+    const now = new Date();
+
+    if (lastVisit) {
+      const lastDate = new Date(lastVisit);
+      const diffDays = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
+
+      if (diffDays >= DAYS_THRESHOLD && reviewQueueStats.fadingCount > 0) {
+        setDaysSinceVisit(diffDays);
+        setShowReturnPrompt(true);
+      }
+    }
+
+    // Update last visit
+    localStorage.setItem(LAST_VISIT_KEY, now.toISOString());
+  }, [reviewQueueStats.fadingCount]);
+
+  // Check for "On This Day" highlights
+  useEffect(() => {
+    const ON_THIS_DAY_SHOWN_KEY = 'highlight-on-this-day-shown';
+    const today = new Date().toDateString();
+
+    // Only show once per day
+    const lastShown = localStorage.getItem(ON_THIS_DAY_SHOWN_KEY);
+    if (lastShown === today) return;
+
+    const matches = getOnThisDay();
+    if (matches.length > 0) {
+      setOnThisDayHighlights(matches);
+      // Delay showing to not overlap with return prompt
+      const timeout = setTimeout(() => {
+        if (!showReturnPrompt) {
+          setShowOnThisDay(true);
+          localStorage.setItem(ON_THIS_DAY_SHOWN_KEY, today);
+        }
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [highlights, showReturnPrompt, getOnThisDay]);
+
+  // Handle export mode
+  const handleExport = (highlight) => {
+    setExportHighlight(highlight);
+    setShowExport(true);
+  };
 
   // Handle challenge mode
   const handleChallenge = (highlight) => {
@@ -110,6 +181,11 @@ function AppContent() {
   const filteredHighlights = useMemo(() => {
     if (activeFilter === 'all') return highlights;
 
+    // Focus review mode - show fading highlights
+    if (activeFilter === 'focus-review') {
+      return focusReviewHighlights;
+    }
+
     // Tag-based filtering
     if (activeFilter.startsWith('tag:')) {
       const tag = activeFilter.slice(4); // Remove 'tag:' prefix
@@ -135,7 +211,7 @@ function AppContent() {
       }
       return h.source === activeFilter;
     });
-  }, [highlights, activeFilter]);
+  }, [highlights, activeFilter, focusReviewHighlights]);
 
   // Handle filter change
   const handleFilterChange = (newFilter) => {
@@ -264,7 +340,129 @@ function AppContent() {
         onRecordView={recordView}
         onAddTag={handleAddTag}
         onRemoveTag={handleRemoveTag}
+        onExport={handleExport}
+        focusReviewCount={reviewQueueStats.needsAttentionCount}
       />
+
+      {/* On This Day modal */}
+      <AnimatePresence>
+        {showOnThisDay && onThisDayHighlights.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setShowOnThisDay(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-lg bg-[#1a1916] rounded-2xl border border-[#3d3a36] overflow-hidden shadow-2xl"
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="p-5 border-b border-[#2d2a26] text-center">
+                <p className="text-[#6b5c4c] text-xs uppercase tracking-widest mb-2">On This Day</p>
+                <h2 className="text-[#ebe6dc] text-xl" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+                  {onThisDayHighlights[0].yearsAgo === 1
+                    ? 'A year ago today'
+                    : `${onThisDayHighlights[0].yearsAgo} years ago today`}
+                </h2>
+              </div>
+
+              {/* Content */}
+              <div className="p-5 max-h-[60vh] overflow-y-auto">
+                {onThisDayHighlights.slice(0, 3).map((h, i) => (
+                  <div key={h.id} className={`${i > 0 ? 'mt-4 pt-4 border-t border-[#2d2a26]' : ''}`}>
+                    <p
+                      className="text-[#ebe6dc] text-lg italic leading-relaxed"
+                      style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
+                    >
+                      "{h.text.length > 200 ? h.text.slice(0, 200) + '...' : h.text}"
+                    </p>
+                    <p className="text-[#6b5c4c] text-sm mt-3">
+                      — {h.title}
+                      {h.author && h.author !== 'You' && h.author !== 'Unknown' && (
+                        <span className="text-[#4d4a46]">, {h.author}</span>
+                      )}
+                    </p>
+                  </div>
+                ))}
+                {onThisDayHighlights.length > 3 && (
+                  <p className="text-[#4d4a46] text-sm text-center mt-4 italic">
+                    +{onThisDayHighlights.length - 3} more from this day
+                  </p>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="p-4 border-t border-[#2d2a26]">
+                <button
+                  onClick={() => setShowOnThisDay(false)}
+                  className="w-full py-3 px-4 rounded-lg bg-[#a08060] hover:bg-[#b08c6a] transition text-[#1a1916] font-medium"
+                >
+                  Continue
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Return prompt - gentle reminder for absent users */}
+      <AnimatePresence>
+        {showReturnPrompt && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-24 left-4 right-4 z-30 flex justify-center"
+          >
+            <div className="bg-[#1a1916]/95 backdrop-blur-xl rounded-2xl border border-[#3d3a36] p-4 max-w-sm shadow-2xl">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#a08060]/20 flex items-center justify-center flex-shrink-0">
+                  <span className="text-[#c4a882] text-lg">◐</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[#ebe6dc] text-sm font-medium" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+                    Some passages have been waiting for you
+                  </p>
+                  <p className="text-[#6b5c4c] text-xs mt-1">
+                    {reviewQueueStats.fadingCount} {reviewQueueStats.fadingCount === 1 ? 'highlight is' : 'highlights are'} fading from memory
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowReturnPrompt(false)}
+                  className="p-1 rounded-full hover:bg-white/10 transition text-[#6b5c4c]"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={() => {
+                    setActiveFilter('focus-review');
+                    setFilteredIndex(0);
+                    setShowReturnPrompt(false);
+                  }}
+                  className="flex-1 py-2 px-3 rounded-lg bg-[#a08060] hover:bg-[#b08c6a] transition text-[#1a1916] text-sm font-medium"
+                >
+                  Review Now
+                </button>
+                <button
+                  onClick={() => setShowReturnPrompt(false)}
+                  className="py-2 px-3 rounded-lg bg-[#2d2a26] hover:bg-[#3d3a36] transition text-[#8a8578] text-sm"
+                >
+                  Later
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {showSettings && (
@@ -344,6 +542,18 @@ function AppContent() {
             highlights={highlights}
             onClose={() => setShowShare(false)}
             userName={user?.name}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showExport && exportHighlight && (
+          <QuoteExport
+            highlight={exportHighlight}
+            onClose={() => {
+              setShowExport(false);
+              setExportHighlight(null);
+            }}
           />
         )}
       </AnimatePresence>

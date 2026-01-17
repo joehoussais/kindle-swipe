@@ -35,7 +35,10 @@
       "Bash(tail:*)",
       "Bash(npx eas login:*)",
       "Bash(npx eas:*)",
-      "Bash(CI=1 npx eas init:*)"
+      "Bash(CI=1 npx eas init:*)",
+      "Bash(git fetch:*)",
+      "Bash(npx netlify-cli status)",
+      "Bash(npx netlify-cli deploy:*)"
     ]
   }
 }
