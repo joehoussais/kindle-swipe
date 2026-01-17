@@ -229,7 +229,8 @@ function AppContent() {
   };
 
   // Show loading state - also wait for DB check to complete before showing import screen
-  if (isLoading || !hasCheckedDb) {
+  // For guest mode, skip waiting for DB check since there's no DB to check
+  if (isLoading || (!hasCheckedDb && !isGuestMode)) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-[#0a0a0a]">
         <div className="text-white/50">Loading...</div>
