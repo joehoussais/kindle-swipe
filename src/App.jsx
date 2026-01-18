@@ -381,6 +381,7 @@ function AppContent() {
           onSignUp={loginWithGoogle}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
+          onImportMore={() => setShowImport(true)}
         />
       )}
 
