@@ -82,7 +82,9 @@ export function SwipeDeck({
   focusReviewCount = 0,
   isPreviewMode = false,
   onExitPreview,
-  onSignUp
+  onSignUp,
+  viewMode = 'swipe',
+  onViewModeChange
 }) {
   const [direction, setDirection] = useState(0);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -321,22 +323,55 @@ export function SwipeDeck({
           </button>
         )}
 
-        {/* Filter button - center */}
-        <button
-          onClick={() => setShowFilterMenu(!showFilterMenu)}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#252525]/60 hover:bg-[#252525] border border-[#ffffff14]/50 transition"
-        >
-          <span className="text-[#2383e2] text-sm">{currentFilter.icon}</span>
-          <span className="text-[#ffffffeb] text-sm">{currentFilter.label}</span>
-          <svg
-            className={`w-3 h-3 text-[#787774] transition-transform ${showFilterMenu ? 'rotate-180' : ''}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+        {/* View toggle + Filter - center */}
+        <div className="flex items-center gap-2">
+          {/* View mode toggle */}
+          <div className="flex items-center bg-[#252525]/60 rounded-lg border border-[#ffffff14]/50 p-0.5">
+            <button
+              onClick={() => viewMode !== 'swipe' && onViewModeChange?.('swipe')}
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition ${
+                viewMode === 'swipe'
+                  ? 'bg-[#2383e2] text-white'
+                  : 'text-[#9b9a97] hover:text-white'
+              }`}
+              aria-label="Card view"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            </button>
+            <button
+              onClick={() => viewMode !== 'feed' && onViewModeChange?.('feed')}
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition ${
+                viewMode === 'feed'
+                  ? 'bg-[#2383e2] text-white'
+                  : 'text-[#9b9a97] hover:text-white'
+              }`}
+              aria-label="Feed view"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Filter button */}
+          <button
+            onClick={() => setShowFilterMenu(!showFilterMenu)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#252525]/60 hover:bg-[#252525] border border-[#ffffff14]/50 transition"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
+            <span className="text-[#2383e2] text-sm">{currentFilter.icon}</span>
+            <span className="text-[#ffffffeb] text-sm">{currentFilter.label}</span>
+            <svg
+              className={`w-3 h-3 text-[#787774] transition-transform ${showFilterMenu ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
 
         <div className="flex items-center gap-1">
           <button

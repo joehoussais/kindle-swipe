@@ -10,6 +10,7 @@ import { LibraryPanel } from './components/LibraryPanel';
 import { BooksHistory } from './components/BooksHistory';
 import { ShareModal } from './components/ShareModal';
 import { QuoteExport } from './components/QuoteExport';
+import { FeedView } from './components/FeedView';
 
 function AppContent() {
   const { isAuthenticated, isGuestMode, trackBook, logout, exitPreviewMode, loginWithGoogle, user } = useAuth();
@@ -75,6 +76,7 @@ function AppContent() {
   const [exportHighlight, setExportHighlight] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all'); // 'all', source type, or 'tag:tagname'
   const [filteredIndex, setFilteredIndex] = useState(0);
+  const [viewMode, setViewMode] = useState('swipe'); // 'swipe' or 'feed'
 
   // Get available tags for filtering
   const availableTags = useMemo(() => getAllTags(), [highlights]);
@@ -322,35 +324,65 @@ function AppContent() {
     return null;
   }
 
-  // Main swipe view
+  // Handle going to swipe view from feed
+  const handleGoToSwipe = (index) => {
+    setFilteredIndex(index);
+    setViewMode('swipe');
+  };
+
+  // Handle adding note from feed (opens note input in swipe view)
+  const handleAddNoteFromFeed = (highlightId) => {
+    const index = filteredHighlights.findIndex(h => h.id === highlightId);
+    if (index !== -1) {
+      setFilteredIndex(index);
+      setViewMode('swipe');
+      // Note: The swipe card will handle showing the note input
+    }
+  };
+
+  // Main view - swipe or feed
   return (
     <>
-      <SwipeDeck
-        highlights={filteredHighlights}
-        currentIndex={filteredIndex}
-        onNext={handleNext}
-        onPrev={handlePrev}
-        onShuffle={handleShuffle}
-        onSettings={() => setShowSettings(true)}
-        onLibrary={() => setShowLibrary(true)}
-        onBooksHistory={() => setShowBooksHistory(true)}
-        totalCount={filteredHighlights.length}
-        user={user}
-        activeFilter={activeFilter}
-        onFilterChange={handleFilterChange}
-        availableSources={availableSources}
-        availableTags={availableTags}
-        onDelete={deleteHighlight}
-        onAddNote={addComment}
-        onRecordView={recordView}
-        onAddTag={handleAddTag}
-        onRemoveTag={handleRemoveTag}
-        onExport={handleExport}
-        focusReviewCount={reviewQueueStats.needsAttentionCount}
-        isPreviewMode={isGuestMode && !user}
-        onExitPreview={exitPreviewMode}
-        onSignUp={loginWithGoogle}
-      />
+      {viewMode === 'feed' ? (
+        <FeedView
+          highlights={filteredHighlights}
+          onGoToSwipe={handleGoToSwipe}
+          onDelete={deleteHighlight}
+          onAddNote={handleAddNoteFromFeed}
+          onExitFeed={() => setViewMode('swipe')}
+          isPreviewMode={isGuestMode && !user}
+          onSignUp={loginWithGoogle}
+        />
+      ) : (
+        <SwipeDeck
+          highlights={filteredHighlights}
+          currentIndex={filteredIndex}
+          onNext={handleNext}
+          onPrev={handlePrev}
+          onShuffle={handleShuffle}
+          onSettings={() => setShowSettings(true)}
+          onLibrary={() => setShowLibrary(true)}
+          onBooksHistory={() => setShowBooksHistory(true)}
+          totalCount={filteredHighlights.length}
+          user={user}
+          activeFilter={activeFilter}
+          onFilterChange={handleFilterChange}
+          availableSources={availableSources}
+          availableTags={availableTags}
+          onDelete={deleteHighlight}
+          onAddNote={addComment}
+          onRecordView={recordView}
+          onAddTag={handleAddTag}
+          onRemoveTag={handleRemoveTag}
+          onExport={handleExport}
+          focusReviewCount={reviewQueueStats.needsAttentionCount}
+          isPreviewMode={isGuestMode && !user}
+          onExitPreview={exitPreviewMode}
+          onSignUp={loginWithGoogle}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+        />
+      )}
 
       {/* On This Day modal */}
       <AnimatePresence>
