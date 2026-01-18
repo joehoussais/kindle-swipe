@@ -763,7 +763,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                 Import from Kindle Cloud
               </h2>
               <p className="text-[#9b9a97] text-sm mb-6">
-                One-time setup, then auto-imports forever
+                Choose the easiest method for you
               </p>
 
               {/* Waiting state */}
@@ -783,96 +783,139 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                 </div>
               ) : (
                 <>
-                  {/* Step 1: One-time bookmarklet setup */}
-                  <div className="bg-[#0a0a0a] rounded-xl p-4 mb-4 border border-[#ffffff14]">
-                    <div className="flex items-start gap-3 mb-3">
-                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#4CAF50] text-white text-xs flex items-center justify-center font-bold">1</div>
-                      <div className="flex-1">
-                        <p className="text-[#ffffffeb] text-sm font-medium">Add the Magic Button (one time)</p>
-                        <p className="text-[#9b9a97] text-xs mt-1">
-                          Drag this to your bookmarks bar:
-                        </p>
+                  {/* TWO OPTIONS: Auto-scrape (recommended) or manual */}
+
+                  {/* Option 1: BOOKMARKLET - Auto-scrapes ALL books */}
+                  <div className="bg-gradient-to-r from-[#4CAF50]/20 to-[#8BC34A]/20 rounded-xl p-4 mb-4 border border-[#4CAF50]/30">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">✨</span>
+                      <div className="flex items-center gap-2">
+                        <p className="text-[#ffffffeb] text-sm font-semibold">Auto-Import All Books</p>
+                        <span className="px-2 py-0.5 bg-[#4CAF50] text-white text-[10px] font-bold rounded-full">RECOMMENDED</span>
                       </div>
                     </div>
-                    <div className="flex gap-2 ml-9">
-                      <a
-                        href={bookmarkletCode}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#4CAF50] to-[#8BC34A] text-white rounded-lg text-sm font-semibold
-                                   hover:from-[#43a047] hover:to-[#7cb342] transition shadow-lg cursor-grab active:cursor-grabbing"
-                        onClick={(e) => e.preventDefault()}
-                        draggable="true"
-                      >
-                        <span className="text-lg">✨</span>
-                        Get Highlights
-                      </a>
-                      <button
-                        onClick={copyBookmarklet}
-                        className={`px-3 py-2 rounded-lg text-xs transition ${
-                          bookmarkletCopied
-                            ? 'bg-[#4CAF50]/20 text-[#4CAF50]'
-                            : 'bg-[#252525] text-[#9b9a97] hover:text-white'
-                        }`}
-                      >
-                        {bookmarkletCopied ? '✓ Copied!' : 'Copy'}
-                      </button>
-                    </div>
-                    <p className="text-[#9b9a97] text-xs mt-2 ml-9 italic">
-                      Can't drag? Click Copy, create a bookmark, paste as URL
+                    <p className="text-[#9b9a97] text-xs mb-3 ml-7">
+                      One-time bookmark setup, then imports ALL books with one click
                     </p>
-                  </div>
 
-                  {/* Step 2: Open Kindle */}
-                  <div className="bg-[#0a0a0a] rounded-xl p-4 mb-4 border border-[#ffffff14]">
-                    <div className="flex items-start gap-3 mb-3">
-                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#4CAF50]/70 text-white text-xs flex items-center justify-center font-bold">2</div>
-                      <div className="flex-1">
-                        <p className="text-[#ffffffeb] text-sm font-medium">Open Kindle Notebook</p>
-                        <p className="text-[#9b9a97] text-xs mt-1">
-                          Then click your bookmarklet - highlights auto-import!
-                        </p>
+                    <div className="space-y-3 ml-1">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[#4CAF50] text-white text-[10px] flex items-center justify-center font-bold mt-0.5">1</div>
+                        <div className="flex-1">
+                          <p className="text-[#ffffffeb] text-xs mb-1.5">Drag this to your bookmarks bar:</p>
+                          <div className="flex gap-2">
+                            <a
+                              href={bookmarkletCode}
+                              className="inline-flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-[#4CAF50] to-[#8BC34A] text-white rounded-lg text-xs font-semibold
+                                         hover:from-[#43a047] hover:to-[#7cb342] transition shadow-md cursor-grab active:cursor-grabbing"
+                              onClick={(e) => e.preventDefault()}
+                              draggable="true"
+                            >
+                              ✨ Get All Highlights
+                            </a>
+                            <button
+                              onClick={copyBookmarklet}
+                              className={`px-3 py-2 rounded-lg text-xs transition ${
+                                bookmarkletCopied
+                                  ? 'bg-[#4CAF50]/20 text-[#4CAF50]'
+                                  : 'bg-[#333] text-[#9b9a97] hover:text-white'
+                              }`}
+                            >
+                              {bookmarkletCopied ? '✓ Copied!' : "Can't drag? Copy"}
+                            </button>
+                          </div>
+                          <p className="text-[#666] text-[10px] mt-1.5 italic">
+                            If you copied: create a new bookmark, paste as the URL
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[#4CAF50]/70 text-white text-[10px] flex items-center justify-center font-bold mt-0.5">2</div>
+                        <div className="flex-1">
+                          <a
+                            href="https://read.amazon.com/notebook"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={openKindleNotebook}
+                            className="inline-flex items-center gap-2 text-[#FF9900] hover:text-[#ffad33] text-xs font-medium"
+                          >
+                            Open Kindle Notebook
+                            <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>
+                            </svg>
+                          </a>
+                          <p className="text-[#9b9a97] text-[11px] mt-0.5">Sign in if needed</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[#4CAF50]/50 text-white text-[10px] flex items-center justify-center font-bold mt-0.5">3</div>
+                        <div className="flex-1">
+                          <p className="text-[#ffffffeb] text-xs">
+                            Click the bookmark - it auto-scrapes all books & copies to clipboard
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[#4CAF50]/30 text-white text-[10px] flex items-center justify-center font-bold mt-0.5">4</div>
+                        <div className="flex-1">
+                          <p className="text-[#ffffffeb] text-xs">
+                            Come back here and paste below
+                          </p>
+                        </div>
                       </div>
                     </div>
-                    <button
-                      onClick={openKindleNotebook}
-                      className="ml-9 inline-flex items-center gap-2 px-4 py-2.5 bg-[#FF9900] text-black rounded-lg text-sm font-semibold
-                                 hover:bg-[#ffad33] transition shadow-lg"
-                    >
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M21.94 13.11l-1.18-1.18c-.27-.27-.63-.42-1-.42-.37 0-.73.15-1 .42l-1.19 1.19-3.78-3.79 1.19-1.18c.27-.27.42-.63.42-1s-.15-.73-.42-1L13.8 5.17c-.27-.27-.63-.42-1-.42-.37 0-.73.15-1 .42l-9.13 9.13c-.27.27-.42.63-.42 1s.15.73.42 1l1.18 1.18c.27.27.63.42 1 .42.37 0 .73-.15 1-.42l1.19-1.19 3.78 3.79-1.19 1.18c-.27.27-.42.63-.42 1s.15.73.42 1l1.18 1.18c.27.27.63.42 1 .42.37 0 .73-.15 1-.42l9.13-9.13c.27-.27.42-.63.42-1s-.15-.73-.42-1z"/>
-                      </svg>
-                      Open Kindle Notebook
-                    </button>
                   </div>
 
-                  {/* Manual paste fallback */}
-                  <details className="group">
-                    <summary className="text-[#9b9a97] text-xs cursor-pointer hover:text-white transition flex items-center gap-1">
+                  {/* Divider */}
+                  <div className="flex items-center gap-3 my-3">
+                    <div className="flex-1 h-px bg-[#ffffff14]" />
+                    <span className="text-[#666] text-[10px] uppercase tracking-wider">or import one book</span>
+                    <div className="flex-1 h-px bg-[#ffffff14]" />
+                  </div>
+
+                  {/* Option 2: Manual per-book copy-paste */}
+                  <details className="group mb-4">
+                    <summary className="text-[#9b9a97] text-xs cursor-pointer hover:text-white transition flex items-center gap-2">
                       <svg className="w-3 h-3 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
-                      Having trouble? Paste manually
+                      Copy-paste from one book at a time
                     </summary>
-                    <div className="mt-3">
-                      <textarea
-                        value={cloudContent}
-                        onChange={(e) => setCloudContent(e.target.value)}
-                        placeholder='Paste the JSON from the bookmarklet here...'
-                        className="w-full h-24 p-3 rounded-xl bg-[#0a0a0a] border border-[#ffffff14]
-                                   focus:border-[#4CAF50] focus:outline-none resize-none
-                                   font-mono text-xs text-[#ffffffeb]"
-                      />
-                      <button
-                        onClick={handleCloudSubmit}
-                        disabled={!cloudContent.trim()}
-                        className="mt-2 w-full py-2 rounded-lg bg-[#4CAF50] hover:bg-[#43a047]
-                                   disabled:opacity-50 disabled:cursor-not-allowed transition text-white text-sm font-medium"
-                      >
-                        Import Pasted Data
-                      </button>
+                    <div className="mt-2 p-3 bg-[#0a0a0a] rounded-lg border border-[#ffffff14]">
+                      <p className="text-[#9b9a97] text-[11px] mb-2">
+                        1. Open a book in Kindle Notebook<br/>
+                        2. Select all (<kbd className="px-1 py-0.5 bg-[#333] rounded text-[10px]">Cmd+A</kbd>), copy (<kbd className="px-1 py-0.5 bg-[#333] rounded text-[10px]">Cmd+C</kbd>)<br/>
+                        3. Paste below - repeat for each book
+                      </p>
                     </div>
                   </details>
 
-                  <div className="flex gap-3 mt-6">
+                  {/* Paste area */}
+                  <div className="mb-4">
+                    <textarea
+                      value={cloudContent}
+                      onChange={(e) => setCloudContent(e.target.value)}
+                      placeholder='Paste your highlights here (Cmd/Ctrl+V)...'
+                      className="w-full h-28 p-3 rounded-xl bg-[#0a0a0a] border-2 border-dashed border-[#ffffff20]
+                                 focus:border-[#4CAF50] focus:outline-none resize-none
+                                 text-sm text-[#ffffffeb] placeholder-[#555]"
+                    />
+                    <button
+                      onClick={handleCloudSubmit}
+                      disabled={!cloudContent.trim()}
+                      className="mt-2 w-full py-3 rounded-xl bg-gradient-to-r from-[#4CAF50] to-[#8BC34A]
+                                 hover:from-[#43a047] hover:to-[#7cb342]
+                                 disabled:opacity-40 disabled:cursor-not-allowed disabled:from-[#333] disabled:to-[#333]
+                                 transition text-white font-semibold"
+                    >
+                      {cloudContent.trim() ? 'Import Highlights' : 'Paste highlights above'}
+                    </button>
+                  </div>
+
+                  <div className="flex gap-3">
                     <button
                       onClick={() => setShowCloudModal(false)}
                       className="flex-1 py-3 rounded-xl bg-[#252525] hover:bg-[#ffffff14] transition text-[#ffffffeb]"

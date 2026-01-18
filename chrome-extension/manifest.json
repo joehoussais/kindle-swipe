@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "Highlight - Kindle Sync",
+  "version": "1.0.0",
+  "description": "One-click import of your Kindle highlights to the Highlight app",
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": [
+    "https://read.amazon.com/*",
+    "https://read.amazon.co.uk/*",
+    "https://read.amazon.de/*",
+    "https://read.amazon.fr/*",
+    "https://read.amazon.es/*",
+    "https://read.amazon.it/*",
+    "https://read.amazon.co.jp/*",
+    "https://read.amazon.in/*",
+    "https://read.amazon.com.au/*",
+    "https://read.amazon.ca/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://read.amazon.com/notebook*",
+        "https://read.amazon.co.uk/notebook*",
+        "https://read.amazon.de/notebook*",
+        "https://read.amazon.fr/notebook*",
+        "https://read.amazon.es/notebook*",
+        "https://read.amazon.it/notebook*",
+        "https://read.amazon.co.jp/notebook*",
+        "https://read.amazon.in/notebook*",
+        "https://read.amazon.com.au/notebook*",
+        "https://read.amazon.ca/notebook*"
+      ],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png"
+    }
+  }
+}

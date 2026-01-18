@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script>
+    function createIcon(size) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      
+      // Draw rounded rectangle background
+      const radius = size * 0.22;
+      ctx.beginPath();
+      ctx.moveTo(radius, 0);
+      ctx.lineTo(size - radius, 0);
+      ctx.quadraticCurveTo(size, 0, size, radius);
+      ctx.lineTo(size, size - radius);
+      ctx.quadraticCurveTo(size, size, size - radius, size);
+      ctx.lineTo(radius, size);
+      ctx.quadraticCurveTo(0, size, 0, size - radius);
+      ctx.lineTo(0, radius);
+      ctx.quadraticCurveTo(0, 0, radius, 0);
+      ctx.closePath();
+      
+      // Gradient fill
+      const gradient = ctx.createLinearGradient(0, 0, size, size);
+      gradient.addColorStop(0, '#4CAF50');
+      gradient.addColorStop(1, '#8BC34A');
+      ctx.fillStyle = gradient;
+      ctx.fill();
+      
+      // Draw highlight icon
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = size * 0.05;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      
+      const cx = size / 2;
+      const cy = size / 2;
+      const s = size * 0.3;
+      
+      // Top diamond
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - s * 0.7);
+      ctx.lineTo(cx - s, cy - s * 0.2);
+      ctx.lineTo(cx, cy + s * 0.3);
+      ctx.lineTo(cx + s, cy - s * 0.2);
+      ctx.closePath();
+      ctx.stroke();
+      
+      // Middle line
+      ctx.beginPath();
+      ctx.moveTo(cx - s, cy + s * 0.3);
+      ctx.lineTo(cx, cy + s * 0.8);
+      ctx.lineTo(cx + s, cy + s * 0.3);
+      ctx.stroke();
+      
+      return canvas.toDataURL('image/png');
+    }
+    
+    window.onload = function() {
+      [16, 48, 128].forEach(size => {
+        const dataUrl = createIcon(size);
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = 'icon' + size + '.png';
+        link.click();
+      });
+    };
+  </script>
+</head>
+<body>
+  <p>Downloading icons...</p>
+</body>
+</html>

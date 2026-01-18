@@ -1,0 +1,202 @@
+/* Highlight Extension Styles */
+
+/* Floating sync button */
+#highlight-sync-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4), 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+#highlight-sync-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(76, 175, 80, 0.5), 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#highlight-sync-btn:active {
+  transform: translateY(0);
+}
+
+#highlight-sync-btn svg {
+  flex-shrink: 0;
+}
+
+/* Progress overlay */
+#highlight-progress-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.highlight-progress-content {
+  text-align: center;
+  max-width: 400px;
+  padding: 40px;
+  color: white;
+}
+
+.highlight-progress-logo {
+  margin-bottom: 24px;
+}
+
+.highlight-turbo-badge {
+  font-size: 11px;
+  letter-spacing: 2px;
+  opacity: 0.5;
+  margin-bottom: 8px;
+}
+
+.highlight-progress-content h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+}
+
+.highlight-progress-bar {
+  width: 300px;
+  height: 8px;
+  background: #333;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0 auto 16px;
+}
+
+.highlight-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  transition: width 0.3s ease;
+}
+
+.highlight-progress-count {
+  font-size: 24px;
+  font-weight: 500;
+  margin: 0 0 8px 0;
+}
+
+.highlight-stats {
+  font-size: 13px;
+  color: #4CAF50;
+  margin: 8px 0;
+}
+
+.highlight-progress-message {
+  font-size: 13px;
+  opacity: 0.6;
+  margin: 0 0 20px 0;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.highlight-cancel-btn {
+  padding: 10px 24px;
+  background: #444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.highlight-cancel-btn:hover {
+  background: #555;
+}
+
+/* Success state */
+.highlight-success-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  color: #4CAF50;
+}
+
+.highlight-success-stats {
+  font-size: 18px;
+  margin: 0 0 8px 0;
+  opacity: 0.9;
+}
+
+.highlight-success-message {
+  font-size: 14px;
+  opacity: 0.7;
+  margin: 0 0 24px 0;
+}
+
+.highlight-done-btn {
+  padding: 12px 32px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.highlight-done-btn:hover {
+  background: #43a047;
+}
+
+/* Toast notification */
+.highlight-toast {
+  position: fixed;
+  bottom: 90px;
+  right: 24px;
+  z-index: 99998;
+  padding: 14px 20px;
+  background: #333;
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease;
+  max-width: 320px;
+}
+
+.highlight-toast-info {
+  background: #2196F3;
+}
+
+.highlight-toast-error {
+  background: #f44336;
+}
+
+.highlight-toast-success {
+  background: #4CAF50;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
