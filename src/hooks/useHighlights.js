@@ -852,6 +852,7 @@ export function useHighlights(onBooksImported, userId = null) {
     isSyncing,
     coversLoaded,
     hasHighlights: highlights.length > 0,
+    hasCheckedDb: hasLoadedInitial,
     isFirst: currentIndex === 0,
     isLast: currentIndex === highlights.length - 1,
     // Import methods
