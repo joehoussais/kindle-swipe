@@ -3,8 +3,8 @@ import { supabase } from '../utils/supabase';
 
 const AuthContext = createContext(null);
 
-// Key for persisting guest mode
-const GUEST_MODE_KEY = 'highlight-guest-mode';
+// Preview mode is intentionally NOT persisted - it's for exploration only
+// Users should see the landing page fresh each visit until they sign up
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -15,14 +15,8 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     async function checkSession() {
       try {
-        // Check for guest mode first
-        const wasGuest = localStorage.getItem(GUEST_MODE_KEY) === 'true';
-        if (wasGuest) {
-          setIsGuestMode(true);
-          setIsLoading(false);
-          return;
-        }
-
+        // Preview mode is never persisted - always start fresh
+        // Only check for real authenticated sessions
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           setUser({
@@ -104,13 +98,16 @@ export function AuthProvider({ children }) {
     await supabase.auth.signOut();
     setUser(null);
     setIsGuestMode(false);
-    localStorage.removeItem(GUEST_MODE_KEY);
   }, []);
 
-  // Continue as guest (no account needed)
-  const continueAsGuest = useCallback(() => {
+  // Enter preview mode (exploratory, not persisted)
+  const enterPreviewMode = useCallback(() => {
     setIsGuestMode(true);
-    localStorage.setItem(GUEST_MODE_KEY, 'true');
+  }, []);
+
+  // Exit preview mode (return to landing page)
+  const exitPreviewMode = useCallback(() => {
+    setIsGuestMode(false);
   }, []);
 
   // Login with Google
@@ -144,7 +141,8 @@ export function AuthProvider({ children }) {
     login,
     loginWithGoogle,
     logout,
-    continueAsGuest,
+    enterPreviewMode,
+    exitPreviewMode,
     trackBook,
     removeBook: async () => {} // Placeholder
   };

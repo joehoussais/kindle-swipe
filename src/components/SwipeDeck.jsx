@@ -79,7 +79,10 @@ export function SwipeDeck({
   onAddTag,
   onRemoveTag,
   onExport,
-  focusReviewCount = 0
+  focusReviewCount = 0,
+  isPreviewMode = false,
+  onExitPreview,
+  onSignUp
 }) {
   const [direction, setDirection] = useState(0);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -295,15 +298,28 @@ export function SwipeDeck({
     >
       {/* Floating header */}
       <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-4 py-3 z-30 bg-gradient-to-b from-black/60 to-transparent">
-        <button
-          onClick={onSettings}
-          className="p-2 rounded-full hover:bg-white/10 transition"
-          aria-label="Settings"
-        >
-          <svg className="w-6 h-6 text-[#9b9a97]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+        {isPreviewMode ? (
+          <button
+            onClick={onExitPreview}
+            className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 transition border border-white/10"
+            aria-label="Back to home"
+          >
+            <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="text-white/70 text-sm">Back</span>
+          </button>
+        ) : (
+          <button
+            onClick={onSettings}
+            className="p-2 rounded-full hover:bg-white/10 transition"
+            aria-label="Settings"
+          >
+            <svg className="w-6 h-6 text-[#9b9a97]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        )}
 
         {/* Filter button - center */}
         <button
@@ -341,7 +357,7 @@ export function SwipeDeck({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
-          {user && (
+          {user ? (
             <button
               onClick={onBooksHistory}
               className="p-1 rounded-full hover:bg-white/10 transition ml-1"
@@ -350,6 +366,18 @@ export function SwipeDeck({
               <div className="w-7 h-7 rounded-full bg-[#252525] border border-[#37352f] flex items-center justify-center text-[#2383e2] text-xs font-medium">
                 {user.name?.charAt(0).toUpperCase() || 'U'}
               </div>
+            </button>
+          ) : isPreviewMode && (
+            <button
+              onClick={onSignUp}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#2383e2] hover:bg-[#1a73d1] transition text-[#191919] text-sm font-medium ml-1"
+              aria-label="Sign up"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              </svg>
+              Sign up
             </button>
           )}
         </div>

@@ -12,7 +12,7 @@ import { ShareModal } from './components/ShareModal';
 import { QuoteExport } from './components/QuoteExport';
 
 function AppContent() {
-  const { isAuthenticated, isGuestMode, trackBook, logout, user } = useAuth();
+  const { isAuthenticated, isGuestMode, trackBook, logout, exitPreviewMode, loginWithGoogle, user } = useAuth();
 
   const {
     highlights,
@@ -264,14 +264,17 @@ function AppContent() {
             <span className="text-white/80 text-sm">{user.name}</span>
           </button>
         )}
-        {/* Guest mode indicator */}
+        {/* Preview mode - back to landing button */}
         {isGuestMode && !user && (
-          <div className="absolute top-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-full bg-white/5 border border-white/10">
-            <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-white/50 text-xs">
-              G
-            </div>
-            <span className="text-white/50 text-sm">Guest</span>
-          </div>
+          <button
+            onClick={exitPreviewMode}
+            className="absolute top-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 transition border border-white/10"
+          >
+            <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="text-white/70 text-sm">Back</span>
+          </button>
         )}
         <DropZone
           onImportClippings={(content) => {
@@ -344,6 +347,9 @@ function AppContent() {
         onRemoveTag={handleRemoveTag}
         onExport={handleExport}
         focusReviewCount={reviewQueueStats.needsAttentionCount}
+        isPreviewMode={isGuestMode && !user}
+        onExitPreview={exitPreviewMode}
+        onSignUp={loginWithGoogle}
       />
 
       {/* On This Day modal */}

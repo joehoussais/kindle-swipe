@@ -14,7 +14,7 @@ export function LandingPage({ onGetStarted }) {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login, register, loginWithGoogle, continueAsGuest } = useAuth();
+  const { login, register, loginWithGoogle, enterPreviewMode } = useAuth();
 
   // Basic email validation
   const isValidEmail = (email) => {
@@ -156,14 +156,14 @@ export function LandingPage({ onGetStarted }) {
                 <div className="flex-1 h-px bg-white/10" />
               </div>
 
-              {/* Continue without account */}
+              {/* Preview the app */}
               <motion.button
-                onClick={continueAsGuest}
+                onClick={enterPreviewMode}
                 className="mt-4 w-full text-center text-white/40 hover:text-white/60 text-sm transition-colors"
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
               >
-                Continue without account
+                Preview the experience
               </motion.button>
 
               {/* Subtle tagline */}
