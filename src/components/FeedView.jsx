@@ -46,7 +46,7 @@ function getSourceIcon(source) {
 }
 
 // Individual feed card component
-function FeedCard({ highlight, index, onGoToSwipe, onDelete, onAddNote }) {
+function FeedCard({ highlight, index, onGoToSwipe, onDelete, onAddNote, onTagClick }) {
   const [cover, setCover] = useState(() => getCachedCover(highlight.title, highlight.author));
   const [showActions, setShowActions] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -141,12 +141,16 @@ function FeedCard({ highlight, index, onGoToSwipe, onDelete, onAddNote }) {
           {highlight.tags && highlight.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
               {highlight.tags.slice(0, 3).map(tag => (
-                <span
+                <button
                   key={tag}
-                  className="px-2 py-0.5 bg-[#e8f4fd] text-[#1da1f2] text-xs rounded-full"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTagClick?.(tag);
+                  }}
+                  className="px-2 py-0.5 bg-[#e8f4fd] text-[#1da1f2] text-xs rounded-full hover:bg-[#cce4f7] transition"
                 >
                   #{tag}
-                </span>
+                </button>
               ))}
             </div>
           )}
@@ -238,6 +242,76 @@ export function FeedView({
 }) {
   const scrollContainerRef = useRef(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchInputRef = useRef(null);
+
+  // Extract all unique tags, authors, and books for suggestions
+  const suggestions = useMemo(() => {
+    const tags = new Set();
+    const authors = new Set();
+    const books = new Set();
+
+    highlights.forEach(h => {
+      // Custom tags
+      if (h.tags) {
+        h.tags.forEach(tag => tags.add(tag));
+      }
+      // Authors
+      if (h.author && h.author !== 'You' && h.author !== 'Unknown') {
+        authors.add(h.author);
+      }
+      // Books/titles
+      if (h.title && h.title !== 'Personal Thoughts' && h.title !== 'Saved Quotes') {
+        books.add(h.title);
+      }
+    });
+
+    return {
+      tags: Array.from(tags).slice(0, 10),
+      authors: Array.from(authors).slice(0, 10),
+      books: Array.from(books).slice(0, 10)
+    };
+  }, [highlights]);
+
+  // Filter highlights based on search query
+  const filteredHighlights = useMemo(() => {
+    if (!searchQuery.trim()) return highlights;
+
+    const query = searchQuery.toLowerCase().trim();
+
+    return highlights.filter(h => {
+      // Search in text
+      if (h.text?.toLowerCase().includes(query)) return true;
+      // Search in title
+      if (h.title?.toLowerCase().includes(query)) return true;
+      // Search in author
+      if (h.author?.toLowerCase().includes(query)) return true;
+      // Search in tags
+      if (h.tags?.some(tag => tag.toLowerCase().includes(query))) return true;
+      // Search in comment
+      if (h.comment?.toLowerCase().includes(query)) return true;
+
+      return false;
+    });
+  }, [highlights, searchQuery]);
+
+  // Get matching suggestions for dropdown
+  const matchingSuggestions = useMemo(() => {
+    if (!searchQuery.trim()) return { tags: [], authors: [], books: [] };
+
+    const query = searchQuery.toLowerCase().trim();
+
+    return {
+      tags: suggestions.tags.filter(t => t.toLowerCase().includes(query)).slice(0, 5),
+      authors: suggestions.authors.filter(a => a.toLowerCase().includes(query)).slice(0, 5),
+      books: suggestions.books.filter(b => b.toLowerCase().includes(query)).slice(0, 5)
+    };
+  }, [searchQuery, suggestions]);
+
+  const hasMatchingSuggestions = matchingSuggestions.tags.length > 0 ||
+                                  matchingSuggestions.authors.length > 0 ||
+                                  matchingSuggestions.books.length > 0;
 
   // Handle scroll for scroll-to-top button
   const handleScroll = () => {
@@ -250,6 +324,12 @@ export function FeedView({
     scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleSuggestionClick = (value) => {
+    setSearchQuery(value);
+    setShowSuggestions(false);
+    searchInputRef.current?.blur();
+  };
+
   return (
     <div className="h-screen w-screen bg-[#ffffff] flex flex-col">
       {/* Header */}
@@ -258,27 +338,116 @@ export function FeedView({
           {/* Back to swipe */}
           <button
             onClick={onExitFeed}
-            className="flex items-center gap-2 text-[#1da1f2] hover:text-[#1a91da] transition"
+            className="flex items-center gap-2 text-[#1da1f2] hover:text-[#1a91da] transition flex-shrink-0"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            <span className="font-medium">Cards</span>
+            <span className="font-medium hidden sm:inline">Cards</span>
           </button>
 
-          {/* Title */}
-          <h1 className="text-lg font-bold text-[#14171a]">Feed</h1>
+          {/* Search bar */}
+          <div className="flex-1 max-w-md mx-4 relative">
+            <div className="relative">
+              <svg
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#657786]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                placeholder="Search highlights, tags, authors..."
+                className="w-full pl-10 pr-8 py-2 bg-[#e8f4fd] border border-transparent rounded-full text-sm text-[#14171a] placeholder-[#657786] focus:outline-none focus:border-[#1da1f2] focus:bg-white transition"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#657786] hover:text-[#14171a]"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+
+            {/* Suggestions dropdown */}
+            <AnimatePresence>
+              {showSuggestions && hasMatchingSuggestions && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-[#e1e8ed] overflow-hidden z-30"
+                >
+                  {matchingSuggestions.tags.length > 0 && (
+                    <div className="p-2">
+                      <p className="text-xs text-[#657786] uppercase tracking-wider px-2 mb-1">Tags</p>
+                      {matchingSuggestions.tags.map(tag => (
+                        <button
+                          key={tag}
+                          onClick={() => handleSuggestionClick(tag)}
+                          className="w-full text-left px-2 py-1.5 text-sm text-[#14171a] hover:bg-[#e8f4fd] rounded flex items-center gap-2"
+                        >
+                          <span className="text-[#1da1f2]">#</span>
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {matchingSuggestions.authors.length > 0 && (
+                    <div className="p-2 border-t border-[#e1e8ed]">
+                      <p className="text-xs text-[#657786] uppercase tracking-wider px-2 mb-1">Authors</p>
+                      {matchingSuggestions.authors.map(author => (
+                        <button
+                          key={author}
+                          onClick={() => handleSuggestionClick(author)}
+                          className="w-full text-left px-2 py-1.5 text-sm text-[#14171a] hover:bg-[#e8f4fd] rounded flex items-center gap-2"
+                        >
+                          <span className="text-[#657786]">👤</span>
+                          {author}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {matchingSuggestions.books.length > 0 && (
+                    <div className="p-2 border-t border-[#e1e8ed]">
+                      <p className="text-xs text-[#657786] uppercase tracking-wider px-2 mb-1">Books</p>
+                      {matchingSuggestions.books.map(book => (
+                        <button
+                          key={book}
+                          onClick={() => handleSuggestionClick(book)}
+                          className="w-full text-left px-2 py-1.5 text-sm text-[#14171a] hover:bg-[#e8f4fd] rounded truncate flex items-center gap-2"
+                        >
+                          <span className="text-[#657786]">📖</span>
+                          <span className="truncate">{book}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           {/* Sign up or placeholder */}
           {isPreviewMode ? (
             <button
               onClick={onSignUp}
-              className="px-3 py-1.5 bg-[#1da1f2] text-white text-sm font-semibold rounded-full hover:bg-[#1a91da] transition"
+              className="px-3 py-1.5 bg-[#1da1f2] text-white text-sm font-semibold rounded-full hover:bg-[#1a91da] transition flex-shrink-0"
             >
               Sign up
             </button>
           ) : (
-            <div className="w-16" /> // Spacer
+            <div className="w-8 flex-shrink-0" /> // Spacer
           )}
         </div>
       </header>
@@ -290,23 +459,59 @@ export function FeedView({
         className="flex-1 overflow-y-auto"
       >
         <div className="max-w-2xl mx-auto">
-          {highlights.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
-              <span className="text-4xl mb-4">📚</span>
-              <p className="text-[#657786] text-lg">No highlights yet</p>
-              <p className="text-[#657786] text-sm mt-2">
-                Import your Kindle highlights to get started
+          {/* Search results count */}
+          {searchQuery && (
+            <div className="px-4 py-3 border-b border-[#e1e8ed] bg-[#f7f9fa]">
+              <p className="text-sm text-[#657786]">
+                {filteredHighlights.length === 0 ? (
+                  <>No results for "<span className="text-[#14171a] font-medium">{searchQuery}</span>"</>
+                ) : (
+                  <>{filteredHighlights.length} result{filteredHighlights.length !== 1 ? 's' : ''} for "<span className="text-[#14171a] font-medium">{searchQuery}</span>"</>
+                )}
               </p>
             </div>
+          )}
+
+          {filteredHighlights.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+              {searchQuery ? (
+                <>
+                  <span className="text-4xl mb-4">🔍</span>
+                  <p className="text-[#657786] text-lg">No matches found</p>
+                  <p className="text-[#657786] text-sm mt-2">
+                    Try a different search term
+                  </p>
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="mt-4 px-4 py-2 bg-[#1da1f2] text-white text-sm rounded-full hover:bg-[#1a91da] transition"
+                  >
+                    Clear search
+                  </button>
+                </>
+              ) : (
+                <>
+                  <span className="text-4xl mb-4">📚</span>
+                  <p className="text-[#657786] text-lg">No highlights yet</p>
+                  <p className="text-[#657786] text-sm mt-2">
+                    Import your Kindle highlights to get started
+                  </p>
+                </>
+              )}
+            </div>
           ) : (
-            highlights.map((highlight, index) => (
+            filteredHighlights.map((highlight, index) => (
               <FeedCard
                 key={highlight.id}
                 highlight={highlight}
                 index={index}
-                onGoToSwipe={onGoToSwipe}
+                onGoToSwipe={(idx) => {
+                  // Find the original index in the full highlights array
+                  const originalIndex = highlights.findIndex(h => h.id === filteredHighlights[idx].id);
+                  onGoToSwipe(originalIndex);
+                }}
                 onDelete={onDelete}
                 onAddNote={onAddNote}
+                onTagClick={(tag) => setSearchQuery(tag)}
               />
             ))
           )}
