@@ -2,11 +2,34 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project Overview
+
+**Kindle Swipe is a cross-platform app (Web + iOS/Android)** for swiping through and managing reading highlights. Users import highlights from various sources and browse them in a Tinder-like card swipe interface.
+
+### Philosophy
+
+The app should be **ready-to-use even without a Kindle**. Users can discover the best extracts from the world's greatest books - not just short quotes, but meaningful passages that showcase an author's style and the subjects they explore. The goal is to spark curiosity and make people want to read the full book.
+
+### Two Codebases
+
+| Platform | Location | Tech Stack |
+|----------|----------|------------|
+| **Web App** | This repo (`kindle swipe/`) | React + Vite + Tailwind |
+| **Mobile App** | `../kindle-swipe-mobile/` | React Native + Expo (TestFlight ready) |
+
+Both apps share the same Supabase backend and user accounts.
+
 ## Commands
 
+### Web App (this repo)
 - `npm run dev` - Start development server (Vite)
 - `npm run build` - Production build
 - `npm run preview` - Preview production build
+
+### Mobile App (`../kindle-swipe-mobile/`)
+- `npx expo start` - Start Expo dev server
+- `npx expo run:ios` - Run on iOS simulator
+- `eas build --platform ios` - Build for TestFlight
 
 ## Architecture
 
