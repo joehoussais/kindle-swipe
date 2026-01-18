@@ -26,11 +26,11 @@ export const bookmarkletSource = `
   // Target app origin - will be replaced when generating bookmarklet
   const APP_ORIGIN = '__APP_ORIGIN__';
 
-  // TURBO SETTINGS - optimized for speed
-  const POLL_INTERVAL = 50;       // How often to check for content (ms)
-  const RENDER_WAIT = 150;        // Wait for highlights to render (ms)
-  const BOOK_DELAY = 100;         // Delay between books (ms)
-  const TIMEOUT_PER_BOOK = 8000;  // Max wait per book (ms) - reduced from 15s
+  // HYPERSPEED SETTINGS - 2026 AGI mode
+  const POLL_INTERVAL = 30;       // How often to check for content (ms) - FASTER
+  const RENDER_WAIT = 100;        // Wait for highlights to render (ms) - FASTER
+  const BOOK_DELAY = 50;          // Delay between books (ms) - FASTER
+  const TIMEOUT_PER_BOOK = 6000;  // Max wait per book (ms) - FASTER
 
   // Scrape the currently displayed book's highlights
   function scrapeCurrentBook() {
@@ -193,58 +193,77 @@ export const bookmarkletSource = `
     }
   }
 
-  // Show completion screen - NEVER auto-close, ALWAYS show copy button
+  // Show completion screen - BULLETPROOF with visible data
   async function showComplete(exportData, duration) {
     const overlay = document.getElementById('kindle-scraper-overlay');
     if (!overlay) return;
 
     const jsonStr = JSON.stringify(exportData, null, 2);
-    const speed = duration ? ' in ' + (duration / 1000).toFixed(1) + 's' : '';
+    const speed = duration ? (duration / 1000).toFixed(1) + 's' : '';
 
     // Try to auto-copy to clipboard FIRST
     const copied = await copyToClipboard(jsonStr);
-    const copyStatus = copied
-      ? '<div style="font-size:14px;color:#4CAF50;margin-bottom:16px;">✓ Copied to clipboard!</div>'
-      : '<div style="font-size:14px;color:#ff9800;margin-bottom:8px;">⚠ Auto-copy failed - click button below</div>';
 
-    // ALWAYS show the copy button as a safety net - NEVER auto-close
+    // Store in window immediately for recovery
+    window._kindleExportData = exportData;
+    window._kindleExportJSON = jsonStr;
+
+    // BULLETPROOF UI - data is ALWAYS visible and copyable
     overlay.innerHTML =
-      '<div style="text-align:center;max-width:500px;padding:20px;">' +
-        '<div style="font-size:64px;margin-bottom:16px;">⚡</div>' +
-        '<div style="font-size:28px;margin-bottom:8px;font-weight:600;color:#4CAF50;">Done' + speed + '!</div>' +
-        '<div style="font-size:18px;margin-bottom:16px;opacity:0.9;">' +
+      '<div style="text-align:center;width:100%;max-width:600px;padding:20px;max-height:90vh;overflow-y:auto;">' +
+        '<div style="font-size:48px;margin-bottom:12px;">⚡</div>' +
+        '<div style="font-size:32px;margin-bottom:4px;font-weight:700;color:#4CAF50;">Done!</div>' +
+        '<div style="font-size:14px;opacity:0.6;margin-bottom:16px;">' + speed + '</div>' +
+        '<div style="font-size:20px;margin-bottom:20px;font-weight:500;">' +
           exportData.totalHighlights + ' highlights from ' + exportData.bookCount + ' books' +
         '</div>' +
-        copyStatus +
-        '<button id="kindle-scraper-copy" style="background:#4CAF50;color:white;border:none;padding:14px 36px;font-size:16px;border-radius:8px;cursor:pointer;margin-bottom:12px;">' +
-          (copied ? '✓ Copied! (click to copy again)' : 'Copy to Clipboard') +
-        '</button>' +
-        '<div style="font-size:13px;opacity:0.6;margin-bottom:16px;">' +
-          'Paste into the Highlight app to import' +
+        (copied
+          ? '<div style="background:#4CAF50;color:white;padding:12px 24px;border-radius:8px;font-size:16px;font-weight:600;margin-bottom:16px;display:inline-block;">✓ COPIED TO CLIPBOARD</div>'
+          : '<div style="background:#ff9800;color:white;padding:12px 24px;border-radius:8px;font-size:16px;font-weight:600;margin-bottom:16px;display:inline-block;">⚠ Auto-copy failed - copy manually below</div>'
+        ) +
+        '<div style="margin-bottom:8px;">' +
+          '<button id="kindle-scraper-copy" style="background:#2196F3;color:white;border:none;padding:14px 40px;font-size:16px;border-radius:8px;cursor:pointer;font-weight:600;">' +
+            (copied ? 'Copy Again' : 'Copy to Clipboard') +
+          '</button>' +
         '</div>' +
-        '<button id="kindle-scraper-close" style="background:transparent;color:#999;border:1px solid #444;padding:8px 24px;font-size:13px;border-radius:6px;cursor:pointer;">Close</button>' +
+        '<div style="font-size:12px;opacity:0.5;margin-bottom:20px;">Paste into Highlight app → Magic Import → Paste area</div>' +
+        '<div style="text-align:left;margin-bottom:16px;">' +
+          '<div style="font-size:11px;opacity:0.5;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Your data (select all + copy if needed):</div>' +
+          '<textarea id="kindle-scraper-data" readonly style="width:100%;height:150px;background:#111;border:1px solid #333;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;color:#8f8;resize:vertical;"></textarea>' +
+        '</div>' +
+        '<button id="kindle-scraper-close" style="background:#333;color:white;border:none;padding:12px 32px;font-size:14px;border-radius:8px;cursor:pointer;">Close</button>' +
       '</div>';
+
+    // Set textarea value (can't use innerHTML for textarea content)
+    document.getElementById('kindle-scraper-data').value = jsonStr;
 
     document.getElementById('kindle-scraper-copy').onclick = async function() {
       const success = await copyToClipboard(jsonStr);
       if (success) {
         this.innerText = '✓ Copied!';
         this.style.background = '#2E7D32';
+        setTimeout(() => {
+          this.innerText = 'Copy Again';
+          this.style.background = '#2196F3';
+        }, 2000);
       } else {
-        this.innerText = 'Copy failed - try Cmd+A, Cmd+C in console';
+        this.innerText = 'Failed - select textarea above and Cmd+C';
         this.style.background = '#f44336';
       }
+    };
+
+    // Select all in textarea on click
+    document.getElementById('kindle-scraper-data').onclick = function() {
+      this.select();
     };
 
     document.getElementById('kindle-scraper-close').onclick = function() {
       overlay.remove();
     };
 
-    // Store in window for emergency recovery
-    window._kindleExportData = exportData;
-    window._kindleExportJSON = jsonStr;
-    console.log('=== BACKUP: Data stored in window._kindleExportJSON ===');
-    console.log('If clipboard failed, run: copy(window._kindleExportJSON)');
+    console.log('=== EXPORT COMPLETE ===');
+    console.log('Highlights:', exportData.totalHighlights, 'from', exportData.bookCount, 'books');
+    console.log('Backup: copy(window._kindleExportJSON)');
   }
 
   // Main TURBO scraper function
@@ -341,14 +360,14 @@ export const bookmarkletSource = `
 `;
 
 /**
- * Generate TURBO bookmarklet code with the correct app origin
- * BULLETPROOF VERSION: Never auto-closes, always copies to clipboard, always shows copy button
+ * Generate HYPERSPEED bookmarklet code
+ * BULLETPROOF: Shows data in textarea, auto-copies, never closes, impossible to lose data
  */
 export function generateBookmarkletCode(appOrigin) {
   const origin = appOrigin || (typeof window !== 'undefined' ? window.location.origin : 'https://kindle-swipe.netlify.app');
 
-  // BULLETPROOF minified version - never auto-closes, always copies, always shows button
-  return `javascript:(function(){const APP_ORIGIN="${origin}",POLL=50,WAIT=150,DELAY=100,TIMEOUT=8e3;async function cp(s){try{await navigator.clipboard.writeText(s);return!0}catch(e){try{const t=document.createElement("textarea");t.value=s;t.style.cssText="position:fixed;top:0;left:0;opacity:0;";document.body.appendChild(t);t.focus();t.select();const r=document.execCommand("copy");document.body.removeChild(t);return r}catch(e2){return!1}}}function e(){const e=[],t=document.querySelector("h3.kp-notebook-metadata")?.innerText?.trim()||"",n=document.querySelector(".kp-notebook-metadata + p, .kp-notebook-rowitem p.a-spacing-none")?.innerText?.replace(/^By:\\s*/i,"")?.trim()||"",o=document.querySelector("#kp-notebook-annotations-asin")?.value||"";return document.querySelectorAll("#kp-notebook-annotations > div").forEach(t=>{const n=t.querySelector("#highlight")?.innerText?.trim()||"";if(!n)return;const o=t.querySelector(".a-size-small, .a-color-secondary")?.innerText||"",s=o.indexOf("Location:");const a=s>=0?parseInt(o.slice(s+9).trim().replace(/,/g,""),10):null;let l=t.querySelector("#note")?.innerText?.trim()||"";"Note:"===l&&(l=""),e.push({text:n,location:a,note:l||null})}),{asin:o,title:t,author:n,highlights:e}}function t(){const e=[];return document.querySelectorAll("#kp-notebook-library .kp-notebook-library-each-book").forEach(t=>{const n=t.id,o=t.querySelector("h2, h3")?.innerText?.trim()||"";n&&n.match(/^B[A-Z0-9]+$/i)&&e.push({asin:n,element:t,title:o})}),e}function n(e,t,n,o){let s=document.getElementById("kindle-scraper-overlay");s||(s=document.createElement("div"),s.id="kindle-scraper-overlay",s.style.cssText="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;color:white;font-family:system-ui,-apple-system,sans-serif;",document.body.appendChild(s));const a=t>0?Math.round(e/t*100):0,l=o?'<div style="margin-top:12px;font-size:13px;color:#4CAF50;">'+o+" highlights</div>":"";s.innerHTML='<div style="text-align:center;max-width:420px;padding:20px;"><div style="font-size:11px;letter-spacing:2px;opacity:0.5;margin-bottom:8px;">TURBO MODE</div><div style="font-size:28px;margin-bottom:20px;font-weight:600;">Importing Highlights</div><div style="width:320px;height:6px;background:#222;border-radius:3px;overflow:hidden;margin:0 auto;"><div style="width:'+a+'%;height:100%;background:linear-gradient(90deg,#4CAF50,#8BC34A);transition:width 0.15s;"></div></div><div style="margin-top:16px;font-size:24px;font-weight:500;">'+e+" / "+t+"</div>"+l+'<div style="margin-top:8px;font-size:13px;opacity:0.6;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(n||"")+'</div><button id="kindle-scraper-cancel" style="margin-top:20px;background:transparent;color:#999;border:1px solid #444;padding:8px 20px;border-radius:4px;cursor:pointer;font-size:12px;">Cancel</button></div>',document.getElementById("kindle-scraper-cancel").onclick=function(){window._kindleScraperCancelled=!0,s.remove()}}function o(e,t){return new Promise(function(n){const o=Date.now();!function s(){const a=document.querySelector("#kp-notebook-annotations-asin")?.value,l=document.querySelectorAll("#kp-notebook-annotations #highlight").length;a===e&&l>0?setTimeout(function(){n(!0)},WAIT):a===e&&Date.now()-o>1500?n(!0):Date.now()-o>t?n(!1):setTimeout(s,POLL)}()})}function s(e){try{localStorage.setItem("kindle-highlights-pending",JSON.stringify(e))}catch(x){}if(window.opener)try{window.opener.postMessage({type:"kindle-highlights-import",data:e},APP_ORIGIN)}catch(x){}}async function a(e,d){const o=document.getElementById("kindle-scraper-overlay");if(!o)return;const j=JSON.stringify(e,null,2),l=d?" in "+(d/1e3).toFixed(1)+"s":"";const copied=await cp(j);const cs=copied?'<div style="font-size:14px;color:#4CAF50;margin-bottom:16px;">✓ Copied to clipboard!</div>':'<div style="font-size:14px;color:#ff9800;margin-bottom:8px;">⚠ Auto-copy failed - click button below</div>';o.innerHTML='<div style="text-align:center;max-width:500px;padding:20px;"><div style="font-size:64px;margin-bottom:16px;">⚡</div><div style="font-size:28px;margin-bottom:8px;font-weight:600;color:#4CAF50;">Done'+l+'!</div><div style="font-size:18px;margin-bottom:16px;opacity:0.9;">'+e.totalHighlights+" highlights from "+e.bookCount+" books</div>"+cs+'<button id="kindle-scraper-copy" style="background:#4CAF50;color:white;border:none;padding:14px 36px;font-size:16px;border-radius:8px;cursor:pointer;margin-bottom:12px;">'+(copied?"✓ Copied! (click to copy again)":"Copy to Clipboard")+'</button><div style="font-size:13px;opacity:0.6;margin-bottom:16px;">Paste into Highlight app to import</div><button id="kindle-scraper-close" style="background:transparent;color:#999;border:1px solid #444;padding:8px 24px;font-size:13px;border-radius:6px;cursor:pointer;">Close</button></div>';document.getElementById("kindle-scraper-copy").onclick=async function(){if(await cp(j)){this.innerText="✓ Copied!";this.style.background="#2E7D32"}else{this.innerText="Failed - see console";this.style.background="#f44336"}};document.getElementById("kindle-scraper-close").onclick=function(){o.remove()};window._kindleExportData=e;window._kindleExportJSON=j;console.log("=== BACKUP: copy(window._kindleExportJSON) ===")}!async function(){const l=Date.now();window._kindleScraperCancelled=!1;const r=t(),c=r.length;if(0===c)return void alert("No books found! Make sure you are on read.amazon.com/notebook and signed in.");const d=[];let i=0,u=0;for(let t=0;t<r.length;t++){if(window._kindleScraperCancelled)return void console.log("Cancelled");const x=r[t];n(t,c,x.title.slice(0,45),i);try{if(x.element.click(),!await o(x.asin,TIMEOUT)){u++;continue}const t=e();t.highlights.length>0&&(d.push(t),i+=t.highlights.length,console.log("✓",t.title,"-",t.highlights.length))}catch(e){u++}await new Promise(e=>setTimeout(e,DELAY))}const p=Date.now()-l,g={exportedAt:(new Date).toISOString(),source:"kindle-notebook-scraper",bookCount:d.length,totalHighlights:i,books:d};n(c,c,"Copying...",i);s(g);setTimeout(function(){a(g,p)},300);console.log("TURBO!",g.bookCount,"books,",i,"highlights in",(p/1e3).toFixed(1)+"s")}().catch(function(e){console.error(e);alert("Error: "+e.message);const t=document.getElementById("kindle-scraper-overlay");t&&t.remove()})})();`;
+  // HYPERSPEED + BULLETPROOF minified version
+  return `javascript:(function(){const APP="${origin}",POLL=30,WAIT=100,DELAY=50,TIMEOUT=6e3;async function cp(s){try{await navigator.clipboard.writeText(s);return!0}catch(e){try{const t=document.createElement("textarea");t.value=s;t.style.cssText="position:fixed;top:0;left:0;opacity:0;";document.body.appendChild(t);t.focus();t.select();const r=document.execCommand("copy");document.body.removeChild(t);return r}catch(e2){return!1}}}function scrape(){const h=[],ti=document.querySelector("h3.kp-notebook-metadata")?.innerText?.trim()||"",au=document.querySelector(".kp-notebook-metadata + p, .kp-notebook-rowitem p.a-spacing-none")?.innerText?.replace(/^By:\\s*/i,"")?.trim()||"",asin=document.querySelector("#kp-notebook-annotations-asin")?.value||"";document.querySelectorAll("#kp-notebook-annotations > div").forEach(r=>{const tx=r.querySelector("#highlight")?.innerText?.trim()||"";if(!tx)return;const lb=r.querySelector(".a-size-small, .a-color-secondary")?.innerText||"",li=lb.indexOf("Location:");const loc=li>=0?parseInt(lb.slice(li+9).trim().replace(/,/g,""),10):null;let nt=r.querySelector("#note")?.innerText?.trim()||"";"Note:"===nt&&(nt="");h.push({text:tx,location:loc,note:nt||null})});return{asin,title:ti,author:au,highlights:h}}function getBooks(){const b=[];document.querySelectorAll("#kp-notebook-library .kp-notebook-library-each-book").forEach(el=>{const id=el.id,ti=el.querySelector("h2, h3")?.innerText?.trim()||"";id&&id.match(/^B[A-Z0-9]+$/i)&&b.push({asin:id,element:el,title:ti})});return b}function prog(done,total,msg,cnt){let ov=document.getElementById("ks-ov");ov||(ov=document.createElement("div"),ov.id="ks-ov",ov.style.cssText="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);z-index:99999;display:flex;align-items:center;justify-content:center;color:white;font-family:system-ui,-apple-system,sans-serif;",document.body.appendChild(ov));const pct=total>0?Math.round(done/total*100):0;ov.innerHTML='<div style="text-align:center;padding:20px;"><div style="font-size:11px;letter-spacing:2px;opacity:0.5;margin-bottom:8px;">HYPERSPEED</div><div style="font-size:28px;margin-bottom:20px;font-weight:600;">Importing</div><div style="width:320px;height:6px;background:#222;border-radius:3px;overflow:hidden;margin:0 auto;"><div style="width:'+pct+'%;height:100%;background:linear-gradient(90deg,#4CAF50,#8BC34A);transition:width 0.1s;"></div></div><div style="margin-top:16px;font-size:24px;">'+done+"/"+total+'</div>'+(cnt?'<div style="margin-top:8px;color:#4CAF50;">'+cnt+' highlights</div>':'')+'<div style="margin-top:8px;font-size:12px;opacity:0.5;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(msg||'')+'</div><button id="ks-cancel" style="margin-top:16px;background:transparent;color:#666;border:1px solid #444;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:11px;">Cancel</button></div>';document.getElementById("ks-cancel").onclick=()=>{window._ksCancelled=!0;ov.remove()}}function wait(asin,timeout){return new Promise(res=>{const st=Date.now();(function chk(){const cur=document.querySelector("#kp-notebook-annotations-asin")?.value,cnt=document.querySelectorAll("#kp-notebook-annotations #highlight").length;cur===asin&&cnt>0?setTimeout(()=>res(!0),WAIT):cur===asin&&Date.now()-st>1200?res(!0):Date.now()-st>timeout?res(!1):setTimeout(chk,POLL)})()})}function send(d){try{localStorage.setItem("kindle-highlights-pending",JSON.stringify(d))}catch(e){}if(window.opener)try{window.opener.postMessage({type:"kindle-highlights-import",data:d},APP)}catch(e){}}async function done(d,dur){const ov=document.getElementById("ks-ov");if(!ov)return;const j=JSON.stringify(d,null,2);window._kindleExportData=d;window._kindleExportJSON=j;const copied=await cp(j);const spd=dur?(dur/1e3).toFixed(1)+"s":"";ov.innerHTML='<div style="text-align:center;width:100%;max-width:580px;padding:20px;max-height:90vh;overflow-y:auto;"><div style="font-size:48px;margin-bottom:8px;">⚡</div><div style="font-size:32px;font-weight:700;color:#4CAF50;">Done!</div><div style="font-size:13px;opacity:0.5;margin-bottom:12px;">'+spd+'</div><div style="font-size:20px;margin-bottom:16px;">'+d.totalHighlights+' highlights from '+d.bookCount+' books</div>'+(copied?'<div style="background:#4CAF50;color:white;padding:10px 20px;border-radius:8px;font-weight:600;margin-bottom:12px;display:inline-block;">✓ COPIED TO CLIPBOARD</div>':'<div style="background:#ff9800;color:white;padding:10px 20px;border-radius:8px;font-weight:600;margin-bottom:12px;display:inline-block;">⚠ Copy manually below</div>')+'<div style="margin-bottom:6px;"><button id="ks-copy" style="background:#2196F3;color:white;border:none;padding:12px 32px;font-size:15px;border-radius:8px;cursor:pointer;font-weight:600;">'+(copied?"Copy Again":"Copy")+'</button></div><div style="font-size:11px;opacity:0.4;margin-bottom:16px;">Paste in Highlight app → Magic Import</div><div style="text-align:left;"><div style="font-size:10px;opacity:0.4;margin-bottom:4px;text-transform:uppercase;">Your data:</div><textarea id="ks-data" readonly style="width:100%;height:120px;background:#111;border:1px solid #333;border-radius:6px;padding:10px;font-family:monospace;font-size:10px;color:#8f8;resize:vertical;"></textarea></div><button id="ks-close" style="margin-top:12px;background:#333;color:white;border:none;padding:10px 24px;font-size:13px;border-radius:6px;cursor:pointer;">Close</button></div>';document.getElementById("ks-data").value=j;document.getElementById("ks-copy").onclick=async function(){if(await cp(j)){this.innerText="✓ Copied!";this.style.background="#2E7D32";setTimeout(()=>{this.innerText="Copy Again";this.style.background="#2196F3"},1500)}else{this.innerText="Select textarea + Cmd+C";this.style.background="#f44336"}};document.getElementById("ks-data").onclick=function(){this.select()};document.getElementById("ks-close").onclick=()=>ov.remove();console.log("=== DONE:",d.totalHighlights,"highlights from",d.bookCount,"books ===")}!async function(){const st=Date.now();window._ksCancelled=!1;const books=getBooks(),total=books.length;if(!total)return alert("No books found! Make sure you're on read.amazon.com/notebook and signed in.");const scraped=[];let cnt=0;for(let i=0;i<books.length;i++){if(window._ksCancelled)return;const b=books[i];prog(i,total,b.title.slice(0,40),cnt);try{b.element.click();if(!await wait(b.asin,TIMEOUT))continue;const d=scrape();if(d.highlights.length>0){scraped.push(d);cnt+=d.highlights.length;console.log("✓",d.title,"-",d.highlights.length)}}catch(e){console.error(e)}await new Promise(r=>setTimeout(r,DELAY))}const dur=Date.now()-st;const out={exportedAt:new Date().toISOString(),source:"kindle-notebook-scraper",bookCount:scraped.length,totalHighlights:cnt,books:scraped};prog(total,total,"Finishing...",cnt);send(out);setTimeout(()=>done(out,dur),200);console.log("HYPERSPEED!",out.bookCount,"books,",cnt,"highlights in",(dur/1e3).toFixed(1)+"s")}().catch(e=>{console.error(e);alert("Error: "+e.message);document.getElementById("ks-ov")?.remove()})})();`;
 }
 
 // Legacy export for backward compatibility
