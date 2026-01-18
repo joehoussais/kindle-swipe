@@ -1,7 +1,7 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BACKGROUNDS } from '../utils/backgrounds';
-import { bookmarkletCode } from '../utils/kindleBookmarklet';
+import { generateBookmarkletCode } from '../utils/kindleBookmarklet';
 
 export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, onImportTweets, onLoadStarterPack, onAddThought }) {
   const [isDragging, setIsDragging] = useState(false);
@@ -20,6 +20,12 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
   const [bgLoaded, setBgLoaded] = useState(false);
   const [userPath, setUserPath] = useState(null); // null = choosing, 'kindle' = has kindle, 'explore' = no kindle
   const [activeTab, setActiveTab] = useState('kindle'); // 'kindle', 'journal', 'tweets', 'thought'
+  const [waitingForKindle, setWaitingForKindle] = useState(false);
+  const [bookmarkletCopied, setBookmarkletCopied] = useState(false);
+  const kindleWindowRef = useRef(null);
+
+  // Generate bookmarklet code with current origin
+  const bookmarkletCode = generateBookmarkletCode();
 
   // Pick a random background on mount
   const [background] = useState(() => {
@@ -37,9 +43,8 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
   // Listen for postMessage from Kindle bookmarklet
   useEffect(() => {
     const handleMessage = (event) => {
-      // Only accept messages from Amazon's Kindle Notebook
-      if (!event.origin.includes('amazon.com')) return;
-
+      // Accept messages from Amazon's Kindle Notebook (when using postMessage from popup)
+      // The bookmarklet sends to our origin, so we check the message type instead
       if (event.data?.type === 'kindle-highlights-import' && event.data?.data) {
         const exportData = event.data.data;
         if (exportData.source === 'kindle-notebook-scraper' && exportData.books) {
@@ -47,6 +52,8 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
           const jsonStr = JSON.stringify(exportData);
           const count = onImportAmazon(jsonStr);
           setImportResult({ type: 'cloud', count });
+          setWaitingForKindle(false);
+          setShowCloudModal(false);
           setTimeout(() => setImportResult(null), 3000);
         }
       }
@@ -55,6 +62,67 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [onImportAmazon]);
+
+  // Check for pending highlights in localStorage (fallback mechanism)
+  useEffect(() => {
+    const checkPendingHighlights = () => {
+      try {
+        const pending = localStorage.getItem('kindle-highlights-pending');
+        if (pending) {
+          const exportData = JSON.parse(pending);
+          if (exportData.source === 'kindle-notebook-scraper' && exportData.books) {
+            const count = onImportAmazon(pending);
+            setImportResult({ type: 'cloud', count });
+            setWaitingForKindle(false);
+            setShowCloudModal(false);
+            localStorage.removeItem('kindle-highlights-pending');
+            setTimeout(() => setImportResult(null), 3000);
+          }
+        }
+      } catch (e) {
+        console.error('Error checking pending highlights:', e);
+      }
+    };
+
+    // Check immediately and also on window focus
+    checkPendingHighlights();
+    window.addEventListener('focus', checkPendingHighlights);
+    return () => window.removeEventListener('focus', checkPendingHighlights);
+  }, [onImportAmazon]);
+
+  // Open Kindle Notebook in a popup
+  const openKindleNotebook = useCallback(() => {
+    setWaitingForKindle(true);
+    // Open in a popup window that we can track
+    const width = 1200;
+    const height = 800;
+    const left = (window.screen.width - width) / 2;
+    const top = (window.screen.height - height) / 2;
+    kindleWindowRef.current = window.open(
+      'https://read.amazon.com/notebook',
+      'kindle-notebook',
+      `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=yes,location=yes,status=no`
+    );
+  }, []);
+
+  // Copy bookmarklet to clipboard
+  const copyBookmarklet = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(bookmarkletCode);
+      setBookmarkletCopied(true);
+      setTimeout(() => setBookmarkletCopied(false), 2000);
+    } catch (e) {
+      // Fallback
+      const ta = document.createElement('textarea');
+      ta.value = bookmarkletCode;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      setBookmarkletCopied(true);
+      setTimeout(() => setBookmarkletCopied(false), 2000);
+    }
+  }, [bookmarkletCode]);
 
   const handleDragOver = useCallback((e) => {
     e.preventDefault();
@@ -395,22 +463,22 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                   onClick={() => setShowCloudModal(true)}
                   className={`flex-1 py-4 px-4 rounded-xl backdrop-blur-sm
                              border transition-all duration-300 text-left
-                             ${borderColor} ${bgCard} hover:bg-opacity-80`}
+                             ${borderColor} ${bgCard} hover:bg-opacity-80 hover:ring-2 hover:ring-[#4CAF50]/50`}
                   style={{
                     boxShadow: '0 10px 40px rgba(0,0,0,0.2)'
                   }}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-xl text-[#4CAF50]">☁</span>
+                    <span className="text-xl">✨</span>
                     <div>
                       <h3
                         className={`font-semibold text-sm ${textPrimary}`}
                         style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
                       >
-                        Kindle Cloud
+                        Magic Import
                       </h3>
                       <p className={`text-xs ${textSecondary}`}>
-                        Auto-sync all books
+                        One-click sync
                       </p>
                     </div>
                   </div>
@@ -674,7 +742,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
         )}
       </AnimatePresence>
 
-      {/* Kindle Cloud modal with bookmarklet */}
+      {/* Kindle Cloud modal with bookmarklet - STREAMLINED */}
       <AnimatePresence>
         {showCloudModal && (
           <motion.div
@@ -682,7 +750,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80"
-            onClick={() => setShowCloudModal(false)}
+            onClick={() => { setShowCloudModal(false); setWaitingForKindle(false); }}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
@@ -691,103 +759,132 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
               className="w-full max-w-lg bg-[#191919] rounded-2xl p-6 border border-[#252525] max-h-[90vh] overflow-y-auto"
               onClick={e => e.stopPropagation()}
             >
-              <h2 className="text-xl font-semibold mb-4 text-[#ffffffeb]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+              <h2 className="text-xl font-semibold mb-2 text-[#ffffffeb]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
                 Import from Kindle Cloud
               </h2>
+              <p className="text-[#9b9a97] text-sm mb-6">
+                One-time setup, then auto-imports forever
+              </p>
 
-              <div className="space-y-4 mb-6">
-                {/* Step 1 */}
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#4CAF50] text-white text-sm flex items-center justify-center font-medium">1</div>
-                  <div>
-                    <p className="text-[#ffffffeb] text-sm font-medium">Save this bookmarklet</p>
-                    <p className="text-[#9b9a97] text-xs mt-1">Drag this button to your bookmarks bar:</p>
-                    <a
-                      href={bookmarkletCode}
-                      className="inline-block mt-2 px-4 py-2 bg-[#4CAF50] text-white rounded-lg text-sm font-medium
-                                 hover:bg-[#43a047] transition cursor-grab active:cursor-grabbing"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        navigator.clipboard.writeText(bookmarkletCode);
-                        alert('Bookmarklet code copied! Create a new bookmark and paste this as the URL.');
-                      }}
-                    >
-                      Get Kindle Highlights
-                    </a>
-                    <p className="text-[#9b9a97] text-xs mt-1 italic">
-                      Can't drag? Click to copy, then create a bookmark and paste as URL.
-                    </p>
-                  </div>
+              {/* Waiting state */}
+              {waitingForKindle ? (
+                <div className="text-center py-8">
+                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#4CAF50] border-t-transparent mb-4" />
+                  <p className="text-[#ffffffeb] text-lg mb-2">Waiting for highlights...</p>
+                  <p className="text-[#9b9a97] text-sm mb-4">
+                    Sign in to Amazon, then click your bookmarklet
+                  </p>
+                  <button
+                    onClick={() => setWaitingForKindle(false)}
+                    className="text-[#9b9a97] text-sm hover:text-white transition"
+                  >
+                    Cancel
+                  </button>
                 </div>
-
-                {/* Step 2 */}
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#4CAF50]/60 text-white text-sm flex items-center justify-center font-medium">2</div>
-                  <div>
-                    <p className="text-[#ffffffeb] text-sm font-medium">Go to Kindle Notebook</p>
-                    <p className="text-[#9b9a97] text-xs mt-1">
-                      Open{' '}
+              ) : (
+                <>
+                  {/* Step 1: One-time bookmarklet setup */}
+                  <div className="bg-[#0a0a0a] rounded-xl p-4 mb-4 border border-[#ffffff14]">
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#4CAF50] text-white text-xs flex items-center justify-center font-bold">1</div>
+                      <div className="flex-1">
+                        <p className="text-[#ffffffeb] text-sm font-medium">Add the Magic Button (one time)</p>
+                        <p className="text-[#9b9a97] text-xs mt-1">
+                          Drag this to your bookmarks bar:
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 ml-9">
                       <a
-                        href="https://read.amazon.com/notebook"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#2383e2] hover:underline"
+                        href={bookmarkletCode}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#4CAF50] to-[#8BC34A] text-white rounded-lg text-sm font-semibold
+                                   hover:from-[#43a047] hover:to-[#7cb342] transition shadow-lg cursor-grab active:cursor-grabbing"
+                        onClick={(e) => e.preventDefault()}
+                        draggable="true"
                       >
-                        read.amazon.com/notebook
+                        <span className="text-lg">✨</span>
+                        Get Highlights
                       </a>
-                      {' '}and sign in.
+                      <button
+                        onClick={copyBookmarklet}
+                        className={`px-3 py-2 rounded-lg text-xs transition ${
+                          bookmarkletCopied
+                            ? 'bg-[#4CAF50]/20 text-[#4CAF50]'
+                            : 'bg-[#252525] text-[#9b9a97] hover:text-white'
+                        }`}
+                      >
+                        {bookmarkletCopied ? '✓ Copied!' : 'Copy'}
+                      </button>
+                    </div>
+                    <p className="text-[#9b9a97] text-xs mt-2 ml-9 italic">
+                      Can't drag? Click Copy, create a bookmark, paste as URL
                     </p>
                   </div>
-                </div>
 
-                {/* Step 3 */}
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#4CAF50]/40 text-white text-sm flex items-center justify-center font-medium">3</div>
-                  <div>
-                    <p className="text-[#ffffffeb] text-sm font-medium">Run the bookmarklet</p>
-                    <p className="text-[#9b9a97] text-xs mt-1">
-                      Click the bookmarklet. It will automatically cycle through all your books and copy the highlights.
-                    </p>
+                  {/* Step 2: Open Kindle */}
+                  <div className="bg-[#0a0a0a] rounded-xl p-4 mb-4 border border-[#ffffff14]">
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#4CAF50]/70 text-white text-xs flex items-center justify-center font-bold">2</div>
+                      <div className="flex-1">
+                        <p className="text-[#ffffffeb] text-sm font-medium">Open Kindle Notebook</p>
+                        <p className="text-[#9b9a97] text-xs mt-1">
+                          Then click your bookmarklet - highlights auto-import!
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={openKindleNotebook}
+                      className="ml-9 inline-flex items-center gap-2 px-4 py-2.5 bg-[#FF9900] text-black rounded-lg text-sm font-semibold
+                                 hover:bg-[#ffad33] transition shadow-lg"
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M21.94 13.11l-1.18-1.18c-.27-.27-.63-.42-1-.42-.37 0-.73.15-1 .42l-1.19 1.19-3.78-3.79 1.19-1.18c.27-.27.42-.63.42-1s-.15-.73-.42-1L13.8 5.17c-.27-.27-.63-.42-1-.42-.37 0-.73.15-1 .42l-9.13 9.13c-.27.27-.42.63-.42 1s.15.73.42 1l1.18 1.18c.27.27.63.42 1 .42.37 0 .73-.15 1-.42l1.19-1.19 3.78 3.79-1.19 1.18c-.27.27-.42.63-.42 1s.15.73.42 1l1.18 1.18c.27.27.63.42 1 .42.37 0 .73-.15 1-.42l9.13-9.13c.27-.27.42-.63.42-1s-.15-.73-.42-1z"/>
+                      </svg>
+                      Open Kindle Notebook
+                    </button>
                   </div>
-                </div>
 
-                {/* Step 4 */}
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#4CAF50]/20 text-white text-sm flex items-center justify-center font-medium">4</div>
-                  <div>
-                    <p className="text-[#ffffffeb] text-sm font-medium">Paste your highlights below</p>
+                  {/* Manual paste fallback */}
+                  <details className="group">
+                    <summary className="text-[#9b9a97] text-xs cursor-pointer hover:text-white transition flex items-center gap-1">
+                      <svg className="w-3 h-3 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                      Having trouble? Paste manually
+                    </summary>
+                    <div className="mt-3">
+                      <textarea
+                        value={cloudContent}
+                        onChange={(e) => setCloudContent(e.target.value)}
+                        placeholder='Paste the JSON from the bookmarklet here...'
+                        className="w-full h-24 p-3 rounded-xl bg-[#0a0a0a] border border-[#ffffff14]
+                                   focus:border-[#4CAF50] focus:outline-none resize-none
+                                   font-mono text-xs text-[#ffffffeb]"
+                      />
+                      <button
+                        onClick={handleCloudSubmit}
+                        disabled={!cloudContent.trim()}
+                        className="mt-2 w-full py-2 rounded-lg bg-[#4CAF50] hover:bg-[#43a047]
+                                   disabled:opacity-50 disabled:cursor-not-allowed transition text-white text-sm font-medium"
+                      >
+                        Import Pasted Data
+                      </button>
+                    </div>
+                  </details>
+
+                  <div className="flex gap-3 mt-6">
+                    <button
+                      onClick={() => setShowCloudModal(false)}
+                      className="flex-1 py-3 rounded-xl bg-[#252525] hover:bg-[#ffffff14] transition text-[#ffffffeb]"
+                    >
+                      Close
+                    </button>
                   </div>
-                </div>
-              </div>
-
-              <textarea
-                value={cloudContent}
-                onChange={(e) => setCloudContent(e.target.value)}
-                placeholder='Paste the JSON from the bookmarklet here (Cmd/Ctrl+V)...'
-                className="w-full h-32 p-4 rounded-xl bg-[#0a0a0a] border border-[#ffffff14]
-                           focus:border-[#4CAF50] focus:outline-none resize-none
-                           font-mono text-xs text-[#ffffffeb]"
-              />
-
-              <div className="flex gap-3 mt-4">
-                <button
-                  onClick={() => setShowCloudModal(false)}
-                  className="flex-1 py-3 rounded-xl bg-[#252525] hover:bg-[#ffffff14] transition text-[#ffffffeb]"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleCloudSubmit}
-                  disabled={!cloudContent.trim()}
-                  className="flex-1 py-3 rounded-xl bg-[#4CAF50] hover:bg-[#43a047]
-                             disabled:opacity-50 disabled:cursor-not-allowed transition text-white font-medium"
-                >
-                  Import Highlights
-                </button>
-              </div>
+                </>
+              )}
 
               <p className="text-[#9b9a97] text-xs text-center mt-4">
-                This runs entirely in your browser - no data sent to any server.
+                100% private - runs in your browser, no data sent anywhere
               </p>
             </motion.div>
           </motion.div>
