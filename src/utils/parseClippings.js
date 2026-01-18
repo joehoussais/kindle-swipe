@@ -9,6 +9,8 @@
  * ==========
  */
 
+import { cleanTitle, cleanAuthor } from './cleanBookMetadata';
+
 export function parseClippings(text) {
   const highlights = [];
   const entries = text.split('==========').filter(entry => entry.trim());
@@ -70,26 +72,7 @@ export function parseClippings(text) {
   return highlights;
 }
 
-function cleanTitle(title) {
-  // Remove file extensions and clean up
-  return title
-    .replace(/\.mobi$/i, '')
-    .replace(/\.epub$/i, '')
-    .replace(/\.azw3?$/i, '')
-    .replace(/\.pdf$/i, '')
-    .trim();
-}
-
-function cleanAuthor(author) {
-  // Handle "Last, First" format
-  if (author.includes(',') && !author.includes(' and ')) {
-    const parts = author.split(',').map(p => p.trim());
-    if (parts.length === 2 && !parts[1].includes(' ')) {
-      return `${parts[1]} ${parts[0]}`;
-    }
-  }
-  return author;
-}
+// cleanTitle and cleanAuthor are now imported from cleanBookMetadata.js
 
 function generateId(title, text) {
   // Create a simple hash for deduplication

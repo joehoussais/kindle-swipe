@@ -4,6 +4,7 @@ import { parseAmazonNotebook } from '../utils/parseAmazonNotebook';
 import { preloadCovers } from '../utils/bookCovers';
 import { generateStarterHighlights } from '../utils/starterPack';
 import { saveHighlightsToDb, loadHighlightsFromDb, updateHighlightInDb, clearAllHighlightsFromDb } from '../utils/supabase';
+import { cleanHighlights, needsCleaning } from '../utils/cleanBookMetadata';
 
 const STORAGE_KEY = 'highlight-app-data';
 const INDEX_KEY = 'highlight-app-index';
@@ -379,6 +380,13 @@ export function useHighlights(onBooksImported, userId = null) {
         }
 
         if (loadedHighlights.length > 0) {
+          // Clean up messy titles/authors from pirated PDFs, etc.
+          const needsClean = loadedHighlights.some(h => needsCleaning(h.title));
+          if (needsClean) {
+            console.log('[useHighlights] Cleaning messy book metadata...');
+            loadedHighlights = cleanHighlights(loadedHighlights);
+          }
+
           console.log('[useHighlights] Setting highlights:', loadedHighlights.length);
           setHighlights(loadedHighlights);
           const storedIndex = localStorage.getItem(INDEX_KEY);
