@@ -90,19 +90,11 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
     return () => window.removeEventListener('focus', checkPendingHighlights);
   }, [onImportAmazon]);
 
-  // Open Kindle Notebook in a popup
-  const openKindleNotebook = useCallback(() => {
-    setWaitingForKindle(true);
-    // Open in a popup window that we can track
-    const width = 1200;
-    const height = 800;
-    const left = (window.screen.width - width) / 2;
-    const top = (window.screen.height - height) / 2;
-    kindleWindowRef.current = window.open(
-      'https://read.amazon.com/notebook',
-      'kindle-notebook',
-      `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=yes,location=yes,status=no`
-    );
+  // Open Kindle Notebook in a new tab (NOT popup - so bookmarks bar is visible!)
+  const openKindleNotebook = useCallback((e) => {
+    if (e) e.preventDefault();
+    // Open in a regular new tab so the user can see their bookmarks bar
+    kindleWindowRef.current = window.open('https://read.amazon.com/notebook', '_blank');
   }, []);
 
   // Copy bookmarklet to clipboard
