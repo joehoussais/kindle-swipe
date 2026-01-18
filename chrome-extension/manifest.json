@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Highlight - Kindle Sync",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "One-click import of your Kindle highlights to the Highlight app",
   "permissions": ["activeTab", "storage"],
   "host_permissions": [
