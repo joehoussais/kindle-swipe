@@ -139,7 +139,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
   const [editingHighlight, setEditingHighlight] = useState(null);
   const [editText, setEditText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState('gallery'); // 'list' or 'gallery'
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'gallery' - default to list for Twitter feel
   const [commentingHighlight, setCommentingHighlight] = useState(null);
   const [commentText, setCommentText] = useState('');
 
@@ -231,45 +231,16 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-[#0a0a0a]/98 backdrop-blur-sm overflow-hidden"
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm overflow-hidden"
     >
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col bg-white max-w-2xl mx-auto shadow-2xl">
         {/* Header */}
-        <div className="flex-shrink-0 p-4 border-b border-[#252525]">
+        <div className="flex-shrink-0 p-4 border-b border-[#e1e8ed] sticky top-0 bg-white/95 backdrop-blur-sm z-10">
           <div className="flex items-center justify-between mb-4">
-            <h2
-              className="text-xl font-semibold text-[#ffffffeb]"
-              style={{ fontFamily: "'Cormorant Garamond', serif" }}
-            >
-              {selectedBook ? selectedBook.title : 'Your Library'}
-            </h2>
-            <div className="flex items-center gap-2">
-              {/* View toggle - only show when not in book detail */}
-              {!selectedBook && (
-                <div className="flex rounded-lg overflow-hidden border border-[#ffffff14]">
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-2 transition ${viewMode === 'list' ? 'bg-[#252525] text-[#2383e2]' : 'text-[#787774] hover:bg-[#252525]/50'}`}
-                    title="List view"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => setViewMode('gallery')}
-                    className={`p-2 transition ${viewMode === 'gallery' ? 'bg-[#252525] text-[#2383e2]' : 'text-[#787774] hover:bg-[#252525]/50'}`}
-                    title="Gallery view"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
-                    </svg>
-                  </button>
-                </div>
-              )}
+            <div className="flex items-center gap-3">
               <button
                 onClick={selectedBook ? () => setSelectedBook(null) : onClose}
-                className="p-2 rounded-full hover:bg-[#252525] transition text-[#9b9a97]"
+                className="p-2 rounded-full hover:bg-[#e8f4fd] transition text-[#657786]"
               >
                 {selectedBook ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -281,12 +252,38 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                   </svg>
                 )}
               </button>
+              <h2 className="text-xl font-bold text-[#14171a]">
+                {selectedBook ? selectedBook.title : 'Library'}
+              </h2>
             </div>
+            {/* View toggle - only show when not in book detail */}
+            {!selectedBook && (
+              <div className="flex rounded-full overflow-hidden border border-[#e1e8ed]">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 transition ${viewMode === 'list' ? 'bg-[#1da1f2] text-white' : 'text-[#657786] hover:bg-[#e8f4fd]'}`}
+                  title="List view"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setViewMode('gallery')}
+                  className={`p-2 transition ${viewMode === 'gallery' ? 'bg-[#1da1f2] text-white' : 'text-[#657786] hover:bg-[#e8f4fd]'}`}
+                  title="Gallery view"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                  </svg>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Search */}
           <div className="relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#787774]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#657786]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
@@ -294,14 +291,14 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search passages..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl bg-[#191919] border border-[#ffffff14]
-                         focus:border-[#2383e2] focus:outline-none text-sm text-[#ffffffeb] placeholder-[#787774]"
+              className="w-full pl-10 pr-4 py-2 rounded-full bg-[#e8f4fd] border border-transparent
+                         focus:border-[#1da1f2] focus:bg-white focus:outline-none text-sm text-[#14171a] placeholder-[#657786]"
             />
           </div>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto">
           <AnimatePresence mode="wait">
             {!selectedBook ? (
               // Book list/gallery view
@@ -312,7 +309,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4"
+                  className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 p-4"
                 >
                   {filteredBooks.map((book) => (
                     <motion.button
@@ -329,10 +326,10 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                         size="gallery"
                       />
                       <div className="mt-2 w-full text-center">
-                        <h3 className="text-xs text-[#ffffffeb] truncate font-medium">
+                        <h3 className="text-xs text-[#14171a] truncate font-semibold">
                           {book.title}
                         </h3>
-                        <p className="text-[10px] text-[#787774] truncate">
+                        <p className="text-[10px] text-[#657786] truncate">
                           {book.highlights.length} passage{book.highlights.length !== 1 ? 's' : ''}
                         </p>
                       </div>
@@ -340,25 +337,22 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                   ))}
                 </motion.div>
               ) : (
-                // List view
+                // List view - Twitter-style
                 <motion.div
                   key="list"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="space-y-2"
+                  className="divide-y divide-[#e1e8ed]"
                 >
                   {filteredBooks.map((book) => (
                     <motion.button
                       key={book.title}
                       onClick={() => setSelectedBook(book)}
-                      className="w-full p-3 rounded-xl bg-[#191919] hover:bg-[#252525]/50
-                                 border border-[#252525] hover:border-[#ffffff14]
-                                 transition text-left group"
-                      whileHover={{ scale: 1.01 }}
+                      className="w-full p-4 hover:bg-[#f7f9fa] transition text-left group"
                       whileTap={{ scale: 0.99 }}
                     >
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3">
                         <BookCoverImage
                           title={book.title}
                           author={book.author}
@@ -366,27 +360,25 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                           size="small"
                         />
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-[#ffffffeb] truncate">
+                          <h3 className="font-semibold text-[#14171a] truncate">
                             {book.title}
                           </h3>
-                          <p className="text-sm text-[#9b9a97] truncate">
+                          <p className="text-sm text-[#657786] truncate">
                             {book.author}
                           </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm text-[#787774]">
+                          <p className="text-xs text-[#657786] mt-1">
                             {book.highlights.length} passage{book.highlights.length !== 1 ? 's' : ''}
-                          </span>
-                          <svg className="w-4 h-4 text-[#4d4a46] group-hover:text-[#9b9a97] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
-                          </svg>
+                          </p>
                         </div>
+                        <svg className="w-5 h-5 text-[#aab8c2] group-hover:text-[#1da1f2] transition flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+                        </svg>
                       </div>
                     </motion.button>
                   ))}
 
                   {filteredBooks.length === 0 && (
-                    <div className="text-center text-[#787774] py-12">
+                    <div className="text-center text-[#657786] py-12">
                       No sources found
                     </div>
                   )}
@@ -399,10 +391,9 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className="space-y-3"
               >
                 {/* Book header with cover and delete option */}
-                <div className="flex items-start gap-4 mb-6 pb-4 border-b border-[#252525]">
+                <div className="flex items-start gap-4 p-4 bg-[#f7f9fa] border-b border-[#e1e8ed]">
                   <BookCoverImage
                     title={selectedBook.title}
                     author={selectedBook.author}
@@ -410,174 +401,176 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                     size="large"
                   />
                   <div className="flex-1">
-                    <h3
-                      className="text-lg text-[#ffffffeb] font-medium"
-                      style={{ fontFamily: "'Cormorant Garamond', serif" }}
-                    >
+                    <h3 className="text-lg text-[#14171a] font-bold">
                       {selectedBook.title}
                     </h3>
-                    <p className="text-sm text-[#9b9a97] mt-1">{selectedBook.author}</p>
-                    <p className="text-xs text-[#787774] mt-2">
+                    <p className="text-sm text-[#657786] mt-1">{selectedBook.author}</p>
+                    <p className="text-xs text-[#657786] mt-2">
                       {selectedBook.highlights.length} passage{selectedBook.highlights.length !== 1 ? 's' : ''}
                     </p>
                     <button
                       onClick={() => handleDeleteBook(selectedBook.title)}
-                      className="mt-3 px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20
-                                 text-red-400/80 text-sm transition border border-red-500/20"
+                      className="mt-3 px-3 py-1.5 rounded-full bg-[#ffeef1] hover:bg-[#ffdddf]
+                                 text-[#e0245e] text-sm transition border border-[#ffccd5]"
                     >
                       Delete All
                     </button>
                   </div>
                 </div>
 
-                {selectedBook.highlights
-                  .filter(h => !searchQuery || h.text.toLowerCase().includes(searchQuery.toLowerCase()))
-                  .map((highlight, index) => (
-                  <motion.div
-                    key={highlight.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.03 }}
-                    className="p-4 rounded-xl bg-[#191919] border border-[#252525] group"
-                  >
-                    {editingHighlight?.id === highlight.id ? (
-                      // Edit mode
-                      <div className="space-y-3">
-                        <textarea
-                          value={editText}
-                          onChange={(e) => setEditText(e.target.value)}
-                          className="w-full h-32 p-3 rounded-lg bg-[#0a0a0a] border border-[#ffffff14]
-                                     focus:border-[#2383e2] focus:outline-none resize-none text-sm text-[#ffffffeb]"
-                          autoFocus
-                        />
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => setEditingHighlight(null)}
-                            className="flex-1 py-2 rounded-lg bg-[#252525] hover:bg-[#ffffff14] text-sm text-[#ffffffeb] transition"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            onClick={handleSaveEdit}
-                            className="flex-1 py-2 rounded-lg bg-[#2383e2] hover:bg-[#b08c6a] text-sm text-[#191919] font-medium transition"
-                          >
-                            Save
-                          </button>
-                        </div>
-                      </div>
-                    ) : commentingHighlight?.id === highlight.id ? (
-                      // Comment mode
-                      <div className="space-y-3">
-                        <p className="text-[#9b9a97] text-sm leading-relaxed mb-2 italic">
-                          "{highlight.text.slice(0, 100)}..."
-                        </p>
-                        <textarea
-                          value={commentText}
-                          onChange={(e) => setCommentText(e.target.value)}
-                          placeholder="Add your thoughts about this passage..."
-                          className="w-full h-24 p-3 rounded-lg bg-[#0a0a0a] border border-[#ffffff14]
-                                     focus:border-[#2383e2] focus:outline-none resize-none text-sm text-[#ffffffeb]
-                                     placeholder-[#787774]"
-                          autoFocus
-                        />
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => setCommentingHighlight(null)}
-                            className="flex-1 py-2 rounded-lg bg-[#252525] hover:bg-[#ffffff14] text-sm text-[#ffffffeb] transition"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            onClick={handleSaveComment}
-                            className="flex-1 py-2 rounded-lg bg-[#2383e2] hover:bg-[#b08c6a] text-sm text-[#191919] font-medium transition"
-                          >
-                            Save Comment
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      // View mode
-                      <>
-                        <p className="text-[#ffffffeb]/90 text-sm leading-relaxed mb-2">
-                          "{highlight.text}"
-                        </p>
-
-                        {/* Show existing comment */}
-                        {highlight.comment && (
-                          <div className="mt-3 p-3 rounded-lg bg-[#252525]/50 border-l-2 border-[#2383e2]">
-                            <p className="text-xs text-[#787774] mb-1">Your note:</p>
-                            <p className="text-sm text-[#2383e2] italic">{highlight.comment}</p>
+                {/* Highlights as Twitter-style feed items */}
+                <div className="divide-y divide-[#e1e8ed]">
+                  {selectedBook.highlights
+                    .filter(h => !searchQuery || h.text.toLowerCase().includes(searchQuery.toLowerCase()))
+                    .map((highlight, index) => (
+                    <motion.div
+                      key={highlight.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.03 }}
+                      className="p-4 hover:bg-[#f7f9fa] transition group"
+                    >
+                      {editingHighlight?.id === highlight.id ? (
+                        // Edit mode
+                        <div className="space-y-3">
+                          <textarea
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            className="w-full h-32 p-3 rounded-xl bg-white border border-[#e1e8ed]
+                                       focus:border-[#1da1f2] focus:outline-none resize-none text-sm text-[#14171a]"
+                            autoFocus
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setEditingHighlight(null)}
+                              className="flex-1 py-2 rounded-full bg-[#f7f9fa] hover:bg-[#e1e8ed] text-sm text-[#14171a] transition border border-[#e1e8ed]"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={handleSaveEdit}
+                              className="flex-1 py-2 rounded-full bg-[#1da1f2] hover:bg-[#1a91da] text-sm text-white font-bold transition"
+                            >
+                              Save
+                            </button>
                           </div>
-                        )}
-
-                        <div className="flex items-center justify-between mt-3">
-                          <p className="text-xs text-[#787774]">
-                            {highlight.location && `Location ${highlight.location}`}
-                            {highlight.page && `Page ${highlight.page}`}
+                        </div>
+                      ) : commentingHighlight?.id === highlight.id ? (
+                        // Comment mode
+                        <div className="space-y-3">
+                          <p className="text-[#657786] text-sm leading-relaxed mb-2 italic">
+                            "{highlight.text.slice(0, 100)}..."
                           </p>
-                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                          <textarea
+                            value={commentText}
+                            onChange={(e) => setCommentText(e.target.value)}
+                            placeholder="Add your thoughts about this passage..."
+                            className="w-full h-24 p-3 rounded-xl bg-white border border-[#e1e8ed]
+                                       focus:border-[#1da1f2] focus:outline-none resize-none text-sm text-[#14171a]
+                                       placeholder-[#657786]"
+                            autoFocus
+                          />
+                          <div className="flex gap-2">
                             <button
-                              onClick={() => {
-                                const idx = highlights.findIndex(h => h.id === highlight.id);
-                                if (idx !== -1) {
-                                  onGoToHighlight(idx);
-                                  onClose();
-                                }
-                              }}
-                              className="p-1.5 rounded-lg hover:bg-[#252525] text-[#787774] hover:text-[#2383e2] transition"
-                              title="View in swiper"
+                              onClick={() => setCommentingHighlight(null)}
+                              className="flex-1 py-2 rounded-full bg-[#f7f9fa] hover:bg-[#e1e8ed] text-sm text-[#14171a] transition border border-[#e1e8ed]"
                             >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                              </svg>
+                              Cancel
                             </button>
                             <button
-                              onClick={() => handleStartComment(highlight)}
-                              className="p-1.5 rounded-lg hover:bg-[#252525] text-[#787774] hover:text-[#2383e2] transition"
-                              title="Add comment"
+                              onClick={handleSaveComment}
+                              className="flex-1 py-2 rounded-full bg-[#1da1f2] hover:bg-[#1a91da] text-sm text-white font-bold transition"
                             >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-                              </svg>
-                            </button>
-                            <button
-                              onClick={() => handleStartEdit(highlight)}
-                              className="p-1.5 rounded-lg hover:bg-[#252525] text-[#787774] hover:text-[#2383e2] transition"
-                              title="Edit"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                              </svg>
-                            </button>
-                            <button
-                              onClick={() => handleDelete(highlight.id)}
-                              className="p-1.5 rounded-lg hover:bg-red-500/20 text-[#787774] hover:text-red-400 transition"
-                              title="Delete"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
+                              Save Comment
                             </button>
                           </div>
                         </div>
-                      </>
-                    )}
-                  </motion.div>
-                ))}
+                      ) : (
+                        // View mode
+                        <>
+                          <p
+                            className="text-[#14171a] leading-relaxed mb-2"
+                            style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}
+                          >
+                            "{highlight.text}"
+                          </p>
+
+                          {/* Show existing comment */}
+                          {highlight.comment && (
+                            <div className="mt-3 pl-3 border-l-2 border-[#1da1f2]">
+                              <p className="text-sm text-[#657786] italic">{highlight.comment}</p>
+                            </div>
+                          )}
+
+                          <div className="flex items-center justify-between mt-3">
+                            <p className="text-xs text-[#657786]">
+                              {highlight.location && `Location ${highlight.location}`}
+                              {highlight.page && `Page ${highlight.page}`}
+                            </p>
+                            <div className="flex gap-4">
+                              <button
+                                onClick={() => {
+                                  const idx = highlights.findIndex(h => h.id === highlight.id);
+                                  if (idx !== -1) {
+                                    onGoToHighlight(idx);
+                                    onClose();
+                                  }
+                                }}
+                                className="text-[#657786] hover:text-[#1da1f2] transition"
+                                title="View in swiper"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => handleStartComment(highlight)}
+                                className="text-[#657786] hover:text-[#1da1f2] transition"
+                                title="Add comment"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => handleStartEdit(highlight)}
+                                className="text-[#657786] hover:text-[#1da1f2] transition"
+                                title="Edit"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => handleDelete(highlight.id)}
+                                className="text-[#657786] hover:text-[#e0245e] transition"
+                                title="Delete"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
 
           {filteredBooks.length === 0 && !selectedBook && (
-            <div className="text-center text-[#787774] py-12">
+            <div className="text-center text-[#657786] py-12">
               No sources found
             </div>
           )}
         </div>
 
         {/* Footer stats */}
-        <div className="flex-shrink-0 p-4 border-t border-[#252525] text-center text-xs text-[#787774]">
+        <div className="flex-shrink-0 p-4 border-t border-[#e1e8ed] text-center text-xs text-[#657786] bg-white">
           {highlights.length} passages from {bookGroups.length} sources
         </div>
       </div>

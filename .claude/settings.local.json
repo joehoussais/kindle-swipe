@@ -41,7 +41,10 @@
       "Bash(npx netlify-cli deploy:*)",
       "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch:*)",
       "Bash(eas build:*)",
-      "Bash(npx netlify-cli:*)"
+      "Bash(npx netlify-cli:*)",
+      "Bash(zip:*)",
+      "Bash(sips:*)",
+      "Bash(netlify deploy:*)"
     ]
   }
 }

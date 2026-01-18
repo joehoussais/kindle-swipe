@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generate Icon PNGs</title>
+  <style>
+    body { font-family: system-ui; padding: 40px; background: #333; color: white; }
+    .icons { display: flex; gap: 20px; align-items: end; margin: 20px 0; }
+    .icon-box { text-align: center; }
+    canvas { background: transparent; border: 1px solid #555; }
+    button { padding: 10px 20px; font-size: 16px; margin: 10px 5px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Chrome Extension Icons - Black Version</h1>
+  <p>Right-click each canvas and "Save Image As" to download the PNG files.</p>
+
+  <div class="icons">
+    <div class="icon-box">
+      <canvas id="icon128" width="128" height="128"></canvas>
+      <p>icon128.png</p>
+    </div>
+    <div class="icon-box">
+      <canvas id="icon48" width="48" height="48"></canvas>
+      <p>icon48.png</p>
+    </div>
+    <div class="icon-box">
+      <canvas id="icon16" width="16" height="16"></canvas>
+      <p>icon16.png</p>
+    </div>
+  </div>
+
+  <script>
+    function drawIcon(canvas, size) {
+      const ctx = canvas.getContext('2d');
+      const scale = size / 128;
+
+      // Clear
+      ctx.clearRect(0, 0, size, size);
+
+      // Rounded rect background
+      const radius = 28 * scale;
+      ctx.fillStyle = '#1a1a1a';
+      ctx.beginPath();
+      ctx.roundRect(0, 0, size, size, radius);
+      ctx.fill();
+
+      // Lightning bolt
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 5 * scale;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      ctx.beginPath();
+      ctx.moveTo(68 * scale, 28 * scale);
+      ctx.lineTo(38 * scale, 64 * scale);
+      ctx.lineTo(62 * scale, 64 * scale);
+      ctx.lineTo(58 * scale, 100 * scale);
+      ctx.lineTo(88 * scale, 56 * scale);
+      ctx.lineTo(64 * scale, 56 * scale);
+      ctx.lineTo(68 * scale, 28 * scale);
+      ctx.stroke();
+    }
+
+    drawIcon(document.getElementById('icon128'), 128);
+    drawIcon(document.getElementById('icon48'), 48);
+    drawIcon(document.getElementById('icon16'), 16);
+  </script>
+</body>
+</html>

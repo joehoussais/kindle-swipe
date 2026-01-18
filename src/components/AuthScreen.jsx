@@ -4,12 +4,14 @@ import { useAuth } from '../context/AuthContext';
 import { BACKGROUNDS } from '../utils/backgrounds';
 import { generateStarterHighlights } from '../utils/starterPack';
 import { SwipeCard } from './SwipeCard';
+import { AvatarSelector, AVATAR_TYPES } from './CoinAvatar';
 
 export function AuthScreen() {
   const [mode, setMode] = useState('login'); // 'login' or 'register'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [avatar, setAvatar] = useState(AVATAR_TYPES.augustus);
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
@@ -44,7 +46,7 @@ export function AuthScreen() {
           setIsSubmitting(false);
           return;
         }
-        await register(email, password, name);
+        await register(email, password, name, avatar);
       }
     } catch (err) {
       // Check if this is actually a success (email confirmation needed)
@@ -168,19 +170,26 @@ export function AuthScreen() {
                 <AnimatePresence mode="wait">
                   {mode === 'register' && (
                     <motion.div
-                      key="name"
+                      key="register-fields"
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
+                      className="space-y-4"
                     >
-                      <label className="block text-[#9b9a97] text-xs uppercase tracking-wider mb-1.5">Name</label>
-                      <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="w-full px-4 py-3 rounded-lg bg-[#252525]/50 border border-[#ffffff14] text-[#ffffffeb] placeholder-[#787774] focus:outline-none focus:border-[#2383e2] transition"
-                        placeholder="Your name"
-                      />
+                      <div>
+                        <label className="block text-[#9b9a97] text-xs uppercase tracking-wider mb-1.5">Name</label>
+                        <input
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          className="w-full px-4 py-3 rounded-lg bg-[#252525]/50 border border-[#ffffff14] text-[#ffffffeb] placeholder-[#787774] focus:outline-none focus:border-[#2383e2] transition"
+                          placeholder="Your name"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[#9b9a97] text-xs uppercase tracking-wider mb-3">Choose Your Coin</label>
+                        <AvatarSelector selected={avatar} onSelect={setAvatar} size={56} />
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>

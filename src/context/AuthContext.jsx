@@ -22,7 +22,8 @@ export function AuthProvider({ children }) {
           setUser({
             id: session.user.id,
             email: session.user.email,
-            name: session.user.user_metadata?.name || session.user.email.split('@')[0]
+            name: session.user.user_metadata?.name || session.user.email.split('@')[0],
+            avatar: session.user.user_metadata?.avatar || 'augustus'
           });
         }
       } catch (error) {
@@ -39,7 +40,8 @@ export function AuthProvider({ children }) {
         setUser({
           id: session.user.id,
           email: session.user.email,
-          name: session.user.user_metadata?.name || session.user.email.split('@')[0]
+          name: session.user.user_metadata?.name || session.user.email.split('@')[0],
+          avatar: session.user.user_metadata?.avatar || 'augustus'
         });
       } else {
         setUser(null);
@@ -50,12 +52,12 @@ export function AuthProvider({ children }) {
   }, []);
 
   // Register new user
-  const register = useCallback(async (email, password, name) => {
+  const register = useCallback(async (email, password, name, avatar = 'augustus') => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { name },
+        data: { name, avatar },
         emailRedirectTo: window.location.origin
       }
     });
@@ -73,7 +75,8 @@ export function AuthProvider({ children }) {
     return {
       id: data.user.id,
       email: data.user.email,
-      name
+      name,
+      avatar
     };
   }, []);
 
@@ -89,7 +92,8 @@ export function AuthProvider({ children }) {
     return {
       id: data.user.id,
       email: data.user.email,
-      name: data.user.user_metadata?.name || email.split('@')[0]
+      name: data.user.user_metadata?.name || email.split('@')[0],
+      avatar: data.user.user_metadata?.avatar || 'augustus'
     };
   }, []);
 

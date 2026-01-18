@@ -11,6 +11,7 @@ import { BooksHistory } from './components/BooksHistory';
 import { ShareModal } from './components/ShareModal';
 import { QuoteExport } from './components/QuoteExport';
 import { FeedView } from './components/FeedView';
+import { CoinAvatar } from './components/CoinAvatar';
 
 function AppContent() {
   const { isAuthenticated, isGuestMode, trackBook, logout, exitPreviewMode, loginWithGoogle, user } = useAuth();
@@ -260,9 +261,7 @@ function AppContent() {
             onClick={() => setShowBooksHistory(true)}
             className="absolute top-4 left-4 z-50 flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 transition"
           >
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-medium">
-              {user.name?.charAt(0).toUpperCase() || 'U'}
-            </div>
+            <CoinAvatar type={user.avatar || 'augustus'} size={24} />
             <span className="text-white/80 text-sm">{user.name}</span>
           </button>
         )}

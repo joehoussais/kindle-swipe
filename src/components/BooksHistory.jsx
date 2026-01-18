@@ -18,7 +18,7 @@ export function BooksHistory({ onClose }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm"
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
       onClick={onClose}
     >
       <motion.div
@@ -26,39 +26,41 @@ export function BooksHistory({ onClose }) {
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-[#191919] border-l border-[#252525] overflow-hidden"
+        className="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white border-l border-[#e1e8ed] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-6 border-b border-[#252525]">
+        <div className="p-4 border-b border-[#e1e8ed] sticky top-0 bg-white/95 backdrop-blur-sm z-10">
           <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-light text-[#ffffffeb]">Your Library</h2>
-              <p className="text-[#787774] text-sm mt-1">
-                {userBooks.length} source{userBooks.length !== 1 ? 's' : ''} imported
-              </p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={onClose}
+                className="p-2 rounded-full hover:bg-[#e8f4fd] transition text-[#657786]"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              <div>
+                <h2 className="text-xl font-bold text-[#14171a]">Reading History</h2>
+                <p className="text-[#657786] text-sm">
+                  {userBooks.length} source{userBooks.length !== 1 ? 's' : ''} imported
+                </p>
+              </div>
             </div>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-full hover:bg-[#252525] transition text-[#9b9a97]"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
           </div>
         </div>
 
         {/* User Info */}
-        <div className="px-6 py-4 bg-[#252525]/30 border-b border-[#252525]">
+        <div className="p-4 bg-[#f7f9fa] border-b border-[#e1e8ed]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#252525] border border-[#4d4a46] flex items-center justify-center text-[#2383e2] font-medium">
+              <div className="w-12 h-12 rounded-full bg-[#1da1f2] flex items-center justify-center text-white font-bold text-lg">
                 {user?.name?.charAt(0).toUpperCase() || 'U'}
               </div>
               <div>
-                <p className="text-[#ffffffeb] font-medium">{user?.name}</p>
-                <p className="text-[#787774] text-sm">{user?.email}</p>
+                <p className="text-[#14171a] font-bold">{user?.name}</p>
+                <p className="text-[#657786] text-sm">{user?.email}</p>
               </div>
             </div>
             <button
@@ -68,9 +70,9 @@ export function BooksHistory({ onClose }) {
                   onClose();
                 }
               }}
-              className="px-3 py-1.5 rounded-lg bg-[#252525]/50 hover:bg-[#252525] border border-[#ffffff14] text-[#9b9a97] text-sm transition flex items-center gap-2"
+              className="px-4 py-2 rounded-full bg-white hover:bg-[#f7f9fa] border border-[#e1e8ed] text-[#14171a] text-sm font-medium transition flex items-center gap-2"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-[#657786]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
               Sign Out
@@ -82,33 +84,33 @@ export function BooksHistory({ onClose }) {
         <div className="overflow-y-auto h-[calc(100%-180px)]">
           {userBooks.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center px-6">
-              <div className="w-16 h-16 rounded-full bg-[#252525]/50 flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-[#4d4a46]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 rounded-full bg-[#e8f4fd] flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-[#1da1f2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
-              <p className="text-[#9b9a97]">No sources imported yet</p>
-              <p className="text-[#787774] text-sm mt-1 italic">
+              <p className="text-[#14171a] font-semibold">No sources imported yet</p>
+              <p className="text-[#657786] text-sm mt-1">
                 Import your Kindle highlights to get started
               </p>
             </div>
           ) : (
-            <div className="p-4 space-y-2">
+            <div className="divide-y divide-[#e1e8ed]">
               {userBooks.map((book, index) => (
                 <motion.div
                   key={book.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="bg-[#252525]/30 rounded-lg p-4 hover:bg-[#252525]/50 transition group border border-[#ffffff14]/50"
+                  className="p-4 hover:bg-[#f7f9fa] transition group"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-[#ffffffeb] truncate">{book.bookTitle}</h3>
+                      <h3 className="text-[#14171a] font-semibold truncate">{book.bookTitle}</h3>
                       {book.author && (
-                        <p className="text-[#9b9a97] text-sm truncate">{book.author}</p>
+                        <p className="text-[#657786] text-sm truncate">{book.author}</p>
                       )}
-                      <div className="flex items-center gap-3 mt-2 text-xs text-[#787774]">
+                      <div className="flex items-center gap-2 mt-2 text-xs text-[#657786]">
                         <span>{book.highlightCount} passage{book.highlightCount !== 1 ? 's' : ''}</span>
                         <span>·</span>
                         <span>Added {formatDate(book.firstImportedAt)}</span>
@@ -120,7 +122,7 @@ export function BooksHistory({ onClose }) {
                           removeBook(book.bookTitle);
                         }
                       }}
-                      className="p-2 rounded-lg hover:bg-[#252525] text-[#4d4a46] hover:text-[#2383e2] transition opacity-0 group-hover:opacity-100"
+                      className="p-2 rounded-full hover:bg-[#ffeef1] text-[#657786] hover:text-[#e0245e] transition opacity-0 group-hover:opacity-100"
                       title="Remove from history"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
