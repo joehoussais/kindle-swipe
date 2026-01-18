@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
-import { getBookCover, getCachedCover } from '../utils/bookCovers';
+import { getBookCover, getCachedCover, getColorForTitle } from '../utils/bookCovers';
 
 // Get current month/year for display
 function getCurrentMonthYear() {
@@ -340,9 +340,9 @@ export function ShareModal({ highlights, onClose, userName }) {
                       >
                         {/* Book cover thumbnail */}
                         <div className="w-10 h-14 rounded overflow-hidden flex-shrink-0 bg-[#252525]">
-                          {cover?.type === 'image' ? (
+                          {cover ? (
                             <img
-                              src={cover.value}
+                              src={cover}
                               alt=""
                               className="w-full h-full object-cover"
                               crossOrigin="anonymous"
@@ -351,9 +351,10 @@ export function ShareModal({ highlights, onClose, userName }) {
                             <div
                               className="w-full h-full"
                               style={{
-                                background: cover?.value
-                                  ? `rgb(${cover.value.r}, ${cover.value.g}, ${cover.value.b})`
-                                  : '#252525'
+                                background: (() => {
+                                  const { r, g, b } = getColorForTitle(book.title);
+                                  return `rgb(${r}, ${g}, ${b})`;
+                                })()
                               }}
                             />
                           )}
@@ -595,9 +596,9 @@ function ShareTemplate({ books, bookCovers, userName }) {
 
                 {/* Book cover */}
                 <div className="w-24 h-36 rounded-lg overflow-hidden shadow-2xl flex-shrink-0 bg-[#252525]">
-                  {cover?.type === 'image' ? (
+                  {cover ? (
                     <img
-                      src={cover.value}
+                      src={cover}
                       alt=""
                       className="w-full h-full object-cover"
                       crossOrigin="anonymous"
@@ -606,9 +607,10 @@ function ShareTemplate({ books, bookCovers, userName }) {
                     <div
                       className="w-full h-full flex items-center justify-center"
                       style={{
-                        background: cover?.value
-                          ? `linear-gradient(135deg, rgb(${cover.value.r + 20}, ${cover.value.g + 20}, ${cover.value.b + 20}), rgb(${cover.value.r}, ${cover.value.g}, ${cover.value.b}))`
-                          : 'linear-gradient(135deg, #3d3a36, #252525)'
+                        background: (() => {
+                          const { r, g, b } = getColorForTitle(book.title);
+                          return `linear-gradient(135deg, rgb(${r + 20}, ${g + 20}, ${b + 20}), rgb(${r}, ${g}, ${b}))`;
+                        })()
                       }}
                     >
                       <span className="text-[#9b9a97] text-3xl">

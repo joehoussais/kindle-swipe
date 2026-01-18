@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getBookCover, getCachedCover } from '../utils/bookCovers';
+import { getBookCover, getCachedCover, getColorForTitle } from '../utils/bookCovers';
 import { SOURCE_TYPES } from '../hooks/useHighlights';
 
 // Generate a deterministic "fun" cover for personal entries
@@ -97,14 +97,14 @@ function BookCoverImage({ title, author, source, size = 'medium' }) {
     );
   }
 
-  if (cover.type === 'image') {
+  if (cover) {
     return (
       <div
         className={`${sizeClasses[size]} rounded-lg overflow-hidden bg-[#252525]`}
         style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}
       >
         <img
-          src={cover.value}
+          src={cover}
           alt={title}
           className="w-full h-full object-cover"
           style={{ opacity: loaded ? 1 : 0, transition: 'opacity 0.3s' }}
@@ -115,7 +115,7 @@ function BookCoverImage({ title, author, source, size = 'medium' }) {
   }
 
   // Color fallback for books without covers
-  const { r, g, b } = cover.value;
+  const { r, g, b } = getColorForTitle(title);
   return (
     <div
       className={`${sizeClasses[size]} rounded-lg flex items-center justify-center p-2`}

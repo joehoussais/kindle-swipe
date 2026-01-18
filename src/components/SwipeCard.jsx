@@ -114,12 +114,12 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
   }, [highlight.title, highlight.author, highlight.id, background.src, isPersonalEntry]);
 
   useEffect(() => {
-    if (cover.type === 'image') {
+    if (cover) {
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => setImageLoaded(true);
       img.onerror = () => setImageLoaded(true);
-      img.src = cover.value;
+      img.src = cover;
     }
   }, [cover]);
 
@@ -199,13 +199,13 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
           // Book entry header (kindle highlights, quotes)
           <div className="flex items-start gap-4 max-w-2xl mx-auto">
             {/* Book cover */}
-            {cover.type === 'image' && (
+            {cover && (
               <div
                 className="w-16 h-24 md:w-20 md:h-28 rounded-lg overflow-hidden flex-shrink-0"
                 style={{ boxShadow: '0 8px 25px rgba(0,0,0,0.4)' }}
               >
                 <img
-                  src={cover.value}
+                  src={cover}
                   alt={highlight.title}
                   className="w-full h-full object-cover"
                   style={{ opacity: imageLoaded ? 1 : 0, transition: 'opacity 0.3s' }}

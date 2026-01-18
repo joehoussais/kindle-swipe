@@ -76,10 +76,10 @@ function ParchmentTemplate({ highlight, format, showCover, cover }) {
       {/* Content */}
       <div className="relative z-10 flex flex-col h-full p-16 justify-center">
         {/* Book cover if enabled */}
-        {showCover && cover?.type === 'image' && (
+        {showCover && cover && (
           <div className="flex justify-center mb-12">
             <img
-              src={cover.value}
+              src={cover}
               alt=""
               className="h-32 w-auto rounded shadow-xl"
               crossOrigin="anonymous"
@@ -157,10 +157,10 @@ function MarbleTemplate({ highlight, format, showCover, cover }) {
       {/* Content */}
       <div className="relative z-10 flex flex-col h-full p-20 justify-center">
         {/* Book cover if enabled */}
-        {showCover && cover?.type === 'image' && (
+        {showCover && cover && (
           <div className="flex justify-center mb-12">
             <img
-              src={cover.value}
+              src={cover}
               alt=""
               className="h-28 w-auto rounded shadow-lg"
               crossOrigin="anonymous"
@@ -235,10 +235,10 @@ function InkTemplate({ highlight, format, showCover, cover }) {
       {/* Content */}
       <div className="relative z-10 flex flex-col h-full p-20 justify-center">
         {/* Book cover if enabled */}
-        {showCover && cover?.type === 'image' && (
+        {showCover && cover && (
           <div className="flex justify-center mb-12">
             <img
-              src={cover.value}
+              src={cover}
               alt=""
               className="h-28 w-auto rounded shadow-2xl"
               style={{ boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}
@@ -515,7 +515,7 @@ export function QuoteExport({ highlight, onClose }) {
           </div>
 
           {/* Book cover toggle */}
-          {cover?.type === 'image' && (
+          {cover && (
             <button
               onClick={() => setShowCover(!showCover)}
               className={`w-full py-2 px-3 rounded-lg text-sm transition flex items-center justify-between ${
