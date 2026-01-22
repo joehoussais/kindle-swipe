@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import { getBookCover, getCachedCover } from '../utils/bookCovers';
+import { BACKGROUNDS } from '../utils/backgrounds';
 
 // Format dimensions (width x height)
 const FORMATS = {
@@ -10,11 +11,25 @@ const FORMATS = {
   landscape: { width: 1920, height: 1080, label: 'Landscape', ratio: '16:9' }
 };
 
-// Template types
-const TEMPLATES = {
+// Solid template types
+const SOLID_TEMPLATES = {
   parchment: 'Parchment',
   marble: 'Marble',
   ink: 'Ink'
+};
+
+// Mood categories for image backgrounds
+const MOODS = {
+  serene: { label: 'Serene', emoji: '🌊' },
+  mystical: { label: 'Mystical', emoji: '🌙' },
+  epic: { label: 'Epic', emoji: '⚔️' },
+  classical: { label: 'Classical', emoji: '🏛️' },
+  vast: { label: 'Vast', emoji: '🌌' },
+  contemplative: { label: 'Contemplative', emoji: '🏜️' },
+  peaceful: { label: 'Peaceful', emoji: '🌾' },
+  nostalgic: { label: 'Nostalgic', emoji: '🌅' },
+  futuristic: { label: 'Futuristic', emoji: '🚀' },
+  powerful: { label: 'Powerful', emoji: '🏔️' }
 };
 
 // Truncate text intelligently
@@ -81,7 +96,7 @@ function ParchmentTemplate({ highlight, format, showCover, cover }) {
             <img
               src={cover}
               alt=""
-              className="h-32 w-auto rounded shadow-xl"
+              className="h-36 w-auto rounded shadow-xl"
               crossOrigin="anonymous"
             />
           </div>
@@ -162,7 +177,7 @@ function MarbleTemplate({ highlight, format, showCover, cover }) {
             <img
               src={cover}
               alt=""
-              className="h-28 w-auto rounded shadow-lg"
+              className="h-36 w-auto rounded shadow-lg"
               crossOrigin="anonymous"
             />
           </div>
@@ -240,7 +255,7 @@ function InkTemplate({ highlight, format, showCover, cover }) {
             <img
               src={cover}
               alt=""
-              className="h-28 w-auto rounded shadow-2xl"
+              className="h-36 w-auto rounded shadow-2xl"
               style={{ boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}
               crossOrigin="anonymous"
             />
@@ -293,14 +308,168 @@ function InkTemplate({ highlight, format, showCover, cover }) {
   );
 }
 
+// Image Template - Midjourney backgrounds with frosted glass card
+function ImageTemplate({ highlight, format, showCover, cover, background }) {
+  const { width, height } = FORMATS[format];
+  const fontSize = getFontSize(highlight.text.length, format);
+  const maxLength = getMaxLength(format);
+  const displayText = truncateText(highlight.text, maxLength);
+
+  // Determine text colors based on background theme
+  const isDarkTheme = background?.theme === 'dark';
+  const textColor = isDarkTheme ? '#ffffffeb' : '#1a1a1a';
+  const subtitleColor = isDarkTheme ? '#ffffff99' : '#666666';
+  const cardBg = isDarkTheme
+    ? 'rgba(0, 0, 0, 0.6)'
+    : 'rgba(255, 255, 255, 0.85)';
+  const cardBorder = isDarkTheme
+    ? 'rgba(255, 255, 255, 0.1)'
+    : 'rgba(0, 0, 0, 0.1)';
+
+  return (
+    <div
+      className="relative overflow-hidden"
+      style={{
+        width: `${width}px`,
+        height: `${height}px`,
+        fontFamily: "'Playfair Display', Georgia, serif"
+      }}
+    >
+      {/* Background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${background?.src || '/backgrounds/joeyseph1219_Ancient_bridge_over_slow_river_ancient_stone_bri_3e9374fd-454a-46ef-9e95-010c0cc118ea_1.png'})`,
+        }}
+      />
+
+      {/* Gradient overlay for readability */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: isDarkTheme
+            ? 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.3) 100%)'
+            : 'linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.2) 100%)'
+        }}
+      />
+
+      {/* Content */}
+      <div className="relative z-10 flex flex-col h-full p-16 justify-center items-center">
+        {/* Frosted glass card */}
+        <div
+          className="rounded-2xl p-12 max-w-[90%]"
+          style={{
+            background: cardBg,
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: `1px solid ${cardBorder}`,
+            boxShadow: isDarkTheme
+              ? '0 25px 50px rgba(0,0,0,0.5)'
+              : '0 25px 50px rgba(0,0,0,0.15)'
+          }}
+        >
+          {/* Book cover if enabled */}
+          {showCover && cover && (
+            <div className="flex justify-center mb-10">
+              <img
+                src={cover}
+                alt=""
+                className="h-36 w-auto rounded-lg shadow-xl"
+                crossOrigin="anonymous"
+              />
+            </div>
+          )}
+
+          {/* Quote */}
+          <div className="text-center">
+            <p
+              className="font-light leading-relaxed italic"
+              style={{
+                fontFamily: "'Cormorant Garamond', Georgia, serif",
+                fontSize: `${fontSize}px`,
+                lineHeight: 1.5,
+                color: textColor
+              }}
+            >
+              "{displayText}"
+            </p>
+
+            {/* Divider */}
+            <div
+              className="w-16 h-px mx-auto mt-8 mb-6"
+              style={{ background: isDarkTheme ? '#2383e2' : '#2383e2' }}
+            />
+
+            {/* Attribution */}
+            <p style={{ fontSize: `${fontSize * 0.4}px`, color: textColor }}>
+              {highlight.title}
+            </p>
+            {highlight.author && highlight.author !== 'You' && highlight.author !== 'Unknown' && (
+              <p className="mt-2" style={{ fontSize: `${fontSize * 0.35}px`, color: subtitleColor }}>
+                {highlight.author}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Watermark */}
+        <div className="absolute bottom-8 left-0 right-0 text-center">
+          <p
+            className="text-sm tracking-widest uppercase"
+            style={{ color: isDarkTheme ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)' }}
+          >
+            Highlight
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function QuoteExport({ highlight, onClose }) {
-  const [template, setTemplate] = useState('parchment');
+  const [templateCategory, setTemplateCategory] = useState('solid'); // 'solid' or 'scenic'
+  const [solidTemplate, setSolidTemplate] = useState('parchment');
+  const [selectedMood, setSelectedMood] = useState('serene');
+  const [selectedBackground, setSelectedBackground] = useState(null);
   const [format, setFormat] = useState('story');
   const [showCover, setShowCover] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
   const [cover, setCover] = useState(() => getCachedCover(highlight.title, highlight.author));
   const templateRef = useRef(null);
+
+  // Group backgrounds by mood
+  const backgroundsByMood = useMemo(() => {
+    const grouped = {};
+    BACKGROUNDS.forEach(bg => {
+      if (!grouped[bg.mood]) {
+        grouped[bg.mood] = [];
+      }
+      grouped[bg.mood].push(bg);
+    });
+    return grouped;
+  }, []);
+
+  // Get available moods (ones that have backgrounds)
+  const availableMoods = useMemo(() => {
+    return Object.keys(MOODS).filter(mood => backgroundsByMood[mood]?.length > 0);
+  }, [backgroundsByMood]);
+
+  // Initialize selected background when mood changes
+  useEffect(() => {
+    const moodBackgrounds = backgroundsByMood[selectedMood];
+    if (moodBackgrounds?.length > 0 && !selectedBackground) {
+      setSelectedBackground(moodBackgrounds[0]);
+    }
+  }, [selectedMood, backgroundsByMood, selectedBackground]);
+
+  // Update background when mood changes
+  useEffect(() => {
+    const moodBackgrounds = backgroundsByMood[selectedMood];
+    if (moodBackgrounds?.length > 0) {
+      setSelectedBackground(moodBackgrounds[0]);
+    }
+  }, [selectedMood, backgroundsByMood]);
 
   // Load book cover
   useEffect(() => {
@@ -319,9 +488,11 @@ export function QuoteExport({ highlight, onClose }) {
     return Math.min(scaleW, scaleH);
   };
 
-  // Generate image blob
+  // Generate image blob with correct dimensions
   const generateImage = async () => {
     if (!templateRef.current) return null;
+
+    const { width, height } = FORMATS[format];
 
     const canvas = await html2canvas(templateRef.current, {
       scale: 2,
@@ -330,8 +501,17 @@ export function QuoteExport({ highlight, onClose }) {
       useCORS: true,
     });
 
+    // Resize canvas to exact target dimensions
+    const resizedCanvas = document.createElement('canvas');
+    resizedCanvas.width = width;
+    resizedCanvas.height = height;
+    const ctx = resizedCanvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(canvas, 0, 0, width, height);
+
     return new Promise((resolve) => {
-      canvas.toBlob((blob) => resolve(blob), 'image/png');
+      resizedCanvas.toBlob((blob) => resolve(blob), 'image/png');
     });
   };
 
@@ -405,14 +585,24 @@ export function QuoteExport({ highlight, onClose }) {
     setIsExporting(false);
   };
 
-  const TemplateComponent = {
-    parchment: ParchmentTemplate,
-    marble: MarbleTemplate,
-    ink: InkTemplate
-  }[template];
+  // Get current template component based on category
+  const getTemplateComponent = () => {
+    if (templateCategory === 'scenic') {
+      return ImageTemplate;
+    }
+    return {
+      parchment: ParchmentTemplate,
+      marble: MarbleTemplate,
+      ink: InkTemplate
+    }[solidTemplate];
+  };
 
+  const TemplateComponent = getTemplateComponent();
   const previewScale = getPreviewScale();
   const { width, height } = FORMATS[format];
+
+  // Current backgrounds for selected mood
+  const currentMoodBackgrounds = backgroundsByMood[selectedMood] || [];
 
   return (
     <motion.div
@@ -466,32 +656,111 @@ export function QuoteExport({ highlight, onClose }) {
                 format={format}
                 showCover={showCover}
                 cover={cover}
+                background={templateCategory === 'scenic' ? selectedBackground : null}
               />
             </div>
           </div>
         </div>
 
         {/* Options */}
-        <div className="p-4 border-t border-[#252525] space-y-4">
-          {/* Template selector */}
+        <div className="p-4 border-t border-[#252525] space-y-4 overflow-y-auto max-h-[40vh]">
+          {/* Category tabs */}
           <div>
-            <p className="text-xs text-[#787774] uppercase tracking-wider mb-2">Style</p>
-            <div className="flex gap-2">
-              {Object.entries(TEMPLATES).map(([key, label]) => (
-                <button
-                  key={key}
-                  onClick={() => setTemplate(key)}
-                  className={`flex-1 py-2 px-3 rounded-lg text-sm transition ${
-                    template === key
-                      ? 'bg-[#2383e2] text-[#191919]'
-                      : 'bg-[#252525] text-[#ffffffeb] hover:bg-[#ffffff14]'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
+            <div className="flex gap-1 p-1 bg-[#252525] rounded-lg">
+              <button
+                onClick={() => setTemplateCategory('solid')}
+                className={`flex-1 py-2 px-3 rounded-md text-sm transition ${
+                  templateCategory === 'solid'
+                    ? 'bg-[#2383e2] text-white'
+                    : 'text-[#9b9a97] hover:text-[#ffffffeb]'
+                }`}
+              >
+                Solid
+              </button>
+              <button
+                onClick={() => setTemplateCategory('scenic')}
+                className={`flex-1 py-2 px-3 rounded-md text-sm transition ${
+                  templateCategory === 'scenic'
+                    ? 'bg-[#2383e2] text-white'
+                    : 'text-[#9b9a97] hover:text-[#ffffffeb]'
+                }`}
+              >
+                Scenic
+              </button>
             </div>
           </div>
+
+          {/* Solid template selector */}
+          {templateCategory === 'solid' && (
+            <div>
+              <p className="text-xs text-[#787774] uppercase tracking-wider mb-2">Style</p>
+              <div className="flex gap-2">
+                {Object.entries(SOLID_TEMPLATES).map(([key, label]) => (
+                  <button
+                    key={key}
+                    onClick={() => setSolidTemplate(key)}
+                    className={`flex-1 py-2 px-3 rounded-lg text-sm transition ${
+                      solidTemplate === key
+                        ? 'bg-[#2383e2] text-white'
+                        : 'bg-[#252525] text-[#ffffffeb] hover:bg-[#ffffff14]'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Scenic template options */}
+          {templateCategory === 'scenic' && (
+            <>
+              {/* Mood selector */}
+              <div>
+                <p className="text-xs text-[#787774] uppercase tracking-wider mb-2">Mood</p>
+                <div className="flex flex-wrap gap-2">
+                  {availableMoods.map((mood) => (
+                    <button
+                      key={mood}
+                      onClick={() => setSelectedMood(mood)}
+                      className={`py-1.5 px-3 rounded-full text-xs transition flex items-center gap-1.5 ${
+                        selectedMood === mood
+                          ? 'bg-[#2383e2] text-white'
+                          : 'bg-[#252525] text-[#ffffffeb] hover:bg-[#ffffff14]'
+                      }`}
+                    >
+                      <span>{MOODS[mood]?.emoji}</span>
+                      <span>{MOODS[mood]?.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Background thumbnail picker */}
+              <div>
+                <p className="text-xs text-[#787774] uppercase tracking-wider mb-2">Background</p>
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {currentMoodBackgrounds.map((bg) => (
+                    <button
+                      key={bg.id}
+                      onClick={() => setSelectedBackground(bg)}
+                      className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden transition border-2 ${
+                        selectedBackground?.id === bg.id
+                          ? 'border-[#2383e2] ring-2 ring-[#2383e2]/30'
+                          : 'border-transparent hover:border-[#ffffff14]'
+                      }`}
+                    >
+                      <img
+                        src={bg.src}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Format selector */}
           <div>
@@ -503,7 +772,7 @@ export function QuoteExport({ highlight, onClose }) {
                   onClick={() => setFormat(key)}
                   className={`flex-1 py-2 px-3 rounded-lg text-sm transition ${
                     format === key
-                      ? 'bg-[#2383e2] text-[#191919]'
+                      ? 'bg-[#2383e2] text-white'
                       : 'bg-[#252525] text-[#ffffffeb] hover:bg-[#ffffff14]'
                   }`}
                 >
