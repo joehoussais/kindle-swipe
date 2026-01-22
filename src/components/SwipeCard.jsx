@@ -59,8 +59,7 @@ function getSourceIcon(source) {
 }
 
 export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onChallenge, onAddTag, onRemoveTag, onExport, notes = [], backgroundY }) {
-  // Use highlight.id as part of state initialization to ensure fresh state per card
-  const [cover, setCover] = useState(() => getCachedCover(highlight.title, highlight.author));
+  const [cover, setCover] = useState(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [bgLoaded, setBgLoaded] = useState(false);
   const [authorPhoto, setAuthorPhoto] = useState(null);
@@ -68,27 +67,12 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
   const [noteText, setNoteText] = useState('');
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
-  // Track the current highlight ID to detect changes and reset state
-  const [currentHighlightId, setCurrentHighlightId] = useState(highlight.id);
-
   const background = getBackgroundForHighlight(highlight.id);
 
-  // Reset all image states when highlight changes (critical for rapid swiping)
-  useEffect(() => {
-    if (highlight.id !== currentHighlightId) {
-      setCurrentHighlightId(highlight.id);
-      // Reset image loading states immediately
-      setImageLoaded(false);
-      setBgLoaded(false);
-      setAuthorPhoto(null);
-      // Get cached cover synchronously or reset to null
-      setCover(getCachedCover(highlight.title, highlight.author) || null);
-      // Reset UI states
-      setShowNoteInput(false);
-      setNoteText('');
-      setShowConfirmDelete(false);
-    }
-  }, [highlight.id, currentHighlightId, highlight.title, highlight.author]);
+  // Check if this is a personal entry (not from a book)
+  const isPersonalEntry = highlight.source === SOURCE_TYPES.THOUGHT ||
+                          highlight.source === SOURCE_TYPES.VOICE ||
+                          highlight.source === SOURCE_TYPES.JOURNAL;
 
   const { firstSentence, restOfText } = useMemo(() => {
     const first = getFirstSentence(highlight.text);
@@ -108,40 +92,76 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
     return label;
   }, [highlight]);
 
-  // Check if this is a personal entry (not from a book)
-  const isPersonalEntry = highlight.source === SOURCE_TYPES.THOUGHT ||
-                          highlight.source === SOURCE_TYPES.VOICE ||
-                          highlight.source === SOURCE_TYPES.JOURNAL;
-
+  // Single effect for all image loading - properly resets and loads on highlight change
   useEffect(() => {
-    let mounted = true;
+    // Reset all states immediately when highlight.id changes
+    setImageLoaded(false);
+    setBgLoaded(false);
+    setAuthorPhoto(null);
+    setShowNoteInput(false);
+    setNoteText('');
+    setShowConfirmDelete(false);
 
-    // Only fetch book covers for book-based highlights
+    // Try to get cached cover synchronously first
+    const cachedCover = getCachedCover(highlight.title, highlight.author);
+    setCover(cachedCover || null);
+
+    // Track if this effect is still valid (for async operations)
+    let isCurrentHighlight = true;
+
+    // Load background image
+    const bgImg = new Image();
+    bgImg.onload = () => {
+      if (isCurrentHighlight) setBgLoaded(true);
+    };
+    bgImg.onerror = () => {
+      if (isCurrentHighlight) setBgLoaded(true); // Show fallback gradient
+    };
+    bgImg.src = background.src;
+
+    // Load book cover and author photo (only for book entries)
     if (!isPersonalEntry) {
       getBookCover(highlight.title, highlight.author).then((result) => {
-        if (mounted) setCover(result);
+        if (isCurrentHighlight && result) {
+          setCover(result);
+        }
       });
 
       getAuthorPhoto(highlight.author).then((photo) => {
-        if (mounted) setAuthorPhoto(photo);
+        if (isCurrentHighlight && photo) {
+          setAuthorPhoto(photo);
+        }
       });
     }
 
-    const bgImg = new Image();
-    bgImg.onload = () => { if (mounted) setBgLoaded(true); };
-    bgImg.src = background.src;
+    // Cleanup: invalidate this effect when highlight changes or unmounts
+    return () => {
+      isCurrentHighlight = false;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [highlight.id, highlight.title, highlight.author, background.src, isPersonalEntry]);
 
-    return () => { mounted = false; };
-  }, [highlight.title, highlight.author, highlight.id, background.src, isPersonalEntry]);
-
+  // Separate effect for cover image loaded state
   useEffect(() => {
-    if (cover) {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => setImageLoaded(true);
-      img.onerror = () => setImageLoaded(true);
-      img.src = cover;
+    if (!cover) {
+      setImageLoaded(false);
+      return;
     }
+
+    let isValid = true;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      if (isValid) setImageLoaded(true);
+    };
+    img.onerror = () => {
+      if (isValid) setImageLoaded(true); // Hide loading state even on error
+    };
+    img.src = cover;
+
+    return () => {
+      isValid = false;
+    };
   }, [cover]);
 
   const getFontSize = () => {
