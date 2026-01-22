@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
-import { motion, useMotionValue } from 'framer-motion';
+import { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import { motion } from 'framer-motion';
 import { getBookCover, getCachedCover } from '../utils/bookCovers';
 import { getAuthorPhoto, getGoodreadsUrl } from '../utils/authorPhotos';
 import { getBackgroundForHighlight } from '../utils/backgrounds';
@@ -58,7 +58,7 @@ function getSourceIcon(source) {
   }
 }
 
-export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onChallenge, onAddTag, onRemoveTag, onExport, notes = [], backgroundY }) {
+function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChallenge, onAddTag, onRemoveTag, onExport, notes = [], backgroundY }) {
   const [cover, setCover] = useState(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [bgLoaded, setBgLoaded] = useState(false);
@@ -68,12 +68,16 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const background = getBackgroundForHighlight(highlight.id);
+  // Memoize background to prevent recalculation
+  const background = useMemo(() => getBackgroundForHighlight(highlight.id), [highlight.id]);
 
   // Check if this is a personal entry (not from a book)
-  const isPersonalEntry = highlight.source === SOURCE_TYPES.THOUGHT ||
-                          highlight.source === SOURCE_TYPES.VOICE ||
-                          highlight.source === SOURCE_TYPES.JOURNAL;
+  const isPersonalEntry = useMemo(() =>
+    highlight.source === SOURCE_TYPES.THOUGHT ||
+    highlight.source === SOURCE_TYPES.VOICE ||
+    highlight.source === SOURCE_TYPES.JOURNAL,
+    [highlight.source]
+  );
 
   const { firstSentence, restOfText } = useMemo(() => {
     const first = getFirstSentence(highlight.text);
@@ -102,6 +106,7 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
     setShowNoteInput(false);
     setNoteText('');
     setShowConfirmDelete(false);
+    setCopied(false);
 
     // Try to get cached cover synchronously first
     const cachedCover = getCachedCover(highlight.title, highlight.author);
@@ -109,9 +114,10 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
 
     // Track if this effect is still valid (for async operations)
     let isCurrentHighlight = true;
+    let bgImg = null;
 
     // Load background image
-    const bgImg = new Image();
+    bgImg = new Image();
     bgImg.onload = () => {
       if (isCurrentHighlight) setBgLoaded(true);
     };
@@ -135,12 +141,19 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
       });
     }
 
-    // Cleanup: invalidate this effect when highlight changes or unmounts
+    // Cleanup: invalidate this effect and abort image loading when highlight changes or unmounts
     return () => {
       isCurrentHighlight = false;
+      // Clear image references to help GC
+      if (bgImg) {
+        bgImg.onload = null;
+        bgImg.onerror = null;
+        bgImg.src = '';
+        bgImg = null;
+      }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [highlight.id, highlight.title, highlight.author, background.src, isPersonalEntry]);
+  }, [highlight.id]);
 
   // Separate effect for cover image loaded state
   useEffect(() => {
@@ -150,7 +163,7 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
     }
 
     let isValid = true;
-    const img = new Image();
+    let img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
       if (isValid) setImageLoaded(true);
@@ -162,6 +175,13 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
 
     return () => {
       isValid = false;
+      // Clear image reference to help GC
+      if (img) {
+        img.onload = null;
+        img.onerror = null;
+        img.src = '';
+        img = null;
+      }
     };
   }, [cover]);
 
@@ -671,3 +691,14 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
     </div>
   );
 }
+
+// Export memoized version to prevent unnecessary re-renders
+export const SwipeCard = memo(SwipeCardInner, (prevProps, nextProps) => {
+  // Custom comparison - only re-render if these specific props change
+  return (
+    prevProps.highlight.id === nextProps.highlight.id &&
+    prevProps.isTop === nextProps.isTop &&
+    prevProps.highlight.tags === nextProps.highlight.tags &&
+    prevProps.highlight.comment === nextProps.highlight.comment
+  );
+});

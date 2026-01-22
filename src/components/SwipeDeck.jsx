@@ -1,8 +1,11 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo, memo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { SwipeCard } from './SwipeCard';
 import { SOURCE_TYPES } from '../hooks/useHighlights';
 import { preloadBackgroundForHighlight } from '../utils/backgrounds';
+
+// Memoized card wrapper to prevent unnecessary re-renders
+const MemoizedSwipeCard = memo(SwipeCard);
 
 // Filter options with stoic descriptions
 const FILTER_OPTIONS = [
@@ -114,7 +117,11 @@ export function SwipeDeck({
   const cardScale = useTransform(dragY, [-200, 0, 200], [0.95, 1, 0.95]);
   const cardOpacity = useTransform(dragY, [-200, -100, 0, 100, 200], [0.5, 0.8, 1, 0.8, 0.5]);
 
-  const currentHighlight = highlights[currentIndex];
+  // Memoize current highlight to prevent unnecessary re-renders
+  const currentHighlight = useMemo(() => highlights[currentIndex], [highlights, currentIndex]);
+  const nextHighlight = useMemo(() => highlights[currentIndex + 1] || null, [highlights, currentIndex]);
+  const prevHighlight = useMemo(() => highlights[currentIndex - 1] || null, [highlights, currentIndex]);
+
   const lastRecordedId = useRef(null);
 
   // Centralized navigation with animation lock
@@ -140,6 +147,9 @@ export function SwipeDeck({
     isAnimating.current = true;
     lastNavigationTime.current = now;
     setDirection(dir);
+
+    // Reset drag position before navigation to prevent stale motion values
+    dragY.set(0);
 
     if (dir > 0) {
       onNext();
@@ -167,18 +177,15 @@ export function SwipeDeck({
     }
   }, [currentHighlight?.id, onRecordView]);
 
-  // Preload backgrounds for adjacent cards (2 ahead, 1 behind)
+  // Preload backgrounds for adjacent cards (1 ahead, 1 behind) - reduced to prevent memory bloat
   useEffect(() => {
-    if (highlights[currentIndex + 1]) {
-      preloadBackgroundForHighlight(highlights[currentIndex + 1].id);
+    if (nextHighlight) {
+      preloadBackgroundForHighlight(nextHighlight.id);
     }
-    if (highlights[currentIndex + 2]) {
-      preloadBackgroundForHighlight(highlights[currentIndex + 2].id);
+    if (prevHighlight) {
+      preloadBackgroundForHighlight(prevHighlight.id);
     }
-    if (highlights[currentIndex - 1]) {
-      preloadBackgroundForHighlight(highlights[currentIndex - 1].id);
-    }
-  }, [currentIndex, highlights]);
+  }, [nextHighlight?.id, prevHighlight?.id]);
 
   // Get current filter info
   const isTagFilter = activeFilter.startsWith('tag:');
@@ -568,12 +575,11 @@ export function SwipeDeck({
 
       {/* Full-screen card stack - TikTok/Reels style with pre-rendered cards */}
       <div className="flex-1 relative">
-        {/* Pre-render next card underneath for instant transition */}
-        {highlights[currentIndex + 1] && (
-          <div key={`next-${highlights[currentIndex + 1].id}`} className="absolute inset-0 z-0">
-            <SwipeCard
-              key={highlights[currentIndex + 1].id}
-              highlight={highlights[currentIndex + 1]}
+        {/* Pre-render next card underneath for instant transition - only render if exists */}
+        {nextHighlight && (
+          <div className="absolute inset-0 z-0">
+            <MemoizedSwipeCard
+              highlight={nextHighlight}
               isTop={false}
               onDelete={onDelete}
               onAddNote={onAddNote}
@@ -585,12 +591,11 @@ export function SwipeDeck({
           </div>
         )}
 
-        {/* Pre-render previous card underneath for backwards navigation */}
-        {highlights[currentIndex - 1] && (
-          <div key={`prev-${highlights[currentIndex - 1].id}`} className="absolute inset-0 z-0">
-            <SwipeCard
-              key={highlights[currentIndex - 1].id}
-              highlight={highlights[currentIndex - 1]}
+        {/* Pre-render previous card underneath for backwards navigation - only render if exists */}
+        {prevHighlight && (
+          <div className="absolute inset-0 z-0">
+            <MemoizedSwipeCard
+              highlight={prevHighlight}
               isTop={false}
               onDelete={onDelete}
               onAddNote={onAddNote}
@@ -602,46 +607,47 @@ export function SwipeDeck({
           </div>
         )}
 
-        {/* Current card with smooth crossfade - sync mode prevents animation queue buildup */}
-        <AnimatePresence mode="sync" custom={direction} initial={false}>
-          <motion.div
-            key={currentHighlight.id}
-            custom={direction}
-            variants={variants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={0.12}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            style={{
-              y: dragY,
-              scale: isDragging ? cardScale : 1,
-              willChange: 'transform, opacity',
-            }}
-            transition={{
-              type: 'spring',
-              stiffness: 600,  // Higher = snappier
-              damping: 40,     // Higher = less bounce
-              mass: 0.3,       // Lower = faster response
-              restDelta: 0.01, // Less precision needed for speed
-            }}
-            className="absolute inset-0 touch-pan-x z-10"
-          >
-            <SwipeCard
-              highlight={currentHighlight}
-              isTop={true}
-              onDelete={onDelete}
-              onAddNote={onAddNote}
-              onChallenge={onChallenge}
-              onAddTag={onAddTag}
-              onRemoveTag={onRemoveTag}
-              onExport={onExport}
-              backgroundY={smoothBackgroundY}
-            />
-          </motion.div>
+        {/* Current card with smooth crossfade - popLayout mode cleans up exited elements immediately */}
+        <AnimatePresence mode="popLayout" custom={direction} initial={false}>
+          {currentHighlight && (
+            <motion.div
+              key={currentHighlight.id}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={0.12}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              style={{
+                y: dragY,
+                scale: isDragging ? cardScale : 1,
+              }}
+              transition={{
+                type: 'spring',
+                stiffness: 600,  // Higher = snappier
+                damping: 40,     // Higher = less bounce
+                mass: 0.3,       // Lower = faster response
+                restDelta: 0.01, // Less precision needed for speed
+              }}
+              className="absolute inset-0 touch-pan-x z-10"
+            >
+              <MemoizedSwipeCard
+                highlight={currentHighlight}
+                isTop={true}
+                onDelete={onDelete}
+                onAddNote={onAddNote}
+                onChallenge={onChallenge}
+                onAddTag={onAddTag}
+                onRemoveTag={onRemoveTag}
+                onExport={onExport}
+                backgroundY={smoothBackgroundY}
+              />
+            </motion.div>
+          )}
         </AnimatePresence>
 
         {/* Swipe hint indicators */}
