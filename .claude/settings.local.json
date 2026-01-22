@@ -45,7 +45,10 @@
       "Bash(zip:*)",
       "Bash(sips:*)",
       "Bash(netlify deploy:*)",
-      "Bash(npx vite build:*)"
+      "Bash(npx vite build:*)",
+      "Bash(unzip:*)",
+      "Bash(brew list:*)",
+      "Bash(netlify status:*)"
     ]
   }
 }
