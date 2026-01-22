@@ -38,6 +38,7 @@ function getPersonalCover(title, source) {
 function BookCoverImage({ title, author, source, size = 'medium' }) {
   const [cover, setCover] = useState(() => getCachedCover(title, author));
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
 
   const isPersonal = source === SOURCE_TYPES.JOURNAL ||
                      source === SOURCE_TYPES.THOUGHT ||
@@ -45,6 +46,9 @@ function BookCoverImage({ title, author, source, size = 'medium' }) {
 
   useEffect(() => {
     if (!isPersonal) {
+      // Reset states when fetching new cover
+      setLoaded(false);
+      setError(false);
       getBookCover(title, author).then(setCover);
     }
   }, [title, author, isPersonal]);
@@ -97,18 +101,25 @@ function BookCoverImage({ title, author, source, size = 'medium' }) {
     );
   }
 
-  if (cover) {
+  if (cover && !error) {
     return (
       <div
-        className={`${sizeClasses[size]} rounded-lg overflow-hidden bg-[#252525]`}
+        className={`${sizeClasses[size]} rounded-lg overflow-hidden bg-[#252525] relative`}
         style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}
       >
+        {/* Show loading placeholder until image loads */}
+        {!loaded && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-4 h-4 border-2 border-white/20 border-t-white/60 rounded-full animate-spin" />
+          </div>
+        )}
         <img
           src={cover}
           alt={title}
           className="w-full h-full object-cover"
           style={{ opacity: loaded ? 1 : 0, transition: 'opacity 0.3s' }}
           onLoad={() => setLoaded(true)}
+          onError={() => setError(true)}
         />
       </div>
     );

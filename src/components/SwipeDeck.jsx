@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { SwipeCard } from './SwipeCard';
 import { SOURCE_TYPES } from '../hooks/useHighlights';
+import { preloadBackgroundForHighlight } from '../utils/backgrounds';
 
 // Filter options with stoic descriptions
 const FILTER_OPTIONS = [
@@ -117,6 +118,19 @@ export function SwipeDeck({
       onRecordView(currentHighlight.id);
     }
   }, [currentHighlight?.id, onRecordView]);
+
+  // Preload backgrounds for adjacent cards (2 ahead, 1 behind)
+  useEffect(() => {
+    if (highlights[currentIndex + 1]) {
+      preloadBackgroundForHighlight(highlights[currentIndex + 1].id);
+    }
+    if (highlights[currentIndex + 2]) {
+      preloadBackgroundForHighlight(highlights[currentIndex + 2].id);
+    }
+    if (highlights[currentIndex - 1]) {
+      preloadBackgroundForHighlight(highlights[currentIndex - 1].id);
+    }
+  }, [currentIndex, highlights]);
 
   // Get current filter info
   const isTagFilter = activeFilter.startsWith('tag:');
@@ -239,25 +253,22 @@ export function SwipeDeck({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentIndex, highlights.length, onNext, onPrev, showFilterMenu]);
 
-  // Buttery smooth variants with overshoot
+  // Ultra-smooth TikTok-style variants - minimal travel, instant feel
   const variants = {
     enter: (direction) => ({
-      y: direction > 0 ? '100%' : '-100%',
+      y: direction > 0 ? '30%' : '-30%',
       opacity: 0,
-      scale: 0.92,
-      filter: 'blur(4px)'
+      scale: 0.97,
     }),
     center: {
       y: 0,
       opacity: 1,
       scale: 1,
-      filter: 'blur(0px)'
     },
     exit: (direction) => ({
-      y: direction > 0 ? '-100%' : '100%',
+      y: direction > 0 ? '-20%' : '20%',
       opacity: 0,
-      scale: 0.92,
-      filter: 'blur(4px)'
+      scale: 0.97,
     })
   };
 
@@ -535,9 +546,42 @@ export function SwipeDeck({
         )}
       </AnimatePresence>
 
-      {/* Full-screen card with vertical animation */}
+      {/* Full-screen card stack - TikTok/Reels style with pre-rendered cards */}
       <div className="flex-1 relative">
-        <AnimatePresence mode="wait" custom={direction} initial={false}>
+        {/* Pre-render next card underneath for instant transition */}
+        {highlights[currentIndex + 1] && (
+          <div className="absolute inset-0 z-0">
+            <SwipeCard
+              highlight={highlights[currentIndex + 1]}
+              isTop={false}
+              onDelete={onDelete}
+              onAddNote={onAddNote}
+              onChallenge={onChallenge}
+              onAddTag={onAddTag}
+              onRemoveTag={onRemoveTag}
+              onExport={onExport}
+            />
+          </div>
+        )}
+
+        {/* Pre-render previous card underneath for backwards navigation */}
+        {highlights[currentIndex - 1] && (
+          <div className="absolute inset-0 z-0">
+            <SwipeCard
+              highlight={highlights[currentIndex - 1]}
+              isTop={false}
+              onDelete={onDelete}
+              onAddNote={onAddNote}
+              onChallenge={onChallenge}
+              onAddTag={onAddTag}
+              onRemoveTag={onRemoveTag}
+              onExport={onExport}
+            />
+          </div>
+        )}
+
+        {/* Current card with smooth crossfade */}
+        <AnimatePresence mode="popLayout" custom={direction} initial={false}>
           <motion.div
             key={currentHighlight.id}
             custom={direction}
@@ -547,24 +591,22 @@ export function SwipeDeck({
             exit="exit"
             drag="y"
             dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={0.15}
+            dragElastic={0.12}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             style={{
               y: dragY,
               scale: isDragging ? cardScale : 1,
-              willChange: 'transform',
-              transform: 'translateZ(0)' // GPU acceleration
+              willChange: 'transform, opacity',
             }}
             transition={{
               type: 'spring',
-              stiffness: 260,
-              damping: 26,
-              mass: 0.6,
+              stiffness: 400,
+              damping: 35,
+              mass: 0.5,
               restDelta: 0.001,
-              restSpeed: 0.001
             }}
-            className="absolute inset-0 touch-pan-x"
+            className="absolute inset-0 touch-pan-x z-10"
           >
             <SwipeCard
               highlight={currentHighlight}

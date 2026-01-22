@@ -135,9 +135,21 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
 
   return (
     <div className="absolute inset-0 overflow-hidden" style={{ willChange: 'transform' }}>
-      {/* Background image with parallax effect */}
+      {/* Instant fallback gradient - no black flash */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: background.theme === 'dark'
+            ? 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f1a 100%)'
+            : background.theme === 'warm'
+              ? 'linear-gradient(135deg, #2d2a1e 0%, #3d3424 50%, #1a1815 100%)'
+              : 'linear-gradient(135deg, #1e2a2a 0%, #2a3535 50%, #151f1f 100%)'
+        }}
+      />
+
+      {/* Background image with parallax effect - fades in over the gradient */}
       <motion.div
-        className="absolute transition-opacity duration-700"
+        className="absolute"
         style={{
           // Extend beyond bounds for parallax room
           top: '-5%',
@@ -148,9 +160,9 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           opacity: bgLoaded ? 1 : 0,
+          transition: 'opacity 0.3s ease-out',
           y: backgroundY || 0,
-          willChange: 'transform',
-          transform: 'translateZ(0)' // GPU acceleration
+          willChange: 'transform, opacity',
         }}
       />
 

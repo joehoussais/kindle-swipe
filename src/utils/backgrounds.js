@@ -235,6 +235,16 @@ export function preloadBackgrounds() {
 }
 
 /**
+ * Preload a specific background by highlight ID
+ */
+export function preloadBackgroundForHighlight(highlightId) {
+  if (!highlightId) return;
+  const background = getBackgroundForHighlight(highlightId);
+  const img = new Image();
+  img.src = background.src;
+}
+
+/**
  * Get RGB string for CSS
  */
 export function rgbString(color, alpha = 1) {
