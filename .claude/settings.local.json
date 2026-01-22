@@ -44,7 +44,8 @@
       "Bash(npx netlify-cli:*)",
       "Bash(zip:*)",
       "Bash(sips:*)",
-      "Bash(netlify deploy:*)"
+      "Bash(netlify deploy:*)",
+      "Bash(npx vite build:*)"
     ]
   }
 }

@@ -66,6 +66,7 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [noteText, setNoteText] = useState('');
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const background = getBackgroundForHighlight(highlight.id);
 
@@ -173,6 +174,26 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
   };
 
   const goodreadsUrl = getGoodreadsUrl(highlight.title, highlight.author);
+
+  // Copy text to clipboard
+  const handleCopyText = async (e) => {
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(highlight.text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = highlight.text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   return (
     <div className="absolute inset-0 overflow-hidden" style={{ willChange: 'transform' }}>
@@ -415,6 +436,23 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
             >
               "
             </span>
+
+            {/* Copy button */}
+            <button
+              onClick={handleCopyText}
+              className="absolute bottom-3 right-3 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors group"
+              title={copied ? "Copied!" : "Copy text"}
+            >
+              {copied ? (
+                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              )}
+            </button>
           </motion.div>
         </motion.div>
       </div>

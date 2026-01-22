@@ -3,7 +3,7 @@
   "name": "Highlight - Kindle Sync",
   "version": "1.2.0",
   "description": "One-click import of your Kindle highlights to the Highlight app",
-  "permissions": ["activeTab", "storage"],
+  "permissions": [],
   "host_permissions": [
     "https://read.amazon.com/*",
     "https://read.amazon.co.uk/*",
