@@ -94,7 +94,10 @@ export function SwipeDeck({
   const containerRef = useRef(null);
   const touchStartY = useRef(0);
   const touchStartTime = useRef(0);
-  const isScrolling = useRef(false);
+  const lastNavigationTime = useRef(0);
+
+  // Minimum time between navigation actions (prevents rapid fire issues)
+  const NAVIGATION_COOLDOWN = 250;
 
   // Smooth drag motion values
   const dragY = useMotionValue(0);
@@ -156,19 +159,21 @@ export function SwipeDeck({
 
   // Handle wheel scroll (desktop)
   const handleWheel = useCallback((e) => {
-    if (isScrolling.current || showFilterMenu) return;
+    if (showFilterMenu) return;
+
+    // Use timestamp-based debounce for more reliable rapid-swipe handling
+    const now = Date.now();
+    if (now - lastNavigationTime.current < NAVIGATION_COOLDOWN) return;
 
     const threshold = 50;
     if (e.deltaY > threshold && currentIndex < highlights.length - 1) {
-      isScrolling.current = true;
+      lastNavigationTime.current = now;
       setDirection(1);
       onNext();
-      setTimeout(() => { isScrolling.current = false; }, 400);
     } else if (e.deltaY < -threshold && currentIndex > 0) {
-      isScrolling.current = true;
+      lastNavigationTime.current = now;
       setDirection(-1);
       onPrev();
-      setTimeout(() => { isScrolling.current = false; }, 400);
     }
   }, [currentIndex, highlights.length, onNext, onPrev, showFilterMenu]);
 
@@ -191,11 +196,15 @@ export function SwipeDeck({
       return;
     }
 
-    if (isScrolling.current || showFilterMenu) return;
+    if (showFilterMenu) return;
+
+    // Use timestamp-based debounce
+    const now = Date.now();
+    if (now - lastNavigationTime.current < NAVIGATION_COOLDOWN) return;
 
     const touchEndY = e.changedTouches[0].clientY;
     const deltaY = touchStartY.current - touchEndY;
-    const deltaTime = Date.now() - touchStartTime.current;
+    const deltaTime = now - touchStartTime.current;
     const velocity = Math.abs(deltaY) / deltaTime;
 
     const threshold = 50;
@@ -203,16 +212,14 @@ export function SwipeDeck({
 
     if ((deltaY > threshold || velocity > velocityThreshold) && currentIndex < highlights.length - 1) {
       // Swiped up - next
-      isScrolling.current = true;
+      lastNavigationTime.current = now;
       setDirection(1);
       onNext();
-      setTimeout(() => { isScrolling.current = false; }, 400);
     } else if ((deltaY < -threshold || velocity > velocityThreshold) && deltaY < 0 && currentIndex > 0) {
       // Swiped down - previous
-      isScrolling.current = true;
+      lastNavigationTime.current = now;
       setDirection(-1);
       onPrev();
-      setTimeout(() => { isScrolling.current = false; }, 400);
     }
   }, [currentIndex, highlights.length, onNext, onPrev, showFilterMenu]);
 
@@ -227,22 +234,24 @@ export function SwipeDeck({
                        activeElement?.contentEditable === 'true';
 
       if (isTyping) return;
-      if (isScrolling.current || showFilterMenu) return;
+      if (showFilterMenu) return;
+
+      // Use timestamp-based debounce
+      const now = Date.now();
+      if (now - lastNavigationTime.current < NAVIGATION_COOLDOWN) return;
 
       if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
         if (currentIndex > 0) {
-          isScrolling.current = true;
+          lastNavigationTime.current = now;
           setDirection(-1);
           onPrev();
-          setTimeout(() => { isScrolling.current = false; }, 400);
         }
       } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
         e.preventDefault();
         if (currentIndex < highlights.length - 1) {
-          isScrolling.current = true;
+          lastNavigationTime.current = now;
           setDirection(1);
           onNext();
-          setTimeout(() => { isScrolling.current = false; }, 400);
         }
       } else if (e.key === 'Escape') {
         setShowFilterMenu(false);
@@ -279,16 +288,22 @@ export function SwipeDeck({
     const swipeThreshold = 80;
     const velocityThreshold = 300;
 
+    // Use timestamp-based debounce
+    const now = Date.now();
+    const canNavigate = now - lastNavigationTime.current >= NAVIGATION_COOLDOWN;
+
     // Swipe up (next) - drag negative Y
-    if (offset.y < -swipeThreshold || velocity.y < -velocityThreshold) {
+    if (canNavigate && (offset.y < -swipeThreshold || velocity.y < -velocityThreshold)) {
       if (currentIndex < highlights.length - 1) {
+        lastNavigationTime.current = now;
         setDirection(1);
         onNext();
       }
     }
     // Swipe down (prev) - drag positive Y
-    else if (offset.y > swipeThreshold || velocity.y > velocityThreshold) {
+    else if (canNavigate && (offset.y > swipeThreshold || velocity.y > velocityThreshold)) {
       if (currentIndex > 0) {
+        lastNavigationTime.current = now;
         setDirection(-1);
         onPrev();
       }
@@ -550,8 +565,9 @@ export function SwipeDeck({
       <div className="flex-1 relative">
         {/* Pre-render next card underneath for instant transition */}
         {highlights[currentIndex + 1] && (
-          <div className="absolute inset-0 z-0">
+          <div key={`next-${highlights[currentIndex + 1].id}`} className="absolute inset-0 z-0">
             <SwipeCard
+              key={highlights[currentIndex + 1].id}
               highlight={highlights[currentIndex + 1]}
               isTop={false}
               onDelete={onDelete}
@@ -566,8 +582,9 @@ export function SwipeDeck({
 
         {/* Pre-render previous card underneath for backwards navigation */}
         {highlights[currentIndex - 1] && (
-          <div className="absolute inset-0 z-0">
+          <div key={`prev-${highlights[currentIndex - 1].id}`} className="absolute inset-0 z-0">
             <SwipeCard
+              key={highlights[currentIndex - 1].id}
               highlight={highlights[currentIndex - 1]}
               isTop={false}
               onDelete={onDelete}
@@ -580,8 +597,8 @@ export function SwipeDeck({
           </div>
         )}
 
-        {/* Current card with smooth crossfade */}
-        <AnimatePresence mode="popLayout" custom={direction} initial={false}>
+        {/* Current card with smooth crossfade - sync mode prevents animation queue buildup */}
+        <AnimatePresence mode="sync" custom={direction} initial={false}>
           <motion.div
             key={currentHighlight.id}
             custom={direction}

@@ -59,6 +59,7 @@ function getSourceIcon(source) {
 }
 
 export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onChallenge, onAddTag, onRemoveTag, onExport, notes = [], backgroundY }) {
+  // Use highlight.id as part of state initialization to ensure fresh state per card
   const [cover, setCover] = useState(() => getCachedCover(highlight.title, highlight.author));
   const [imageLoaded, setImageLoaded] = useState(false);
   const [bgLoaded, setBgLoaded] = useState(false);
@@ -67,7 +68,27 @@ export function SwipeCard({ highlight, isTop = false, onDelete, onAddNote, onCha
   const [noteText, setNoteText] = useState('');
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
+  // Track the current highlight ID to detect changes and reset state
+  const [currentHighlightId, setCurrentHighlightId] = useState(highlight.id);
+
   const background = getBackgroundForHighlight(highlight.id);
+
+  // Reset all image states when highlight changes (critical for rapid swiping)
+  useEffect(() => {
+    if (highlight.id !== currentHighlightId) {
+      setCurrentHighlightId(highlight.id);
+      // Reset image loading states immediately
+      setImageLoaded(false);
+      setBgLoaded(false);
+      setAuthorPhoto(null);
+      // Get cached cover synchronously or reset to null
+      setCover(getCachedCover(highlight.title, highlight.author) || null);
+      // Reset UI states
+      setShowNoteInput(false);
+      setNoteText('');
+      setShowConfirmDelete(false);
+    }
+  }, [highlight.id, currentHighlightId, highlight.title, highlight.author]);
 
   const { firstSentence, restOfText } = useMemo(() => {
     const first = getFirstSentence(highlight.text);
