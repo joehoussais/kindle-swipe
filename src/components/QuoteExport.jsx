@@ -36,7 +36,7 @@ function getFirstSentence(text) {
 }
 
 // Kindle-style Template - Scenic background with white card, book info at top
-function KindleTemplate({ highlight, format, cover, background }) {
+function KindleTemplate({ highlight, format, cover, background, onCoverError }) {
   const { width, height } = FORMATS[format];
   const fontSize = getFontSize(highlight.text.length, format);
   const firstSentence = getFirstSentence(highlight.text);
@@ -96,6 +96,7 @@ function KindleTemplate({ highlight, format, cover, background }) {
                 boxShadow: '0 20px 40px rgba(0,0,0,0.4)'
               }}
               crossOrigin="anonymous"
+              onError={onCoverError}
             />
           )}
           <div className="text-left">
@@ -134,11 +135,11 @@ function KindleTemplate({ highlight, format, cover, background }) {
         >
           {/* Quote text with first sentence highlighted */}
           <div style={{ fontSize: `${fontSize}px`, lineHeight: 1.6, color: '#1a1a1a' }}>
-            {/* First sentence with blue underline highlight */}
+            {/* First sentence with blue underline highlight - using border for html2canvas compatibility */}
             <span
               style={{
-                background: 'linear-gradient(180deg, transparent 65%, rgba(35, 131, 226, 0.35) 65%)',
-                paddingBottom: '2px'
+                borderBottom: '0.15em solid rgba(35, 131, 226, 0.4)',
+                paddingBottom: '0.05em'
               }}
             >
               {firstSentence}
@@ -168,12 +169,41 @@ export function QuoteExport({ highlight, onClose }) {
   const [isExporting, setIsExporting] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
   const [cover, setCover] = useState(() => getCachedCover(highlight.title, highlight.author));
+  const [coverFailed, setCoverFailed] = useState(false);
   const templateRef = useRef(null);
 
   // Load book cover
   useEffect(() => {
+    setCoverFailed(false);
     getBookCover(highlight.title, highlight.author).then(setCover);
   }, [highlight.title, highlight.author]);
+
+  // Handle cover load error - try Open Library directly
+  const handleCoverError = async () => {
+    if (coverFailed) return; // Avoid infinite loop
+    setCoverFailed(true);
+
+    // Try Open Library as fallback
+    try {
+      const cleanedTitle = highlight.title.split(':')[0].split('(')[0].trim();
+      const searchQuery = highlight.author && highlight.author !== 'Unknown' && highlight.author !== 'You'
+        ? `${cleanedTitle} ${highlight.author}`
+        : cleanedTitle;
+
+      const response = await fetch(
+        `https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}&limit=3&fields=cover_i`
+      );
+      const data = await response.json();
+      const firstWithCover = data.docs?.find(d => d.cover_i);
+      if (firstWithCover) {
+        setCover(`https://covers.openlibrary.org/b/id/${firstWithCover.cover_i}-L.jpg`);
+      } else {
+        setCover(null);
+      }
+    } catch {
+      setCover(null);
+    }
+  };
 
   // Calculate preview scale
   const getPreviewScale = () => {
@@ -341,6 +371,7 @@ export function QuoteExport({ highlight, onClose }) {
                 format={format}
                 cover={cover}
                 background={selectedBackground}
+                onCoverError={handleCoverError}
               />
             </div>
           </div>
