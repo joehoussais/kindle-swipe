@@ -95,9 +95,12 @@ export function SwipeDeck({
   const touchStartY = useRef(0);
   const touchStartTime = useRef(0);
   const lastNavigationTime = useRef(0);
+  const isAnimating = useRef(false);
+  const pendingNavigation = useRef(null);
 
   // Minimum time between navigation actions (prevents rapid fire issues)
-  const NAVIGATION_COOLDOWN = 250;
+  const NAVIGATION_COOLDOWN = 150; // Reduced for snappier feel
+  const ANIMATION_DURATION = 200; // Match this to actual animation time
 
   // Smooth drag motion values
   const dragY = useMotionValue(0);
@@ -113,6 +116,48 @@ export function SwipeDeck({
 
   const currentHighlight = highlights[currentIndex];
   const lastRecordedId = useRef(null);
+
+  // Centralized navigation with animation lock
+  const navigate = useCallback((dir) => {
+    const now = Date.now();
+
+    // If currently animating, queue this navigation and skip
+    if (isAnimating.current) {
+      pendingNavigation.current = dir;
+      return;
+    }
+
+    // Cooldown check
+    if (now - lastNavigationTime.current < NAVIGATION_COOLDOWN) {
+      return;
+    }
+
+    // Bounds check
+    if (dir > 0 && currentIndex >= highlights.length - 1) return;
+    if (dir < 0 && currentIndex <= 0) return;
+
+    // Lock animation
+    isAnimating.current = true;
+    lastNavigationTime.current = now;
+    setDirection(dir);
+
+    if (dir > 0) {
+      onNext();
+    } else {
+      onPrev();
+    }
+
+    // Unlock after animation completes, check for pending
+    setTimeout(() => {
+      isAnimating.current = false;
+      if (pendingNavigation.current !== null) {
+        const pending = pendingNavigation.current;
+        pendingNavigation.current = null;
+        // Only process if it's in the same direction (user still spamming)
+        navigate(pending);
+      }
+    }, ANIMATION_DURATION);
+  }, [currentIndex, highlights.length, onNext, onPrev]);
 
   // Record view when highlight changes
   useEffect(() => {
@@ -161,21 +206,13 @@ export function SwipeDeck({
   const handleWheel = useCallback((e) => {
     if (showFilterMenu) return;
 
-    // Use timestamp-based debounce for more reliable rapid-swipe handling
-    const now = Date.now();
-    if (now - lastNavigationTime.current < NAVIGATION_COOLDOWN) return;
-
     const threshold = 50;
-    if (e.deltaY > threshold && currentIndex < highlights.length - 1) {
-      lastNavigationTime.current = now;
-      setDirection(1);
-      onNext();
-    } else if (e.deltaY < -threshold && currentIndex > 0) {
-      lastNavigationTime.current = now;
-      setDirection(-1);
-      onPrev();
+    if (e.deltaY > threshold) {
+      navigate(1);
+    } else if (e.deltaY < -threshold) {
+      navigate(-1);
     }
-  }, [currentIndex, highlights.length, onNext, onPrev, showFilterMenu]);
+  }, [showFilterMenu, navigate]);
 
   // Handle touch scroll (mobile)
   const touchTargetIsInteractive = useRef(false);
@@ -198,30 +235,22 @@ export function SwipeDeck({
 
     if (showFilterMenu) return;
 
-    // Use timestamp-based debounce
-    const now = Date.now();
-    if (now - lastNavigationTime.current < NAVIGATION_COOLDOWN) return;
-
     const touchEndY = e.changedTouches[0].clientY;
     const deltaY = touchStartY.current - touchEndY;
-    const deltaTime = now - touchStartTime.current;
+    const deltaTime = Date.now() - touchStartTime.current;
     const velocity = Math.abs(deltaY) / deltaTime;
 
     const threshold = 50;
     const velocityThreshold = 0.3;
 
-    if ((deltaY > threshold || velocity > velocityThreshold) && currentIndex < highlights.length - 1) {
+    if (deltaY > threshold || (velocity > velocityThreshold && deltaY > 0)) {
       // Swiped up - next
-      lastNavigationTime.current = now;
-      setDirection(1);
-      onNext();
-    } else if ((deltaY < -threshold || velocity > velocityThreshold) && deltaY < 0 && currentIndex > 0) {
+      navigate(1);
+    } else if (deltaY < -threshold || (velocity > velocityThreshold && deltaY < 0)) {
       // Swiped down - previous
-      lastNavigationTime.current = now;
-      setDirection(-1);
-      onPrev();
+      navigate(-1);
     }
-  }, [currentIndex, highlights.length, onNext, onPrev, showFilterMenu]);
+  }, [showFilterMenu, navigate]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -236,23 +265,11 @@ export function SwipeDeck({
       if (isTyping) return;
       if (showFilterMenu) return;
 
-      // Use timestamp-based debounce
-      const now = Date.now();
-      if (now - lastNavigationTime.current < NAVIGATION_COOLDOWN) return;
-
       if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-        if (currentIndex > 0) {
-          lastNavigationTime.current = now;
-          setDirection(-1);
-          onPrev();
-        }
+        navigate(-1);
       } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
         e.preventDefault();
-        if (currentIndex < highlights.length - 1) {
-          lastNavigationTime.current = now;
-          setDirection(1);
-          onNext();
-        }
+        navigate(1);
       } else if (e.key === 'Escape') {
         setShowFilterMenu(false);
       }
@@ -260,14 +277,14 @@ export function SwipeDeck({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentIndex, highlights.length, onNext, onPrev, showFilterMenu]);
+  }, [showFilterMenu, navigate]);
 
   // Ultra-smooth TikTok-style variants - minimal travel, instant feel
   const variants = {
     enter: (direction) => ({
-      y: direction > 0 ? '30%' : '-30%',
+      y: direction > 0 ? '15%' : '-15%', // Reduced travel for faster feel
       opacity: 0,
-      scale: 0.97,
+      scale: 0.98,
     }),
     center: {
       y: 0,
@@ -275,9 +292,9 @@ export function SwipeDeck({
       scale: 1,
     },
     exit: (direction) => ({
-      y: direction > 0 ? '-20%' : '20%',
+      y: direction > 0 ? '-10%' : '10%', // Reduced exit travel
       opacity: 0,
-      scale: 0.97,
+      scale: 0.98,
     })
   };
 
@@ -288,30 +305,18 @@ export function SwipeDeck({
     const swipeThreshold = 80;
     const velocityThreshold = 300;
 
-    // Use timestamp-based debounce
-    const now = Date.now();
-    const canNavigate = now - lastNavigationTime.current >= NAVIGATION_COOLDOWN;
-
     // Swipe up (next) - drag negative Y
-    if (canNavigate && (offset.y < -swipeThreshold || velocity.y < -velocityThreshold)) {
-      if (currentIndex < highlights.length - 1) {
-        lastNavigationTime.current = now;
-        setDirection(1);
-        onNext();
-      }
+    if (offset.y < -swipeThreshold || velocity.y < -velocityThreshold) {
+      navigate(1);
     }
     // Swipe down (prev) - drag positive Y
-    else if (canNavigate && (offset.y > swipeThreshold || velocity.y > velocityThreshold)) {
-      if (currentIndex > 0) {
-        lastNavigationTime.current = now;
-        setDirection(-1);
-        onPrev();
-      }
+    else if (offset.y > swipeThreshold || velocity.y > velocityThreshold) {
+      navigate(-1);
     }
 
     // Reset drag position
     dragY.set(0);
-  }, [currentIndex, highlights.length, onNext, onPrev, dragY]);
+  }, [navigate, dragY]);
 
   const handleDragStart = useCallback(() => {
     setIsDragging(true);
@@ -618,10 +623,10 @@ export function SwipeDeck({
             }}
             transition={{
               type: 'spring',
-              stiffness: 400,
-              damping: 35,
-              mass: 0.5,
-              restDelta: 0.001,
+              stiffness: 600,  // Higher = snappier
+              damping: 40,     // Higher = less bounce
+              mass: 0.3,       // Lower = faster response
+              restDelta: 0.01, // Less precision needed for speed
             }}
             className="absolute inset-0 touch-pan-x z-10"
           >
