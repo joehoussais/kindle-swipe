@@ -1,7 +1,32 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getBookCover, getCachedCover, getColorForTitle } from '../utils/bookCovers';
 import { SOURCE_TYPES } from '../hooks/useHighlights';
+
+// Hook for lazy loading with Intersection Observer
+function useLazyLoad(ref, options = {}) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (!ref.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect(); // Stop observing once visible
+        }
+      },
+      { rootMargin: '100px', threshold: 0.1, ...options }
+    );
+
+    observer.observe(ref.current);
+
+    return () => observer.disconnect();
+  }, [ref, options]);
+
+  return isVisible;
+}
 
 // Generate a deterministic "fun" cover for personal entries
 function getPersonalCover(title, source) {
@@ -34,24 +59,30 @@ function getPersonalCover(title, source) {
   return { ...palette, icon };
 }
 
-// Book cover component
-function BookCoverImage({ title, author, source, size = 'medium' }) {
+// Book cover component with lazy loading
+function BookCoverImage({ title, author, source, size = 'medium', lazy = true }) {
+  const containerRef = useRef(null);
+  const isVisible = useLazyLoad(containerRef);
+
   const [cover, setCover] = useState(() => getCachedCover(title, author));
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
+  const [fetchStarted, setFetchStarted] = useState(false);
 
   const isPersonal = source === SOURCE_TYPES.JOURNAL ||
                      source === SOURCE_TYPES.THOUGHT ||
                      source === SOURCE_TYPES.VOICE;
 
+  // Only fetch cover when visible (lazy loading) or if lazy is disabled
   useEffect(() => {
-    if (!isPersonal) {
+    if (!isPersonal && (isVisible || !lazy) && !fetchStarted) {
+      setFetchStarted(true);
       // Reset states when fetching new cover
       setLoaded(false);
       setError(false);
       getBookCover(title, author).then(setCover);
     }
-  }, [title, author, isPersonal]);
+  }, [title, author, isPersonal, isVisible, lazy, fetchStarted]);
 
   const sizeClasses = {
     small: 'w-12 h-16',
@@ -64,6 +95,7 @@ function BookCoverImage({ title, author, source, size = 'medium' }) {
     const personalCover = getPersonalCover(title, source);
     return (
       <div
+        ref={containerRef}
         className={`${sizeClasses[size]} rounded-lg flex items-center justify-center relative overflow-hidden`}
         style={{
           backgroundColor: personalCover.bg,
@@ -104,6 +136,7 @@ function BookCoverImage({ title, author, source, size = 'medium' }) {
   if (cover && !error) {
     return (
       <div
+        ref={containerRef}
         className={`${sizeClasses[size]} rounded-lg overflow-hidden bg-[#252525] relative`}
         style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}
       >
@@ -125,10 +158,11 @@ function BookCoverImage({ title, author, source, size = 'medium' }) {
     );
   }
 
-  // Color fallback for books without covers
+  // Color fallback for books without covers (or while loading)
   const { r, g, b } = getColorForTitle(title);
   return (
     <div
+      ref={containerRef}
       className={`${sizeClasses[size]} rounded-lg flex items-center justify-center p-2`}
       style={{
         backgroundColor: `rgb(${r}, ${g}, ${b})`,

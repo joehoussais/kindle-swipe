@@ -1,13 +1,73 @@
 /**
  * Fetch book covers from multiple sources with fallbacks
  * Priority: Google Books > Open Library > Color fallback
+ *
+ * Optimizations:
+ * - Persistent localStorage cache (survives page reloads)
+ * - In-memory cache for instant access
+ * - Failed lookup tracking to avoid repeated requests
+ * - Batch preloading with controlled concurrency
  */
+
+const CACHE_STORAGE_KEY = 'kindle-swipe-cover-cache';
+const CACHE_VERSION = 1;
+const CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 // In-memory cache for cover URLs
 const coverCache = new Map();
 
 // Track failed lookups to avoid repeated requests
 const failedLookups = new Set();
+
+// Track in-flight requests to prevent duplicate API calls
+const pendingRequests = new Map();
+
+// Load cache from localStorage on startup
+function loadCacheFromStorage() {
+  try {
+    const stored = localStorage.getItem(CACHE_STORAGE_KEY);
+    if (stored) {
+      const { version, timestamp, covers, failed } = JSON.parse(stored);
+      // Check version and age
+      if (version === CACHE_VERSION && Date.now() - timestamp < CACHE_MAX_AGE_MS) {
+        // Restore covers
+        Object.entries(covers || {}).forEach(([key, url]) => {
+          coverCache.set(key, url);
+        });
+        // Restore failed lookups
+        (failed || []).forEach(key => failedLookups.add(key));
+        console.log(`[BookCovers] Loaded ${coverCache.size} covers from cache`);
+      } else {
+        // Cache expired, clear it
+        localStorage.removeItem(CACHE_STORAGE_KEY);
+      }
+    }
+  } catch (e) {
+    console.warn('[BookCovers] Failed to load cache:', e);
+  }
+}
+
+// Save cache to localStorage (debounced)
+let saveTimeout = null;
+function saveCacheToStorage() {
+  if (saveTimeout) clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => {
+    try {
+      const data = {
+        version: CACHE_VERSION,
+        timestamp: Date.now(),
+        covers: Object.fromEntries(coverCache),
+        failed: Array.from(failedLookups).slice(0, 500) // Limit failed entries
+      };
+      localStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+      console.warn('[BookCovers] Failed to save cache:', e);
+    }
+  }, 1000); // Debounce 1 second
+}
+
+// Initialize cache from localStorage
+loadCacheFromStorage();
 
 // Fallback color palettes - dark, monumental, cinematic
 const COLOR_PALETTES = [
@@ -126,6 +186,7 @@ async function tryOpenLibrary(title, author) {
 /**
  * Get a cover URL for a book
  * Returns URL string or null
+ * Deduplicates concurrent requests for the same book
  */
 export async function getBookCover(title, author) {
   if (!title) return null;
@@ -142,22 +203,42 @@ export async function getBookCover(title, author) {
     return null;
   }
 
-  // Try Google Books first (best quality)
-  let coverUrl = await tryGoogleBooks(title, author);
-
-  // Fallback to Open Library
-  if (!coverUrl) {
-    coverUrl = await tryOpenLibrary(title, author);
+  // If there's already a request in flight for this book, wait for it
+  if (pendingRequests.has(cacheKey)) {
+    return pendingRequests.get(cacheKey);
   }
 
-  if (coverUrl) {
-    coverCache.set(cacheKey, coverUrl);
-    return coverUrl;
-  }
+  // Create the request promise
+  const requestPromise = (async () => {
+    // Try Google Books first (best quality)
+    let coverUrl = await tryGoogleBooks(title, author);
 
-  // Mark as failed to avoid repeated lookups
-  failedLookups.add(cacheKey);
-  return null;
+    // Fallback to Open Library
+    if (!coverUrl) {
+      coverUrl = await tryOpenLibrary(title, author);
+    }
+
+    if (coverUrl) {
+      coverCache.set(cacheKey, coverUrl);
+      saveCacheToStorage(); // Persist to localStorage
+      return coverUrl;
+    }
+
+    // Mark as failed to avoid repeated lookups
+    failedLookups.add(cacheKey);
+    saveCacheToStorage(); // Persist failed lookup
+    return null;
+  })();
+
+  // Store the pending request
+  pendingRequests.set(cacheKey, requestPromise);
+
+  // Clean up after the request completes
+  requestPromise.finally(() => {
+    pendingRequests.delete(cacheKey);
+  });
+
+  return requestPromise;
 }
 
 /**
@@ -219,4 +300,17 @@ export function getCachedCover(title, author) {
 export function clearCoverCache() {
   coverCache.clear();
   failedLookups.clear();
+  pendingRequests.clear();
+  localStorage.removeItem(CACHE_STORAGE_KEY);
+}
+
+/**
+ * Get cache statistics (useful for debugging)
+ */
+export function getCacheStats() {
+  return {
+    cached: coverCache.size,
+    failed: failedLookups.size,
+    pending: pendingRequests.size
+  };
 }
