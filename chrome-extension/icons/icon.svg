@@ -1,6 +1,24 @@
 <svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="128" height="128" rx="28" fill="#1a1a1a"/>
-  <path d="M68 28L38 64h24l-4 36 30-44H64l4-28z" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <defs>
-  </defs>
+  <!-- Background -->
+  <rect width="128" height="128" rx="28" fill="#000000"/>
+
+  <!-- Lightning H - left vertical stroke -->
+  <path d="M32 20 L32 108"
+        stroke="white"
+        stroke-width="12"
+        stroke-linecap="round"/>
+
+  <!-- Lightning H - right vertical stroke with lightning zigzag -->
+  <path d="M96 20 L96 45 L82 58 L96 58 L96 108"
+        stroke="white"
+        stroke-width="12"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+  <!-- Lightning H - horizontal bar with lightning angle -->
+  <path d="M32 64 L58 54 L72 74 L96 64"
+        stroke="white"
+        stroke-width="12"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
 </svg>
