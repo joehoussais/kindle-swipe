@@ -318,8 +318,8 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
           )}
         </motion.div>
 
-        {/* CENTER: Quote - clean typography focused */}
-        <div className="flex-1 flex items-center justify-center py-6 md:py-8">
+        {/* CENTER: Quote - Kindle-style reading experience */}
+        <div className="flex-1 flex items-center justify-center py-4 md:py-6 px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -329,83 +329,61 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
               stiffness: 300,
               damping: 24
             }}
-            className="w-full max-w-2xl px-2"
+            className="w-full max-w-2xl"
           >
-            {/* Quote with elegant typography */}
-            <div className="relative">
-              {/* Opening quote mark */}
-              <span
-                className="absolute -left-2 -top-6 text-[#292524] select-none"
-                style={{
-                  fontFamily: "'Playfair Display', Georgia, serif",
-                  fontSize: '4rem',
-                  lineHeight: 1,
-                }}
-              >
-                "
-              </span>
-
+            {/* Kindle-style quote card - white background, black text */}
+            <div
+              className="rounded-lg p-6 md:p-8 shadow-lg"
+              style={{
+                backgroundColor: '#faf9f6',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
+              }}
+            >
               <blockquote
-                className={`${getFontSize()} text-center px-4 md:px-8`}
+                className={`${getFontSize()}`}
                 style={{
-                  fontFamily: "'Cormorant Garamond', Georgia, serif",
-                  color: '#f5f0e8',
+                  fontFamily: "'Bookerly', 'Georgia', 'Times New Roman', serif",
+                  color: '#1a1a1a',
                   fontWeight: 400,
-                  letterSpacing: '0.01em',
-                  lineHeight: 1.7
+                  lineHeight: 1.8,
+                  textAlign: 'left'
                 }}
               >
-                {/* Highlighted first sentence */}
+                {/* Text with blue underline highlight like Kindle */}
                 <span
                   style={{
-                    backgroundColor: 'rgba(212, 196, 176, 0.15)',
-                    padding: '2px 0',
-                    boxDecorationBreak: 'clone',
-                    WebkitBoxDecorationBreak: 'clone'
+                    borderBottom: '2px solid #2563eb',
+                    paddingBottom: '1px'
                   }}
                 >
-                  {firstSentence}
+                  {highlight.text}
                 </span>
-                {/* Rest of text */}
-                {restOfText && <span className="text-[#a8a29e]">{restOfText}</span>}
               </blockquote>
 
-              {/* Closing quote mark */}
-              <span
-                className="absolute -right-2 -bottom-8 text-[#292524] select-none"
-                style={{
-                  fontFamily: "'Playfair Display', Georgia, serif",
-                  fontSize: '4rem',
-                  lineHeight: 1,
-                }}
-              >
-                "
-              </span>
-            </div>
-
-            {/* Copy button - subtle, below quote */}
-            <div className="flex justify-center mt-6">
-              <button
-                onClick={handleCopyText}
-                className="px-3 py-1.5 rounded-full bg-[#1a1a1a] hover:bg-[#242424] border border-[#292524] transition-colors flex items-center gap-2 group"
-                title={copied ? "Copied!" : "Copy text"}
-              >
-                {copied ? (
-                  <>
-                    <svg className="w-3.5 h-3.5 text-[#d4c4b0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span className="text-xs text-[#d4c4b0]">Copied</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-3.5 h-3.5 text-[#78716c] group-hover:text-[#a8a29e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                    <span className="text-xs text-[#78716c] group-hover:text-[#a8a29e]">Copy</span>
-                  </>
-                )}
-              </button>
+              {/* Copy button - inside card */}
+              <div className="flex justify-end mt-4 pt-3 border-t border-gray-200">
+                <button
+                  onClick={handleCopyText}
+                  className="px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center gap-2 group"
+                  title={copied ? "Copied!" : "Copy text"}
+                >
+                  {copied ? (
+                    <>
+                      <svg className="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-xs text-blue-600">Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-3.5 h-3.5 text-gray-500 group-hover:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-xs text-gray-500 group-hover:text-gray-700">Copy</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </motion.div>
         </div>
