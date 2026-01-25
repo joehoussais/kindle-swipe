@@ -349,11 +349,13 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
                   textAlign: 'left'
                 }}
               >
-                {/* Text with blue underline highlight like Kindle */}
+                {/* Yellow highlight like Kindle */}
                 <span
                   style={{
-                    borderBottom: '2px solid #2563eb',
-                    paddingBottom: '1px'
+                    backgroundColor: '#fff59d',
+                    padding: '2px 0',
+                    boxDecorationBreak: 'clone',
+                    WebkitBoxDecorationBreak: 'clone'
                   }}
                 >
                   {highlight.text}
