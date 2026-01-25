@@ -17,10 +17,10 @@ export function QuickAddQuote({ onClose, onAddQuote, onAddAndExport }) {
   const textareaRef = useRef(null);
   const searchInputRef = useRef(null);
 
-  // Auto-focus textarea on mount
+  // Auto-focus search input on mount
   useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.focus();
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
     }
   }, []);
 
@@ -56,6 +56,12 @@ export function QuickAddQuote({ onClose, onAddQuote, onAddAndExport }) {
     setSelectedBook(book);
     setSearchQuery(book.title);
     setSearchResults([]);
+    // Focus the quote textarea after selecting a book
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+      }
+    }, 100);
   };
 
   // Get final book info (from selection or manual entry)
@@ -142,21 +148,7 @@ export function QuickAddQuote({ onClose, onAddQuote, onAddAndExport }) {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
-          {/* Quote textarea */}
-          <div>
-            <label className="block text-xs text-[#666] uppercase tracking-wider mb-2 font-medium">
-              Quote
-            </label>
-            <textarea
-              ref={textareaRef}
-              value={quoteText}
-              onChange={(e) => setQuoteText(e.target.value)}
-              placeholder="Paste or type your quote here..."
-              className="w-full h-32 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-white placeholder-[#555] focus:outline-none focus:border-[#444] focus:ring-1 focus:ring-[#444] resize-none text-base leading-relaxed"
-            />
-          </div>
-
-          {/* Book section */}
+          {/* Book section - FIRST */}
           <div>
             <label className="block text-xs text-[#666] uppercase tracking-wider mb-2 font-medium">
               Book
@@ -229,6 +221,7 @@ export function QuickAddQuote({ onClose, onAddQuote, onAddAndExport }) {
                       onClick={() => {
                         setSelectedBook(null);
                         setSearchQuery('');
+                        setTimeout(() => searchInputRef.current?.focus(), 100);
                       }}
                       className="p-2 rounded-full hover:bg-white/10 text-[#666]"
                     >
@@ -304,6 +297,7 @@ export function QuickAddQuote({ onClose, onAddQuote, onAddAndExport }) {
                   onChange={(e) => setManualTitle(e.target.value)}
                   placeholder="Book title"
                   className="w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-white placeholder-[#555] focus:outline-none focus:border-[#444] focus:ring-1 focus:ring-[#444]"
+                  autoFocus
                 />
                 <input
                   type="text"
@@ -327,6 +321,20 @@ export function QuickAddQuote({ onClose, onAddQuote, onAddAndExport }) {
                 </button>
               </div>
             )}
+          </div>
+
+          {/* Quote textarea - SECOND */}
+          <div>
+            <label className="block text-xs text-[#666] uppercase tracking-wider mb-2 font-medium">
+              Quote
+            </label>
+            <textarea
+              ref={textareaRef}
+              value={quoteText}
+              onChange={(e) => setQuoteText(e.target.value)}
+              placeholder="Paste or type your quote here..."
+              className="w-full h-32 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-white placeholder-[#555] focus:outline-none focus:border-[#444] focus:ring-1 focus:ring-[#444] resize-none text-base leading-relaxed"
+            />
           </div>
         </div>
 
