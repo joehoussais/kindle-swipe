@@ -39,7 +39,7 @@ function getPersonalCover(title, source) {
 
   // Imperial/stoic color palettes for personal entries
   const palettes = [
-    { bg: '#252525', accent: '#2383e2', icon: '◇' }, // Charcoal & bronze
+    { bg: '#1a1a1a', accent: '#d4c4b0', icon: '◇' }, // Charcoal & bronze
     { bg: '#1a2a2a', accent: '#7ab3a2', icon: '◎' }, // Deep teal
     { bg: '#2a1a2a', accent: '#a87ca8', icon: '❧' }, // Plum
     { bg: '#2a2a1a', accent: '#a8a87c', icon: '▣' }, // Olive
@@ -137,7 +137,7 @@ function BookCoverImage({ title, author, source, size = 'medium', lazy = true })
     return (
       <div
         ref={containerRef}
-        className={`${sizeClasses[size]} rounded-lg overflow-hidden bg-[#252525] relative`}
+        className={`${sizeClasses[size]} rounded-lg overflow-hidden bg-[#1a1a1a] relative`}
         style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.3)' }}
       >
         {/* Show loading placeholder until image loads */}
@@ -179,7 +179,7 @@ function BookCoverImage({ title, author, source, size = 'medium', lazy = true })
   );
 }
 
-export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHighlight, onAddComment }) {
+export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHighlight, onAddComment, onEditBook }) {
   const [selectedBook, setSelectedBook] = useState(null);
   const [editingHighlight, setEditingHighlight] = useState(null);
   const [editText, setEditText] = useState('');
@@ -453,13 +453,25 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                     <p className="text-xs text-[#657786] mt-2">
                       {selectedBook.highlights.length} passage{selectedBook.highlights.length !== 1 ? 's' : ''}
                     </p>
-                    <button
-                      onClick={() => handleDeleteBook(selectedBook.title)}
-                      className="mt-3 px-3 py-1.5 rounded-full bg-[#ffeef1] hover:bg-[#ffdddf]
-                                 text-[#e0245e] text-sm transition border border-[#ffccd5]"
-                    >
-                      Delete All
-                    </button>
+                    <div className="flex gap-2 mt-3">
+                      <button
+                        onClick={() => onEditBook && onEditBook(selectedBook)}
+                        className="px-3 py-1.5 rounded-full bg-[#e8f4fd] hover:bg-[#d4ebfc]
+                                   text-[#1da1f2] text-sm transition border border-[#bee4f8] flex items-center gap-1.5"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Edit Book
+                      </button>
+                      <button
+                        onClick={() => handleDeleteBook(selectedBook.title)}
+                        className="px-3 py-1.5 rounded-full bg-[#ffeef1] hover:bg-[#ffdddf]
+                                   text-[#e0245e] text-sm transition border border-[#ffccd5]"
+                      >
+                        Delete All
+                      </button>
+                    </div>
                   </div>
                 </div>
 

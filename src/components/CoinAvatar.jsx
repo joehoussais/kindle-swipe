@@ -309,13 +309,13 @@ export function AvatarSelector({ selected, onSelect, size = 64 }) {
           onClick={() => onSelect(type)}
           className={`flex flex-col items-center gap-2 p-3 rounded-xl transition-all ${
             selected === type
-              ? 'bg-[#2383e2]/20 ring-2 ring-[#2383e2] scale-105'
-              : 'bg-[#252525]/50 hover:bg-[#252525] hover:scale-102'
+              ? 'bg-[#d4c4b0]/20 ring-2 ring-[#d4c4b0] scale-105'
+              : 'bg-[#1a1a1a]/50 hover:bg-[#1a1a1a] hover:scale-102'
           }`}
         >
           <CoinAvatar type={type} size={size} />
           <span className={`text-xs font-medium ${
-            selected === type ? 'text-[#2383e2]' : 'text-[#9b9a97]'
+            selected === type ? 'text-[#d4c4b0]' : 'text-[#a8a29e]'
           }`}>
             {label}
           </span>

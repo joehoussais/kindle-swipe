@@ -257,16 +257,16 @@ export function ShareModal({ highlights, onClose, userName }) {
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="w-full max-w-lg max-h-[90vh] bg-[#191919] rounded-2xl overflow-hidden border border-[#252525] flex flex-col relative"
+        className="w-full max-w-lg max-h-[90vh] bg-[#141414] rounded-2xl overflow-hidden border border-[#1a1a1a] flex flex-col relative"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 border-b border-[#252525] flex items-center justify-between">
+        <div className="p-4 border-b border-[#1a1a1a] flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-[#ffffffeb]">
+            <h2 className="text-lg font-semibold text-[#f5f0e8]">
               {step === 'select' ? 'Share Your Top 5 Books' : 'Preview'}
             </h2>
-            <p className="text-sm text-[#787774]">
+            <p className="text-sm text-[#78716c]">
               {step === 'select'
                 ? `Select ${5 - selectedIds.size} more book${5 - selectedIds.size !== 1 ? 's' : ''}`
                 : 'Ready to share'
@@ -275,7 +275,7 @@ export function ShareModal({ highlights, onClose, userName }) {
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-white/10 transition text-[#9b9a97]"
+            className="p-2 rounded-full hover:bg-white/10 transition text-[#a8a29e]"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
@@ -300,7 +300,7 @@ export function ShareModal({ highlights, onClose, userName }) {
                     <button
                       key={book.id}
                       onClick={() => toggleSelect(book.id)}
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#2383e2] text-white text-sm"
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#d4c4b0] text-white text-sm"
                     >
                       <span className="font-medium">{i + 1}</span>
                       <span className="truncate max-w-[150px]">{book.title}</span>
@@ -314,7 +314,7 @@ export function ShareModal({ highlights, onClose, userName }) {
 
               {/* Book list */}
               {books.length === 0 ? (
-                <div className="text-center py-8 text-[#787774]">
+                <div className="text-center py-8 text-[#78716c]">
                   <p>No books found in your highlights.</p>
                   <p className="text-sm mt-2">Import some Kindle highlights to get started!</p>
                 </div>
@@ -332,14 +332,14 @@ export function ShareModal({ highlights, onClose, userName }) {
                         disabled={isDisabled}
                         className={`w-full text-left p-3 rounded-lg border transition flex items-center gap-3 ${
                           isSelected
-                            ? 'bg-[#2383e2]/20 border-[#2383e2]'
+                            ? 'bg-[#d4c4b0]/20 border-[#d4c4b0]'
                             : isDisabled
-                              ? 'bg-[#252525]/30 border-[#252525] opacity-50 cursor-not-allowed'
-                              : 'bg-[#252525]/50 border-[#ffffff14] hover:bg-[#252525]'
+                              ? 'bg-[#1a1a1a]/30 border-[#1a1a1a] opacity-50 cursor-not-allowed'
+                              : 'bg-[#1a1a1a]/50 border-[#292524] hover:bg-[#1a1a1a]'
                         }`}
                       >
                         {/* Book cover thumbnail */}
-                        <div className="w-10 h-14 rounded overflow-hidden flex-shrink-0 bg-[#252525]">
+                        <div className="w-10 h-14 rounded overflow-hidden flex-shrink-0 bg-[#1a1a1a]">
                           {cover ? (
                             <img
                               src={cover}
@@ -361,11 +361,11 @@ export function ShareModal({ highlights, onClose, userName }) {
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-[#ffffffeb] truncate font-medium">{book.title}</p>
-                          <p className="text-xs text-[#9b9a97] truncate">
+                          <p className="text-sm text-[#f5f0e8] truncate font-medium">{book.title}</p>
+                          <p className="text-xs text-[#a8a29e] truncate">
                             {book.author !== 'Unknown' && book.author !== 'You' ? book.author : ''}
                           </p>
-                          <p className="text-xs text-[#787774] mt-1">
+                          <p className="text-xs text-[#78716c] mt-1">
                             {book.highlightCount} highlight{book.highlightCount !== 1 ? 's' : ''}
                           </p>
                         </div>
@@ -373,7 +373,7 @@ export function ShareModal({ highlights, onClose, userName }) {
                         {/* Selection indicator */}
                         <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                           isSelected
-                            ? 'bg-[#2383e2] border-[#2383e2]'
+                            ? 'bg-[#d4c4b0] border-[#d4c4b0]'
                             : 'border-[#4d4a46]'
                         }`}>
                           {isSelected && (
@@ -415,13 +415,13 @@ export function ShareModal({ highlights, onClose, userName }) {
         </AnimatePresence>
 
         {/* Footer - always visible */}
-        <div className="p-4 border-t border-[#252525] flex gap-3 flex-shrink-0">
+        <div className="p-4 border-t border-[#1a1a1a] flex gap-3 flex-shrink-0">
           {step === 'select' ? (
             <>
               <button
                 onClick={onClose}
-                className="flex-1 py-3 px-4 rounded-lg bg-[#252525]/50 hover:bg-[#252525]
-                           border border-[#ffffff14] transition text-[#ffffffeb] text-sm"
+                className="flex-1 py-3 px-4 rounded-lg bg-[#1a1a1a]/50 hover:bg-[#1a1a1a]
+                           border border-[#292524] transition text-[#f5f0e8] text-sm"
               >
                 Cancel
               </button>
@@ -430,8 +430,8 @@ export function ShareModal({ highlights, onClose, userName }) {
                 disabled={selectedIds.size !== 5}
                 className={`flex-1 py-3 px-4 rounded-lg transition text-sm font-medium ${
                   selectedIds.size === 5
-                    ? 'bg-[#2383e2] hover:bg-[#1a6dc0] text-white'
-                    : 'bg-[#252525]/50 border border-[#ffffff14] text-[#787774] cursor-not-allowed'
+                    ? 'bg-[#d4c4b0] hover:bg-[#1a6dc0] text-white'
+                    : 'bg-[#1a1a1a]/50 border border-[#292524] text-[#78716c] cursor-not-allowed'
                 }`}
               >
                 Preview ({selectedIds.size}/5)
@@ -471,8 +471,8 @@ export function ShareModal({ highlights, onClose, userName }) {
                 <button
                   onClick={handleGenericShare}
                   disabled={isExporting}
-                  className="flex-1 py-3 px-3 rounded-lg bg-[#252525] hover:bg-[#ffffff14]
-                             transition text-[#ffffffeb] text-sm font-medium flex items-center justify-center gap-2 border border-[#ffffff14]"
+                  className="flex-1 py-3 px-3 rounded-lg bg-[#1a1a1a] hover:bg-[#292524]
+                             transition text-[#f5f0e8] text-sm font-medium flex items-center justify-center gap-2 border border-[#292524]"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -485,16 +485,16 @@ export function ShareModal({ highlights, onClose, userName }) {
               <div className="flex gap-2">
                 <button
                   onClick={() => setStep('select')}
-                  className="py-2.5 px-4 rounded-lg bg-[#252525]/50 hover:bg-[#252525]
-                             border border-[#ffffff14] transition text-[#9b9a97] text-sm"
+                  className="py-2.5 px-4 rounded-lg bg-[#1a1a1a]/50 hover:bg-[#1a1a1a]
+                             border border-[#292524] transition text-[#a8a29e] text-sm"
                 >
                   Back
                 </button>
                 <button
                   onClick={handleCopy}
                   disabled={isExporting}
-                  className="flex-1 py-2.5 px-4 rounded-lg bg-[#252525]/50 hover:bg-[#252525]
-                             border border-[#ffffff14] transition text-[#ffffffeb] text-sm flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 px-4 rounded-lg bg-[#1a1a1a]/50 hover:bg-[#1a1a1a]
+                             border border-[#292524] transition text-[#f5f0e8] text-sm flex items-center justify-center gap-2"
                 >
                   {exportSuccess ? (
                     <>
@@ -515,8 +515,8 @@ export function ShareModal({ highlights, onClose, userName }) {
                 <button
                   onClick={handleDownload}
                   disabled={isExporting}
-                  className="flex-1 py-2.5 px-4 rounded-lg bg-[#252525]/50 hover:bg-[#252525]
-                             border border-[#ffffff14] transition text-[#ffffffeb] text-sm flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 px-4 rounded-lg bg-[#1a1a1a]/50 hover:bg-[#1a1a1a]
+                             border border-[#292524] transition text-[#f5f0e8] text-sm flex items-center justify-center gap-2"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -553,7 +553,7 @@ function ShareTemplate({ books, bookCovers, userName }) {
     <div
       className="w-[1080px] h-[1920px] relative overflow-hidden"
       style={{
-        background: 'linear-gradient(180deg, #0f0f0d 0%, #191919 50%, #0f0f0d 100%)',
+        background: 'linear-gradient(180deg, #0f0f0d 0%, #141414 50%, #0f0f0d 100%)',
         fontFamily: "'Playfair Display', 'Cormorant Garamond', Georgia, serif"
       }}
     >
@@ -566,20 +566,20 @@ function ShareTemplate({ books, bookCovers, userName }) {
       />
 
       {/* Decorative border */}
-      <div className="absolute inset-8 border border-[#ffffff14]/50 rounded-sm" />
-      <div className="absolute inset-12 border border-[#ffffff14]/30 rounded-sm" />
+      <div className="absolute inset-8 border border-[#292524]/50 rounded-sm" />
+      <div className="absolute inset-12 border border-[#292524]/30 rounded-sm" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col h-full p-16">
         {/* Header */}
         <div className="text-center mb-12">
-          <p className="text-[#787774] text-2xl tracking-[0.3em] uppercase mb-4">
+          <p className="text-[#78716c] text-2xl tracking-[0.3em] uppercase mb-4">
             My Top 5 Books
           </p>
-          <h1 className="text-[#ffffffeb] text-6xl font-light tracking-wide">
+          <h1 className="text-[#f5f0e8] text-6xl font-light tracking-wide">
             {monthYear}
           </h1>
-          <div className="w-24 h-px bg-[#2383e2] mx-auto mt-8" />
+          <div className="w-24 h-px bg-[#d4c4b0] mx-auto mt-8" />
         </div>
 
         {/* Books grid */}
@@ -590,12 +590,12 @@ function ShareTemplate({ books, bookCovers, userName }) {
             return (
               <div key={book.id} className="flex items-center gap-8">
                 {/* Number */}
-                <div className="text-[#2383e2]/40 text-8xl font-light w-24 text-right">
+                <div className="text-[#d4c4b0]/40 text-8xl font-light w-24 text-right">
                   {index + 1}
                 </div>
 
                 {/* Book cover */}
-                <div className="w-24 h-36 rounded-lg overflow-hidden shadow-2xl flex-shrink-0 bg-[#252525]">
+                <div className="w-24 h-36 rounded-lg overflow-hidden shadow-2xl flex-shrink-0 bg-[#1a1a1a]">
                   {cover ? (
                     <img
                       src={cover}
@@ -613,7 +613,7 @@ function ShareTemplate({ books, bookCovers, userName }) {
                         })()
                       }}
                     >
-                      <span className="text-[#9b9a97] text-3xl">
+                      <span className="text-[#a8a29e] text-3xl">
                         {book.title.charAt(0).toUpperCase()}
                       </span>
                     </div>
@@ -623,17 +623,17 @@ function ShareTemplate({ books, bookCovers, userName }) {
                 {/* Book info */}
                 <div className="flex-1 min-w-0">
                   <p
-                    className="text-[#ffffffeb] text-4xl font-light leading-tight"
+                    className="text-[#f5f0e8] text-4xl font-light leading-tight"
                     style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
                   >
                     {book.title.length > 40 ? book.title.slice(0, 40) + '...' : book.title}
                   </p>
                   {book.author && book.author !== 'Unknown' && book.author !== 'You' && (
-                    <p className="text-[#9b9a97] text-2xl mt-2">
+                    <p className="text-[#a8a29e] text-2xl mt-2">
                       {book.author}
                     </p>
                   )}
-                  <p className="text-[#787774] text-xl mt-2">
+                  <p className="text-[#78716c] text-xl mt-2">
                     {book.highlightCount} highlight{book.highlightCount !== 1 ? 's' : ''}
                   </p>
                 </div>
@@ -644,9 +644,9 @@ function ShareTemplate({ books, bookCovers, userName }) {
 
         {/* Footer */}
         <div className="text-center mt-12">
-          <div className="w-24 h-px bg-[#2383e2] mx-auto mb-8" />
+          <div className="w-24 h-px bg-[#d4c4b0] mx-auto mb-8" />
           {userName && (
-            <p className="text-[#9b9a97] text-2xl mb-3">
+            <p className="text-[#a8a29e] text-2xl mb-3">
               Curated by {userName}
             </p>
           )}

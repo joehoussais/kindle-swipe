@@ -116,7 +116,7 @@ export function ChallengeMode({ highlight, onComplete, onCancel }) {
             </svg>
           </button>
 
-          <div className="text-[#2383e2] text-sm font-medium">
+          <div className="text-[#d4c4b0] text-sm font-medium">
             Challenge Mode
           </div>
 
@@ -136,20 +136,20 @@ export function ChallengeMode({ highlight, onComplete, onCancel }) {
               >
                 {/* Source hint */}
                 <div className="text-center mb-8">
-                  <p className="text-[#9b9a97] text-sm mb-2">From</p>
+                  <p className="text-[#a8a29e] text-sm mb-2">From</p>
                   <h3
                     className="text-white text-xl font-semibold mb-1"
                     style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
                   >
                     {highlight.title}
                   </h3>
-                  <p className="text-[#9b9a97] text-sm">{highlight.author}</p>
+                  <p className="text-[#a8a29e] text-sm">{highlight.author}</p>
                 </div>
 
                 {/* Prompt */}
                 <div className="text-center mb-6">
                   <p
-                    className="text-[#ffffffeb] text-lg"
+                    className="text-[#f5f0e8] text-lg"
                     style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
                   >
                     Don't peek — try to recall.
@@ -157,24 +157,24 @@ export function ChallengeMode({ highlight, onComplete, onCancel }) {
                 </div>
 
                 {/* Input */}
-                <div className="bg-[#191919]/80 backdrop-blur-xl rounded-2xl p-6 border border-[#ffffff14]">
+                <div className="bg-[#141414]/80 backdrop-blur-xl rounded-2xl p-6 border border-[#292524]">
                   <textarea
                     value={userResponse}
                     onChange={(e) => setUserResponse(e.target.value)}
                     placeholder="What was this about? One sentence, your words."
-                    className="w-full h-32 bg-transparent text-[#ffffffeb] placeholder-[#787774] resize-none focus:outline-none text-lg"
+                    className="w-full h-32 bg-transparent text-[#f5f0e8] placeholder-[#78716c] resize-none focus:outline-none text-lg"
                     style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
                     autoFocus
                   />
 
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#ffffff14]">
-                    <p className="text-[#787774] text-xs">
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#292524]">
+                    <p className="text-[#78716c] text-xs">
                       {userResponse.length} characters
                     </p>
                     <button
                       onClick={handleSubmit}
                       disabled={!userResponse.trim() || isJudging}
-                      className="px-6 py-2 rounded-lg bg-[#2383e2] hover:bg-[#d4b892] disabled:opacity-50 disabled:cursor-not-allowed transition text-[#191919] font-medium"
+                      className="px-6 py-2 rounded-lg bg-[#d4c4b0] hover:bg-[#d4b892] disabled:opacity-50 disabled:cursor-not-allowed transition text-[#141414] font-medium"
                     >
                       {isJudging ? 'Checking...' : 'Check Recall'}
                     </button>
@@ -228,30 +228,30 @@ export function ChallengeMode({ highlight, onComplete, onCancel }) {
                   >
                     {RESULT_COPY[result].title}
                   </h2>
-                  <p className="text-[#2383e2]">{RESULT_COPY[result].subtitle}</p>
+                  <p className="text-[#d4c4b0]">{RESULT_COPY[result].subtitle}</p>
                 </div>
 
                 {/* Explanation */}
                 <div className="text-center mb-6">
-                  <p className="text-[#9b9a97] text-sm">{explanation}</p>
+                  <p className="text-[#a8a29e] text-sm">{explanation}</p>
                 </div>
 
                 {/* Your response */}
-                <div className="bg-[#191919]/80 backdrop-blur-xl rounded-2xl p-5 border border-[#ffffff14] mb-4">
-                  <p className="text-[#787774] text-xs uppercase tracking-wider mb-2">Your recall</p>
-                  <p className="text-[#ffffffeb] text-sm">{userResponse}</p>
+                <div className="bg-[#141414]/80 backdrop-blur-xl rounded-2xl p-5 border border-[#292524] mb-4">
+                  <p className="text-[#78716c] text-xs uppercase tracking-wider mb-2">Your recall</p>
+                  <p className="text-[#f5f0e8] text-sm">{userResponse}</p>
                 </div>
 
                 {/* Original highlight */}
                 <div className="bg-white/95 rounded-2xl p-6 mb-6">
-                  <p className="text-[#787774] text-xs uppercase tracking-wider mb-2">Original</p>
+                  <p className="text-[#78716c] text-xs uppercase tracking-wider mb-2">Original</p>
                   <blockquote
                     className="text-[#1a1a1a] text-base"
                     style={{ fontFamily: "'Playfair Display', Georgia, serif", lineHeight: 1.6 }}
                   >
                     "{highlight.text}"
                   </blockquote>
-                  <p className="text-[#9b9a97] text-sm mt-3">— {highlight.author}</p>
+                  <p className="text-[#a8a29e] text-sm mt-3">— {highlight.author}</p>
                 </div>
 
                 {/* Integration bar */}
@@ -263,7 +263,7 @@ export function ChallengeMode({ highlight, onComplete, onCancel }) {
                 <div className="flex gap-3">
                   <button
                     onClick={handleComplete}
-                    className="flex-1 py-3 rounded-lg bg-[#2383e2] hover:bg-[#d4b892] transition text-[#191919] font-medium"
+                    className="flex-1 py-3 rounded-lg bg-[#d4c4b0] hover:bg-[#d4b892] transition text-[#141414] font-medium"
                   >
                     Continue
                   </button>

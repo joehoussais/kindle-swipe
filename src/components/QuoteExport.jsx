@@ -1,92 +1,35 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getBookCover, getCachedCover } from '../utils/bookCovers';
-import { BACKGROUNDS } from '../utils/backgrounds';
 import { UpgradeModal } from './UpgradeModal';
 
-// Format dimensions (width x height)
-const FORMATS = {
-  story: { width: 1080, height: 1920, label: 'Story', ratio: '9:16' },
-  square: { width: 1080, height: 1080, label: 'Square', ratio: '1:1' },
-  landscape: { width: 1920, height: 1080, label: 'Landscape', ratio: '16:9' }
-};
+// Kindle-style portrait format only (like an actual Kindle screen)
+const FORMAT = { width: 1080, height: 1620, label: 'Kindle', ratio: '2:3' };
 
-// Template styles
-const TEMPLATES = {
-  minimal: {
-    id: 'minimal',
-    label: 'Minimal',
-    description: 'Floating text on background'
-  },
-  classic: {
-    id: 'classic',
-    label: 'Classic',
-    description: 'Elegant card design'
-  },
-  glass: {
-    id: 'glass',
-    label: 'Glass',
-    description: 'Modern frosted effect'
-  },
-  editorial: {
-    id: 'editorial',
-    label: 'Editorial',
-    description: 'Magazine typography'
-  }
-};
-
-// Get dynamic font size based on text length and format
-function getFontSize(textLength, format, template) {
-  // Base sizes vary by format
-  const baseSizes = {
-    story: { minimal: 52, classic: 44, glass: 46, editorial: 56 },
-    square: { minimal: 46, classic: 40, glass: 42, editorial: 50 },
-    landscape: { minimal: 42, classic: 36, glass: 38, editorial: 46 }
-  };
-
-  const baseSize = baseSizes[format]?.[template] || 44;
-
-  // Scale down for longer text
-  if (textLength < 80) return baseSize * 1.15;
-  if (textLength < 150) return baseSize;
-  if (textLength < 250) return baseSize * 0.88;
-  if (textLength < 400) return baseSize * 0.76;
-  if (textLength < 600) return baseSize * 0.66;
-  return baseSize * 0.58;
-}
-
-// Get line height based on template
-function getLineHeight(template) {
-  const heights = {
-    minimal: 1.55,
-    classic: 1.6,
-    glass: 1.55,
-    editorial: 1.45
-  };
-  return heights[template] || 1.55;
-}
-
-// Extract first sentence for highlight effect
-function getFirstSentence(text) {
-  const match = text.match(/^[^.!?]*[.!?]/);
-  if (match) return match[0];
-  if (text.length <= 100) return text;
-  const spaceIndex = text.indexOf(' ', 80);
-  return spaceIndex > -1 ? text.slice(0, spaceIndex) : text.slice(0, 100);
+// Get dynamic font size that works for ANY quote length
+function getKindleFontSize(textLength) {
+  // Base size for Kindle-style readability
+  if (textLength < 100) return 48;
+  if (textLength < 200) return 44;
+  if (textLength < 350) return 38;
+  if (textLength < 500) return 34;
+  if (textLength < 700) return 30;
+  if (textLength < 1000) return 26;
+  if (textLength < 1500) return 22;
+  return 18; // Very long quotes still readable
 }
 
 // ============================================================================
-// TEMPLATE: Minimal - Quote floats directly on background
+// KINDLE TEMPLATE - Looks exactly like a Kindle screen
+// Works for ANY quote length with dynamic font sizing
 // ============================================================================
-function MinimalTemplate({ highlight, format, background }) {
-  const { width, height } = FORMATS[format];
-  const fontSize = getFontSize(highlight.text.length, format, 'minimal');
-  const lineHeight = getLineHeight('minimal');
+function KindleTemplate({ highlight }) {
+  const { width, height } = FORMAT;
+  const fontSize = getKindleFontSize(highlight.text.length);
+  const lineHeight = 1.7;
 
-  // Responsive padding and sizing
-  const padding = format === 'landscape' ? 120 : format === 'square' ? 100 : 120;
-  const authorSize = fontSize * 0.42;
-  const quoteMarkSize = fontSize * 2.2;
+  // Padding scales with font size for very long quotes
+  const padding = fontSize < 30 ? 60 : 80;
+  const authorSize = Math.max(18, fontSize * 0.45);
 
   return (
     <div
@@ -94,490 +37,101 @@ function MinimalTemplate({ highlight, format, background }) {
       style={{
         width: `${width}px`,
         height: `${height}px`,
-        fontFamily: "'Playfair Display', Georgia, serif"
+        fontFamily: "'Bookerly', 'Georgia', 'Times New Roman', serif",
+        // Kindle cream/warm white background
+        background: '#FAF8F0'
       }}
     >
-      {/* Background */}
+      {/* Subtle paper texture overlay */}
       <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${background?.src || BACKGROUNDS[0]?.src})` }}
-      />
-
-      {/* Gradient overlays for depth and readability */}
-      <div
-        className="absolute inset-0"
+        className="absolute inset-0 pointer-events-none"
         style={{
           background: `
-            radial-gradient(ellipse at center, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%),
-            linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.3) 100%)
+            radial-gradient(ellipse at 30% 20%, rgba(0,0,0,0.01) 0%, transparent 50%),
+            radial-gradient(ellipse at 70% 80%, rgba(0,0,0,0.02) 0%, transparent 50%)
           `
         }}
       />
 
-      {/* Content */}
+      {/* Content area - centered with flex */}
       <div
-        className="relative z-10 flex flex-col h-full justify-center"
+        className="relative z-10 flex flex-col h-full"
         style={{ padding: `${padding}px` }}
       >
-        {/* Large decorative opening quote */}
+        {/* Quote text with blue underline highlight - Kindle style */}
         <div
-          className="absolute opacity-20"
-          style={{
-            top: format === 'landscape' ? '15%' : '12%',
-            left: `${padding * 0.8}px`,
-            fontSize: `${quoteMarkSize}px`,
-            fontFamily: "'Playfair Display', Georgia, serif",
-            color: 'white',
-            lineHeight: 1
-          }}
-        >
-          "
-        </div>
-
-        {/* Quote text */}
-        <div
-          className="relative z-10"
+          className="flex-1 flex items-center"
           style={{
             fontSize: `${fontSize}px`,
             lineHeight,
-            color: 'white',
-            textShadow: '0 4px 30px rgba(0,0,0,0.5), 0 2px 10px rgba(0,0,0,0.3)',
+            color: '#1a1a1a',
             fontWeight: 400,
-            letterSpacing: '-0.01em',
-            fontStyle: 'italic'
+            letterSpacing: '-0.01em'
           }}
         >
-          {highlight.text}
+          <div>
+            <span
+              style={{
+                // Blue underline like Kindle highlighting
+                borderBottom: '3px solid #d4c4b0',
+                paddingBottom: '2px',
+                // Slight blue tint to simulate Kindle highlight
+                backgroundColor: 'rgba(35, 131, 226, 0.08)'
+              }}
+            >
+              {highlight.text}
+            </span>
+          </div>
         </div>
 
-        {/* Author & Book */}
+        {/* Author & Book - bottom, simple Kindle style */}
         <div
-          className="mt-auto pt-12"
+          className="pt-8 mt-auto"
           style={{
-            fontFamily: "'Inter', system-ui, sans-serif",
-            fontSize: `${authorSize}px`,
-            color: 'rgba(255,255,255,0.7)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.15em',
-            fontWeight: 500,
-            textShadow: '0 2px 10px rgba(0,0,0,0.5)'
+            borderTop: '1px solid #e0ddd4'
           }}
         >
+          <p
+            style={{
+              fontSize: `${authorSize}px`,
+              color: '#666',
+              fontWeight: 500,
+              marginBottom: '4px'
+            }}
+          >
+            {highlight.title}
+          </p>
           {highlight.author && highlight.author !== 'Unknown' && highlight.author !== 'You' && (
-            <span>{highlight.author}</span>
-          )}
-          {highlight.author && highlight.author !== 'Unknown' && highlight.author !== 'You' && highlight.title && (
-            <span style={{ opacity: 0.5, margin: '0 12px' }}>·</span>
-          )}
-          {highlight.title && (
-            <span style={{ fontStyle: 'italic', textTransform: 'none', letterSpacing: '0.02em' }}>
-              {highlight.title}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Watermark */}
-      <div
-        className="absolute bottom-8 right-10"
-        style={{
-          fontFamily: "'Inter', system-ui, sans-serif",
-          fontSize: '14px',
-          letterSpacing: '0.2em',
-          textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.25)',
-          textShadow: '0 1px 4px rgba(0,0,0,0.3)'
-        }}
-      >
-        Highlight
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// TEMPLATE: Classic - Refined card with book info
-// ============================================================================
-function ClassicTemplate({ highlight, format, cover, background, onCoverError }) {
-  const { width, height } = FORMATS[format];
-  const fontSize = getFontSize(highlight.text.length, format, 'classic');
-  const lineHeight = getLineHeight('classic');
-  const firstSentence = getFirstSentence(highlight.text);
-  const restOfText = highlight.text.slice(firstSentence.length).trim();
-
-  // Responsive sizing
-  const outerPadding = format === 'landscape' ? 80 : format === 'square' ? 90 : 100;
-  const cardPadding = format === 'landscape' ? 50 : format === 'square' ? 60 : 70;
-  const coverHeight = format === 'landscape' ? 100 : format === 'square' ? 120 : 140;
-  const titleSize = format === 'landscape' ? 24 : format === 'square' ? 28 : 32;
-  const authorSize = format === 'landscape' ? 18 : format === 'square' ? 20 : 22;
-
-  return (
-    <div
-      className="relative overflow-hidden"
-      style={{
-        width: `${width}px`,
-        height: `${height}px`,
-        fontFamily: "'Inter', system-ui, sans-serif"
-      }}
-    >
-      {/* Background */}
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${background?.src || BACKGROUNDS[0]?.src})` }}
-      />
-
-      {/* Subtle vignette */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.4) 100%)'
-        }}
-      />
-
-      {/* Content */}
-      <div
-        className="relative z-10 flex flex-col h-full justify-center items-center"
-        style={{ padding: `${outerPadding}px` }}
-      >
-        {/* Book info - above card */}
-        <div className="flex items-center justify-center mb-8 gap-5">
-          {cover && (
-            <img
-              src={cover}
-              alt=""
-              className="rounded-lg"
-              style={{
-                height: `${coverHeight}px`,
-                width: 'auto',
-                boxShadow: '0 20px 50px rgba(0,0,0,0.5), 0 8px 20px rgba(0,0,0,0.3)'
-              }}
-              crossOrigin="anonymous"
-              onError={onCoverError}
-            />
-          )}
-          <div className="text-left">
             <p
-              className="text-white font-semibold leading-tight"
               style={{
-                fontSize: `${titleSize}px`,
-                textShadow: '0 2px 12px rgba(0,0,0,0.6)',
-                maxWidth: cover ? '380px' : '550px'
+                fontSize: `${authorSize * 0.9}px`,
+                color: '#888',
+                fontStyle: 'italic'
               }}
             >
-              {highlight.title}
+              {highlight.author}
             </p>
-            {highlight.author && highlight.author !== 'You' && highlight.author !== 'Unknown' && (
-              <p
-                className="text-white/70 mt-2"
-                style={{
-                  fontSize: `${authorSize}px`,
-                  textShadow: '0 2px 8px rgba(0,0,0,0.5)'
-                }}
-              >
-                {highlight.author}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Quote card */}
-        <div
-          className="rounded-3xl w-full"
-          style={{
-            background: 'rgba(255, 255, 255, 0.96)',
-            padding: `${cardPadding}px`,
-            boxShadow: '0 30px 80px rgba(0,0,0,0.35), 0 10px 30px rgba(0,0,0,0.2)',
-            border: '1px solid rgba(255,255,255,0.3)'
-          }}
-        >
-          <div
-            style={{
-              fontSize: `${fontSize}px`,
-              lineHeight,
-              color: '#1a1a1a',
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontWeight: 400
-            }}
-          >
-            {/* First sentence with accent underline */}
-            <span
-              style={{
-                borderBottom: '0.12em solid rgba(35, 131, 226, 0.35)',
-                paddingBottom: '0.02em'
-              }}
-            >
-              {firstSentence}
-            </span>
-            {restOfText && <span> {restOfText}</span>}
-          </div>
+          )}
         </div>
       </div>
 
-      {/* Watermark */}
+      {/* Kindle-style page edge shadow on right */}
       <div
-        className="absolute bottom-6 left-0 right-0 text-center"
+        className="absolute top-0 right-0 w-4 h-full pointer-events-none"
         style={{
-          fontSize: '13px',
-          letterSpacing: '0.2em',
-          textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.3)',
-          textShadow: '0 1px 4px rgba(0,0,0,0.3)'
-        }}
-      >
-        Highlight
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// TEMPLATE: Glass - Modern frosted glass aesthetic
-// ============================================================================
-function GlassTemplate({ highlight, format, cover, background, onCoverError }) {
-  const { width, height } = FORMATS[format];
-  const fontSize = getFontSize(highlight.text.length, format, 'glass');
-  const lineHeight = getLineHeight('glass');
-
-  // Responsive sizing
-  const padding = format === 'landscape' ? 80 : format === 'square' ? 90 : 100;
-  const glassPadding = format === 'landscape' ? 50 : format === 'square' ? 60 : 70;
-  const coverSize = format === 'landscape' ? 70 : format === 'square' ? 80 : 90;
-  const metaSize = format === 'landscape' ? 18 : format === 'square' ? 20 : 22;
-
-  return (
-    <div
-      className="relative overflow-hidden"
-      style={{
-        width: `${width}px`,
-        height: `${height}px`,
-        fontFamily: "'Inter', system-ui, sans-serif"
-      }}
-    >
-      {/* Background */}
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${background?.src || BACKGROUNDS[0]?.src})` }}
-      />
-
-      {/* Dark overlay for glass effect contrast */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: 'linear-gradient(135deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.7) 100%)'
+          background: 'linear-gradient(to left, rgba(0,0,0,0.08), transparent)'
         }}
       />
 
-      {/* Content */}
+      {/* Subtle watermark */}
       <div
-        className="relative z-10 flex flex-col h-full justify-center"
-        style={{ padding: `${padding}px` }}
-      >
-        {/* Glass card */}
-        <div
-          className="rounded-3xl"
-          style={{
-            background: 'rgba(255, 255, 255, 0.08)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            padding: `${glassPadding}px`,
-            border: '1px solid rgba(255,255,255,0.15)',
-            boxShadow: '0 30px 80px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)'
-          }}
-        >
-          {/* Quote text */}
-          <div
-            style={{
-              fontSize: `${fontSize}px`,
-              lineHeight,
-              color: 'white',
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontWeight: 400,
-              fontStyle: 'italic',
-              letterSpacing: '-0.01em'
-            }}
-          >
-            "{highlight.text}"
-          </div>
-
-          {/* Divider */}
-          <div
-            className="my-8"
-            style={{
-              height: '1px',
-              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 20%, rgba(255,255,255,0.3) 80%, transparent 100%)'
-            }}
-          />
-
-          {/* Book info row */}
-          <div className="flex items-center gap-5">
-            {cover && (
-              <img
-                src={cover}
-                alt=""
-                className="rounded-lg"
-                style={{
-                  height: `${coverSize}px`,
-                  width: 'auto',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.4)'
-                }}
-                crossOrigin="anonymous"
-                onError={onCoverError}
-              />
-            )}
-            <div>
-              <p
-                className="text-white font-medium"
-                style={{ fontSize: `${metaSize}px` }}
-              >
-                {highlight.title}
-              </p>
-              {highlight.author && highlight.author !== 'You' && highlight.author !== 'Unknown' && (
-                <p
-                  className="text-white/60 mt-1"
-                  style={{ fontSize: `${metaSize * 0.85}px` }}
-                >
-                  {highlight.author}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Watermark */}
-      <div
-        className="absolute bottom-6 left-0 right-0 text-center"
-        style={{
-          fontSize: '13px',
-          letterSpacing: '0.2em',
-          textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.25)'
-        }}
-      >
-        Highlight
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// TEMPLATE: Editorial - Magazine-style typography hero
-// ============================================================================
-function EditorialTemplate({ highlight, format, background }) {
-  const { width, height } = FORMATS[format];
-  const fontSize = getFontSize(highlight.text.length, format, 'editorial');
-  const lineHeight = getLineHeight('editorial');
-
-  // Responsive sizing
-  const padding = format === 'landscape' ? 100 : format === 'square' ? 100 : 120;
-  const titleSize = format === 'landscape' ? 20 : format === 'square' ? 22 : 24;
-  const dropCapSize = fontSize * 3.5;
-
-  // Extract first letter for drop cap, rest of first word, and rest of text
-  const firstLetter = highlight.text.charAt(0).toUpperCase();
-  const words = highlight.text.slice(1).split(' ');
-  const restOfFirstWord = words[0] || '';
-  const remainingText = words.slice(1).join(' ');
-
-  return (
-    <div
-      className="relative overflow-hidden"
-      style={{
-        width: `${width}px`,
-        height: `${height}px`,
-        fontFamily: "'Playfair Display', Georgia, serif"
-      }}
-    >
-      {/* Background with stronger overlay for text legibility */}
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${background?.src || BACKGROUNDS[0]?.src})` }}
-      />
-      <div
-        className="absolute inset-0"
-        style={{
-          background: 'linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.75) 50%, rgba(0,0,0,0.6) 100%)'
-        }}
-      />
-
-      {/* Content */}
-      <div
-        className="relative z-10 flex flex-col h-full justify-center"
-        style={{ padding: `${padding}px` }}
-      >
-        {/* Book title - small, elegant, top */}
-        <div
-          className="mb-auto"
-          style={{
-            fontFamily: "'Inter', system-ui, sans-serif",
-            fontSize: `${titleSize}px`,
-            color: 'rgba(255,255,255,0.5)',
-            textTransform: 'uppercase',
-            letterSpacing: '0.25em',
-            fontWeight: 500
-          }}
-        >
-          {highlight.title}
-        </div>
-
-        {/* Quote with editorial drop cap */}
-        <div className="my-auto">
-          <div
-            style={{
-              fontSize: `${fontSize}px`,
-              lineHeight,
-              color: 'white',
-              fontWeight: 400,
-              letterSpacing: '-0.01em'
-            }}
-          >
-            {/* Drop cap */}
-            <span
-              style={{
-                float: 'left',
-                fontSize: `${dropCapSize}px`,
-                lineHeight: 0.8,
-                marginRight: '12px',
-                marginTop: '8px',
-                fontWeight: 600,
-                color: 'rgba(255,255,255,0.9)'
-              }}
-            >
-              {firstLetter}
-            </span>
-            <span style={{ fontVariant: 'small-caps', letterSpacing: '0.05em' }}>
-              {restOfFirstWord}
-            </span>
-            {remainingText && <span> {remainingText}</span>}
-          </div>
-        </div>
-
-        {/* Author - bottom, elegant */}
-        {highlight.author && highlight.author !== 'You' && highlight.author !== 'Unknown' && (
-          <div
-            className="mt-auto pt-8"
-            style={{
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              fontSize: `${titleSize * 1.3}px`,
-              color: 'rgba(255,255,255,0.7)',
-              fontStyle: 'italic'
-            }}
-          >
-            — {highlight.author}
-          </div>
-        )}
-      </div>
-
-      {/* Watermark */}
-      <div
-        className="absolute bottom-8 right-10"
+        className="absolute bottom-4 right-6"
         style={{
           fontFamily: "'Inter', system-ui, sans-serif",
-          fontSize: '13px',
-          letterSpacing: '0.2em',
+          fontSize: '12px',
+          letterSpacing: '0.15em',
           textTransform: 'uppercase',
-          color: 'rgba(255,255,255,0.2)'
+          color: 'rgba(0,0,0,0.15)'
         }}
       >
         Highlight
@@ -590,13 +144,8 @@ function EditorialTemplate({ highlight, format, background }) {
 // MAIN EXPORT COMPONENT
 // ============================================================================
 export function QuoteExport({ highlight, onClose, subscription }) {
-  const [selectedBackground, setSelectedBackground] = useState(BACKGROUNDS[0]);
-  const [format, setFormat] = useState('story');
-  const [template, setTemplate] = useState('minimal');
   const [isExporting, setIsExporting] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
-  const [cover, setCover] = useState(() => getCachedCover(highlight.title, highlight.author));
-  const [coverFailed, setCoverFailed] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
   const templateRef = useRef(null);
@@ -606,43 +155,11 @@ export function QuoteExport({ highlight, onClose, subscription }) {
   const exportsRemaining = subscription?.exportsRemaining ?? Infinity;
   const isPro = subscription?.isPro ?? false;
 
-  // Load book cover
-  useEffect(() => {
-    setCoverFailed(false);
-    getBookCover(highlight.title, highlight.author).then(setCover);
-  }, [highlight.title, highlight.author]);
-
-  // Handle cover load error
-  const handleCoverError = async () => {
-    if (coverFailed) return;
-    setCoverFailed(true);
-
-    try {
-      const cleanedTitle = highlight.title.split(':')[0].split('(')[0].trim();
-      const searchQuery = highlight.author && highlight.author !== 'Unknown' && highlight.author !== 'You'
-        ? `${cleanedTitle} ${highlight.author}`
-        : cleanedTitle;
-
-      const response = await fetch(
-        `https://openlibrary.org/search.json?q=${encodeURIComponent(searchQuery)}&limit=3&fields=cover_i`
-      );
-      const data = await response.json();
-      const firstWithCover = data.docs?.find(d => d.cover_i);
-      if (firstWithCover) {
-        setCover(`https://covers.openlibrary.org/b/id/${firstWithCover.cover_i}-L.jpg`);
-      } else {
-        setCover(null);
-      }
-    } catch {
-      setCover(null);
-    }
-  };
-
-  // Calculate preview scale - larger preview
+  // Calculate preview scale for the Kindle format
   const getPreviewScale = () => {
-    const { width, height } = FORMATS[format];
-    const maxWidth = 340;
-    const maxHeight = 480;
+    const { width, height } = FORMAT;
+    const maxWidth = 300;
+    const maxHeight = 500;
     const scaleW = maxWidth / width;
     const scaleH = maxHeight / height;
     return Math.min(scaleW, scaleH);
@@ -652,14 +169,14 @@ export function QuoteExport({ highlight, onClose, subscription }) {
   const generateImage = async () => {
     if (!templateRef.current) return null;
 
-    const { width, height } = FORMATS[format];
+    const { width, height } = FORMAT;
 
     // Dynamic import - only loads when user actually exports
     const html2canvas = (await import('html2canvas')).default;
 
     const canvas = await html2canvas(templateRef.current, {
       scale: 2,
-      backgroundColor: null,
+      backgroundColor: '#FAF8F0', // Kindle cream background
       logging: false,
       useCORS: true,
       allowTaint: false
@@ -715,7 +232,7 @@ export function QuoteExport({ highlight, onClose, subscription }) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `highlight-${template}-${format}-${Date.now()}.png`;
+      a.download = `highlight-${Date.now()}.png`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -799,31 +316,7 @@ export function QuoteExport({ highlight, onClose, subscription }) {
   };
 
   const previewScale = getPreviewScale();
-  const { width, height } = FORMATS[format];
-
-  // Render the selected template
-  const renderTemplate = () => {
-    const props = {
-      highlight,
-      format,
-      cover,
-      background: selectedBackground,
-      onCoverError: handleCoverError
-    };
-
-    switch (template) {
-      case 'minimal':
-        return <MinimalTemplate {...props} />;
-      case 'classic':
-        return <ClassicTemplate {...props} />;
-      case 'glass':
-        return <GlassTemplate {...props} />;
-      case 'editorial':
-        return <EditorialTemplate {...props} />;
-      default:
-        return <MinimalTemplate {...props} />;
-    }
-  };
+  const { width, height } = FORMAT;
 
   return (
     <motion.div
@@ -838,18 +331,18 @@ export function QuoteExport({ highlight, onClose, subscription }) {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="w-full max-w-lg max-h-[92vh] bg-[#151515] rounded-3xl overflow-hidden border border-[#2a2a2a] flex flex-col shadow-2xl"
+        className="w-full max-w-md max-h-[92vh] bg-[#151515] rounded-3xl overflow-hidden border border-[#2a2a2a] flex flex-col shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#252525] flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-[#1a1a1a] flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-white">Create Image</h2>
+            <h2 className="text-lg font-semibold text-white">Export as Image</h2>
             <p className="text-sm text-[#666] mt-0.5">
               {isPro ? (
                 'Unlimited exports with Pro'
               ) : exportsRemaining === Infinity ? (
-                'Share your highlight beautifully'
+                'Kindle-style highlight'
               ) : (
                 <span>
                   {exportsRemaining} free export{exportsRemaining !== 1 ? 's' : ''} remaining
@@ -875,14 +368,14 @@ export function QuoteExport({ highlight, onClose, subscription }) {
           </button>
         </div>
 
-        {/* Preview */}
-        <div className="flex-1 px-6 py-6 flex flex-col items-center justify-center min-h-0 bg-[#0a0a0a]">
+        {/* Preview - Kindle style, centered */}
+        <div className="flex-1 px-6 py-8 flex flex-col items-center justify-center min-h-0 bg-[#0a0a0a]">
           <div
-            className="rounded-2xl shadow-2xl overflow-hidden flex-shrink-0"
+            className="rounded-lg shadow-2xl overflow-hidden flex-shrink-0"
             style={{
               width: width * previewScale,
               height: height * previewScale,
-              boxShadow: '0 25px 80px rgba(0,0,0,0.6)'
+              boxShadow: '0 25px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1)'
             }}
           >
             <div
@@ -894,82 +387,13 @@ export function QuoteExport({ highlight, onClose, subscription }) {
                 transformOrigin: 'top left',
               }}
             >
-              {renderTemplate()}
+              <KindleTemplate highlight={highlight} />
             </div>
           </div>
         </div>
 
-        {/* Options */}
-        <div className="px-6 py-4 border-t border-[#252525] space-y-4 max-h-[35vh] overflow-y-auto">
-          {/* Template selector */}
-          <div>
-            <p className="text-xs text-[#666] uppercase tracking-wider mb-2 font-medium">Style</p>
-            <div className="flex gap-2">
-              {Object.entries(TEMPLATES).map(([key, { label }]) => (
-                <button
-                  key={key}
-                  onClick={() => setTemplate(key)}
-                  className={`flex-1 py-2.5 px-3 rounded-xl text-sm font-medium transition-all ${
-                    template === key
-                      ? 'bg-white text-black'
-                      : 'bg-[#222] text-[#aaa] hover:bg-[#2a2a2a] hover:text-white'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Background thumbnails */}
-          <div>
-            <p className="text-xs text-[#666] uppercase tracking-wider mb-2 font-medium">Background</p>
-            <div className="grid grid-cols-7 gap-1.5">
-              {BACKGROUNDS.map((bg) => (
-                <button
-                  key={bg.id}
-                  onClick={() => setSelectedBackground(bg)}
-                  className={`aspect-square rounded-lg overflow-hidden transition-all ${
-                    selectedBackground?.id === bg.id
-                      ? 'ring-2 ring-white ring-offset-2 ring-offset-[#151515] scale-105'
-                      : 'opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  <img
-                    src={bg.src}
-                    alt=""
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Format selector */}
-          <div>
-            <p className="text-xs text-[#666] uppercase tracking-wider mb-2 font-medium">Format</p>
-            <div className="flex gap-2">
-              {Object.entries(FORMATS).map(([key, { label, ratio }]) => (
-                <button
-                  key={key}
-                  onClick={() => setFormat(key)}
-                  className={`flex-1 py-2.5 px-3 rounded-xl text-sm transition-all ${
-                    format === key
-                      ? 'bg-white text-black font-medium'
-                      : 'bg-[#222] text-[#aaa] hover:bg-[#2a2a2a] hover:text-white'
-                  }`}
-                >
-                  <span className="block font-medium">{label}</span>
-                  <span className="block text-xs opacity-60 mt-0.5">{ratio}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="px-6 py-4 border-t border-[#252525] flex gap-3">
+        {/* Actions - simplified */}
+        <div className="px-6 py-4 border-t border-[#1a1a1a] flex gap-3">
           <button
             onClick={handleShare}
             disabled={isExporting}

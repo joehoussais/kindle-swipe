@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BACKGROUNDS } from '../utils/backgrounds';
 import { generateBookmarkletCode } from '../utils/kindleBookmarklet';
 
 export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, onImportTweets, onLoadStarterPack, onAddThought }) {
@@ -17,7 +16,6 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
   const [thoughtContent, setThoughtContent] = useState('');
   const [tweetsContent, setTweetsContent] = useState('');
   const [importResult, setImportResult] = useState(null);
-  const [bgLoaded, setBgLoaded] = useState(false);
   const [userPath, setUserPath] = useState(null); // null = choosing, 'kindle' = has kindle, 'explore' = no kindle
   const [activeTab, setActiveTab] = useState('kindle'); // 'kindle', 'journal', 'tweets', 'thought'
   const [waitingForKindle, setWaitingForKindle] = useState(false);
@@ -26,19 +24,6 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
 
   // Generate bookmarklet code with current origin
   const bookmarkletCode = generateBookmarkletCode();
-
-  // Pick a random background on mount
-  const [background] = useState(() => {
-    const randomIndex = Math.floor(Math.random() * BACKGROUNDS.length);
-    return BACKGROUNDS[randomIndex];
-  });
-
-  // Preload background
-  useEffect(() => {
-    const img = new Image();
-    img.onload = () => setBgLoaded(true);
-    img.src = background.src;
-  }, [background.src]);
 
   // Listen for postMessage from Kindle bookmarklet
   useEffect(() => {
@@ -201,13 +186,12 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
     }
   };
 
-  // Determine text colors based on background theme
-  const isDark = background.theme === 'dark';
-  const textPrimary = isDark ? 'text-white' : 'text-gray-900';
-  const textSecondary = isDark ? 'text-white/60' : 'text-gray-600';
-  const textMuted = isDark ? 'text-white/40' : 'text-gray-500';
-  const borderColor = isDark ? 'border-white/20' : 'border-gray-400/50';
-  const bgCard = isDark ? 'bg-black/40' : 'bg-white/60';
+  // Use consistent dark theme
+  const textPrimary = 'text-[#f5f0e8]';
+  const textSecondary = 'text-[#a8a29e]';
+  const textMuted = 'text-[#78716c]';
+  const borderColor = 'border-[#292524]';
+  const bgCard = 'bg-[#141414]/80';
 
   const getResultMessage = () => {
     if (!importResult) return '';
@@ -228,25 +212,12 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Full-screen background image */}
-      <div
-        className="absolute inset-0 transition-opacity duration-1000"
-        style={{
-          backgroundImage: `url(${background.src})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          opacity: bgLoaded ? 1 : 0
-        }}
-      />
-
-      {/* Overlay for better text readability */}
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden bg-[#0a0a0a]">
+      {/* Subtle gradient background */}
       <div
         className="absolute inset-0"
         style={{
-          background: isDark
-            ? 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.6) 100%)'
-            : 'linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.5) 100%)'
+          background: 'radial-gradient(ellipse at 30% 20%, rgba(212, 196, 176, 0.03) 0%, transparent 50%)'
         }}
       />
 
@@ -254,7 +225,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
       <div
         className="absolute inset-0"
         style={{
-          background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.5) 100%)'
+          background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.3) 100%)'
         }}
       />
 
@@ -268,8 +239,8 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
           <h1
             className={`text-4xl font-bold mb-3 ${textPrimary}`}
             style={{
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
-              textShadow: isDark ? '0 2px 20px rgba(0,0,0,0.5)' : '0 1px 10px rgba(255,255,255,0.5)'
+              fontFamily: "'Playfair Display', Georgia, serif",
+              textShadow: '0 2px 20px rgba(0,0,0,0.5)'
             }}
           >
             Highlight
@@ -279,7 +250,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
             style={{
               fontFamily: "'Cormorant Garamond', Georgia, serif",
               fontStyle: 'italic',
-              textShadow: isDark ? '0 1px 10px rgba(0,0,0,0.5)' : 'none'
+              textShadow: '0 1px 10px rgba(0,0,0,0.5)'
             }}
           >
             {userPath === null ? "Rediscover what you've read" : 'Import your highlights'}
@@ -298,7 +269,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
             <button
               onClick={() => setUserPath('kindle')}
               className={`w-full p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 text-left
-                         ${borderColor} ${bgCard} hover:ring-2 hover:ring-[#2383e2]/60`}
+                         ${borderColor} ${bgCard} hover:ring-2 hover:ring-[#d4c4b0]/60`}
               style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
             >
               <div className="flex items-start gap-4">
@@ -323,11 +294,11 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                 onLoadStarterPack();
               }}
               className={`w-full p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 text-left
-                         ${borderColor} ${bgCard} hover:ring-2 hover:ring-[#2383e2]/60`}
+                         ${borderColor} ${bgCard} hover:ring-2 hover:ring-[#d4c4b0]/60`}
               style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
             >
               <div className="flex items-start gap-4">
-                <span className="text-3xl text-[#2383e2]">&#10022;</span>
+                <span className="text-3xl text-[#d4c4b0]">&#10022;</span>
                 <div>
                   <h3
                     className={`text-xl font-semibold mb-2 ${textPrimary}`}
@@ -384,11 +355,11 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 py-3 px-2 rounded-xl backdrop-blur-sm border transition-all duration-300
                          ${activeTab === tab.id
-                           ? `${borderColor} ${bgCard} ring-2 ring-[#2383e2]/60`
+                           ? `${borderColor} ${bgCard} ring-2 ring-[#d4c4b0]/60`
                            : `${borderColor} ${bgCard} opacity-60 hover:opacity-100`
                          }`}
             >
-              <span className={`text-lg mr-1 ${activeTab === tab.id ? 'text-[#2383e2]' : ''}`}>{tab.icon}</span>
+              <span className={`text-lg mr-1 ${activeTab === tab.id ? 'text-[#d4c4b0]' : ''}`}>{tab.icon}</span>
               <span className={`text-xs font-medium ${textPrimary}`}>{tab.label}</span>
             </button>
           ))}
@@ -411,7 +382,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                 relative border-2 border-dashed rounded-2xl p-10 text-center
                 transition-all duration-300 cursor-pointer backdrop-blur-sm
                 ${isDragging
-                  ? `border-[#2383e2] ${isDark ? 'bg-[#2383e2]/20' : 'bg-[#2383e2]/30'}`
+                  ? `border-[#d4c4b0] ${isDark ? 'bg-[#d4c4b0]/20' : 'bg-[#d4c4b0]/30'}`
                   : `${borderColor} hover:border-opacity-60 ${bgCard}`
                 }
               `}
@@ -427,7 +398,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
               />
 
               <div className="pointer-events-none">
-                <div className="text-4xl mb-4 text-[#2383e2]">◈</div>
+                <div className="text-4xl mb-4 text-[#d4c4b0]">◈</div>
                 <h3
                   className={`text-xl font-semibold mb-2 ${textPrimary}`}
                   style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
@@ -487,7 +458,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                   }}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-xl text-[#2383e2]">⟡</span>
+                    <span className="text-xl text-[#d4c4b0]">⟡</span>
                     <div>
                       <h3
                         className={`font-semibold text-sm ${textPrimary}`}
@@ -514,7 +485,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                 }}
               >
                 <div className="flex items-center justify-center gap-3">
-                  <span className="text-xl text-[#2383e2]">❖</span>
+                  <span className="text-xl text-[#d4c4b0]">❖</span>
                   <div>
                     <h3
                       className={`font-semibold text-sm ${textPrimary}`}
@@ -537,7 +508,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
             style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
           >
             <div className="text-center mb-6">
-              <div className="text-4xl mb-4 text-[#2383e2]">𝕏</div>
+              <div className="text-4xl mb-4 text-[#d4c4b0]">𝕏</div>
               <h3
                 className={`text-xl font-semibold mb-2 ${textPrimary}`}
                 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
@@ -573,7 +544,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
             style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
           >
             <div className="text-center mb-6">
-              <div className="text-4xl mb-4 text-[#2383e2]">▣</div>
+              <div className="text-4xl mb-4 text-[#d4c4b0]">▣</div>
               <h3
                 className={`text-xl font-semibold mb-2 ${textPrimary}`}
                 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
@@ -609,7 +580,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
             style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.2)' }}
           >
             <div className="text-center mb-6">
-              <div className="text-4xl mb-4 text-[#2383e2]">◇</div>
+              <div className="text-4xl mb-4 text-[#d4c4b0]">◇</div>
               <h3
                 className={`text-xl font-semibold mb-2 ${textPrimary}`}
                 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
@@ -665,7 +636,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             className="fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full
-                       bg-[#2383e2]/20 border border-[#2383e2]/50 text-[#2383e2] backdrop-blur-sm"
+                       bg-[#d4c4b0]/20 border border-[#d4c4b0]/50 text-[#d4c4b0] backdrop-blur-sm"
           >
             {getResultMessage()}
           </motion.div>
@@ -686,18 +657,18 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="w-full max-w-lg bg-[#191919] rounded-2xl p-6 border border-[#252525]"
+              className="w-full max-w-lg bg-[#141414] rounded-2xl p-6 border border-[#1a1a1a]"
               onClick={e => e.stopPropagation()}
             >
-              <h2 className="text-xl font-semibold mb-4 text-[#ffffffeb]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Import from Amazon</h2>
+              <h2 className="text-xl font-semibold mb-4 text-[#f5f0e8]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Import from Amazon</h2>
 
-              <p className="text-[#9b9a97] text-sm mb-4">
+              <p className="text-[#a8a29e] text-sm mb-4">
                 Go to{' '}
                 <a
                   href="https://read.amazon.com/notebook"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#2383e2] hover:underline"
+                  className="text-[#d4c4b0] hover:underline"
                 >
                   read.amazon.com/notebook
                 </a>
@@ -708,23 +679,23 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                 value={pasteContent}
                 onChange={(e) => setPasteContent(e.target.value)}
                 placeholder="Paste your highlights here..."
-                className="w-full h-48 p-4 rounded-xl bg-[#0a0a0a] border border-[#ffffff14]
-                           focus:border-[#2383e2] focus:outline-none resize-none
-                           font-mono text-sm text-[#ffffffeb]"
+                className="w-full h-48 p-4 rounded-xl bg-[#0a0a0a] border border-[#292524]
+                           focus:border-[#d4c4b0] focus:outline-none resize-none
+                           font-mono text-sm text-[#f5f0e8]"
               />
 
               <div className="flex gap-3 mt-4">
                 <button
                   onClick={() => setShowPasteModal(false)}
-                  className="flex-1 py-3 rounded-xl bg-[#252525] hover:bg-[#ffffff14] transition text-[#ffffffeb]"
+                  className="flex-1 py-3 rounded-xl bg-[#1a1a1a] hover:bg-[#292524] transition text-[#f5f0e8]"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handlePasteSubmit}
                   disabled={!pasteContent.trim()}
-                  className="flex-1 py-3 rounded-xl bg-[#2383e2] hover:bg-[#b08c6a]
-                             disabled:opacity-50 disabled:cursor-not-allowed transition text-[#191919] font-medium"
+                  className="flex-1 py-3 rounded-xl bg-[#d4c4b0] hover:bg-[#b08c6a]
+                             disabled:opacity-50 disabled:cursor-not-allowed transition text-[#141414] font-medium"
                 >
                   Import
                 </button>
@@ -748,13 +719,13 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="w-full max-w-lg bg-[#191919] rounded-2xl p-6 border border-[#252525] max-h-[90vh] overflow-y-auto"
+              className="w-full max-w-lg bg-[#141414] rounded-2xl p-6 border border-[#1a1a1a] max-h-[90vh] overflow-y-auto"
               onClick={e => e.stopPropagation()}
             >
-              <h2 className="text-xl font-semibold mb-2 text-[#ffffffeb]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+              <h2 className="text-xl font-semibold mb-2 text-[#f5f0e8]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
                 Import from Kindle Cloud
               </h2>
-              <p className="text-[#9b9a97] text-sm mb-6">
+              <p className="text-[#a8a29e] text-sm mb-6">
                 Choose the easiest method for you
               </p>
 
@@ -762,13 +733,13 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
               {waitingForKindle ? (
                 <div className="text-center py-8">
                   <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#4CAF50] border-t-transparent mb-4" />
-                  <p className="text-[#ffffffeb] text-lg mb-2">Waiting for highlights...</p>
-                  <p className="text-[#9b9a97] text-sm mb-4">
+                  <p className="text-[#f5f0e8] text-lg mb-2">Waiting for highlights...</p>
+                  <p className="text-[#a8a29e] text-sm mb-4">
                     Sign in to Amazon, then click your bookmarklet
                   </p>
                   <button
                     onClick={() => setWaitingForKindle(false)}
-                    className="text-[#9b9a97] text-sm hover:text-white transition"
+                    className="text-[#a8a29e] text-sm hover:text-white transition"
                   >
                     Cancel
                   </button>
@@ -782,11 +753,11 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-xl">✨</span>
                       <div className="flex items-center gap-2">
-                        <p className="text-[#ffffffeb] text-sm font-semibold">Auto-Import All Books</p>
+                        <p className="text-[#f5f0e8] text-sm font-semibold">Auto-Import All Books</p>
                         <span className="px-2 py-0.5 bg-[#4CAF50] text-white text-[10px] font-bold rounded-full">RECOMMENDED</span>
                       </div>
                     </div>
-                    <p className="text-[#9b9a97] text-xs mb-3 ml-7">
+                    <p className="text-[#a8a29e] text-xs mb-3 ml-7">
                       One-time bookmark setup, then imports ALL books with one click
                     </p>
 
@@ -794,7 +765,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                       <div className="flex items-start gap-3">
                         <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[#4CAF50] text-white text-[10px] flex items-center justify-center font-bold mt-0.5">1</div>
                         <div className="flex-1">
-                          <p className="text-[#ffffffeb] text-xs mb-1.5">Drag this to your bookmarks bar:</p>
+                          <p className="text-[#f5f0e8] text-xs mb-1.5">Drag this to your bookmarks bar:</p>
                           <div className="flex gap-2">
                             <a
                               href={bookmarkletCode}
@@ -810,7 +781,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                               className={`px-3 py-2 rounded-lg text-xs transition ${
                                 bookmarkletCopied
                                   ? 'bg-[#4CAF50]/20 text-[#4CAF50]'
-                                  : 'bg-[#333] text-[#9b9a97] hover:text-white'
+                                  : 'bg-[#333] text-[#a8a29e] hover:text-white'
                               }`}
                             >
                               {bookmarkletCopied ? '✓ Copied!' : "Can't drag? Copy"}
@@ -837,14 +808,14 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                               <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>
                             </svg>
                           </a>
-                          <p className="text-[#9b9a97] text-[11px] mt-0.5">Sign in if needed</p>
+                          <p className="text-[#a8a29e] text-[11px] mt-0.5">Sign in if needed</p>
                         </div>
                       </div>
 
                       <div className="flex items-start gap-3">
                         <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[#4CAF50]/50 text-white text-[10px] flex items-center justify-center font-bold mt-0.5">3</div>
                         <div className="flex-1">
-                          <p className="text-[#ffffffeb] text-xs">
+                          <p className="text-[#f5f0e8] text-xs">
                             Click the bookmark - it auto-scrapes all books & copies to clipboard
                           </p>
                         </div>
@@ -853,7 +824,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                       <div className="flex items-start gap-3">
                         <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[#4CAF50]/30 text-white text-[10px] flex items-center justify-center font-bold mt-0.5">4</div>
                         <div className="flex-1">
-                          <p className="text-[#ffffffeb] text-xs">
+                          <p className="text-[#f5f0e8] text-xs">
                             Come back here and paste below
                           </p>
                         </div>
@@ -863,21 +834,21 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
 
                   {/* Divider */}
                   <div className="flex items-center gap-3 my-3">
-                    <div className="flex-1 h-px bg-[#ffffff14]" />
+                    <div className="flex-1 h-px bg-[#292524]" />
                     <span className="text-[#666] text-[10px] uppercase tracking-wider">or import one book</span>
-                    <div className="flex-1 h-px bg-[#ffffff14]" />
+                    <div className="flex-1 h-px bg-[#292524]" />
                   </div>
 
                   {/* Option 2: Manual per-book copy-paste */}
                   <details className="group mb-4">
-                    <summary className="text-[#9b9a97] text-xs cursor-pointer hover:text-white transition flex items-center gap-2">
+                    <summary className="text-[#a8a29e] text-xs cursor-pointer hover:text-white transition flex items-center gap-2">
                       <svg className="w-3 h-3 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                       Copy-paste from one book at a time
                     </summary>
-                    <div className="mt-2 p-3 bg-[#0a0a0a] rounded-lg border border-[#ffffff14]">
-                      <p className="text-[#9b9a97] text-[11px] mb-2">
+                    <div className="mt-2 p-3 bg-[#0a0a0a] rounded-lg border border-[#292524]">
+                      <p className="text-[#a8a29e] text-[11px] mb-2">
                         1. Open a book in Kindle Notebook<br/>
                         2. Select all (<kbd className="px-1 py-0.5 bg-[#333] rounded text-[10px]">Cmd+A</kbd>), copy (<kbd className="px-1 py-0.5 bg-[#333] rounded text-[10px]">Cmd+C</kbd>)<br/>
                         3. Paste below - repeat for each book
@@ -893,7 +864,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                       placeholder='Paste your highlights here (Cmd/Ctrl+V)...'
                       className="w-full h-28 p-3 rounded-xl bg-[#0a0a0a] border-2 border-dashed border-[#ffffff20]
                                  focus:border-[#4CAF50] focus:outline-none resize-none
-                                 text-sm text-[#ffffffeb] placeholder-[#555]"
+                                 text-sm text-[#f5f0e8] placeholder-[#555]"
                     />
                     <button
                       onClick={handleCloudSubmit}
@@ -910,7 +881,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                   <div className="flex gap-3">
                     <button
                       onClick={() => setShowCloudModal(false)}
-                      className="flex-1 py-3 rounded-xl bg-[#252525] hover:bg-[#ffffff14] transition text-[#ffffffeb]"
+                      className="flex-1 py-3 rounded-xl bg-[#1a1a1a] hover:bg-[#292524] transition text-[#f5f0e8]"
                     >
                       Close
                     </button>
@@ -918,7 +889,7 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                 </>
               )}
 
-              <p className="text-[#9b9a97] text-xs text-center mt-4">
+              <p className="text-[#a8a29e] text-xs text-center mt-4">
                 100% private - runs in your browser, no data sent anywhere
               </p>
             </motion.div>
@@ -940,40 +911,40 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="w-full max-w-lg bg-[#191919] rounded-2xl p-6 border border-[#252525]"
+              className="w-full max-w-lg bg-[#141414] rounded-2xl p-6 border border-[#1a1a1a]"
               onClick={e => e.stopPropagation()}
             >
-              <h2 className="text-xl font-semibold mb-4 text-[#ffffffeb]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Import Journal</h2>
+              <h2 className="text-xl font-semibold mb-4 text-[#f5f0e8]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Import Journal</h2>
 
               <input
                 type="text"
                 value={journalName}
                 onChange={(e) => setJournalName(e.target.value)}
                 placeholder="Journal name (optional)"
-                className="w-full p-3 rounded-xl bg-[#0a0a0a] border border-[#ffffff14]
-                           focus:border-[#2383e2] focus:outline-none mb-3 text-[#ffffffeb]"
+                className="w-full p-3 rounded-xl bg-[#0a0a0a] border border-[#292524]
+                           focus:border-[#d4c4b0] focus:outline-none mb-3 text-[#f5f0e8]"
               />
 
               <textarea
                 value={journalContent}
                 onChange={(e) => setJournalContent(e.target.value)}
                 placeholder="Paste your journal entries here, separated by blank lines..."
-                className="w-full h-48 p-4 rounded-xl bg-[#0a0a0a] border border-[#ffffff14]
-                           focus:border-[#2383e2] focus:outline-none resize-none text-[#ffffffeb]"
+                className="w-full h-48 p-4 rounded-xl bg-[#0a0a0a] border border-[#292524]
+                           focus:border-[#d4c4b0] focus:outline-none resize-none text-[#f5f0e8]"
               />
 
               <div className="flex gap-3 mt-4">
                 <button
                   onClick={() => setShowJournalModal(false)}
-                  className="flex-1 py-3 rounded-xl bg-[#252525] hover:bg-[#ffffff14] transition text-[#ffffffeb]"
+                  className="flex-1 py-3 rounded-xl bg-[#1a1a1a] hover:bg-[#292524] transition text-[#f5f0e8]"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleJournalSubmit}
                   disabled={!journalContent.trim()}
-                  className="flex-1 py-3 rounded-xl bg-[#2383e2] hover:bg-[#b08c6a]
-                             disabled:opacity-50 disabled:cursor-not-allowed transition text-[#191919] font-medium"
+                  className="flex-1 py-3 rounded-xl bg-[#d4c4b0] hover:bg-[#b08c6a]
+                             disabled:opacity-50 disabled:cursor-not-allowed transition text-[#141414] font-medium"
                 >
                   Import
                 </button>
@@ -997,12 +968,12 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="w-full max-w-lg bg-[#191919] rounded-2xl p-6 border border-[#252525]"
+              className="w-full max-w-lg bg-[#141414] rounded-2xl p-6 border border-[#1a1a1a]"
               onClick={e => e.stopPropagation()}
             >
-              <h2 className="text-xl font-semibold mb-4 text-[#ffffffeb]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Capture a Thought</h2>
+              <h2 className="text-xl font-semibold mb-4 text-[#f5f0e8]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Capture a Thought</h2>
 
-              <p className="text-[#9b9a97] text-sm mb-4">
+              <p className="text-[#a8a29e] text-sm mb-4">
                 What's on your mind? This will appear later as you swipe through your highlights.
               </p>
 
@@ -1010,23 +981,23 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                 value={thoughtContent}
                 onChange={(e) => setThoughtContent(e.target.value)}
                 placeholder="Write your thought..."
-                className="w-full h-36 p-4 rounded-xl bg-[#0a0a0a] border border-[#ffffff14]
-                           focus:border-[#2383e2] focus:outline-none resize-none text-[#ffffffeb]"
+                className="w-full h-36 p-4 rounded-xl bg-[#0a0a0a] border border-[#292524]
+                           focus:border-[#d4c4b0] focus:outline-none resize-none text-[#f5f0e8]"
                 autoFocus
               />
 
               <div className="flex gap-3 mt-4">
                 <button
                   onClick={() => setShowThoughtModal(false)}
-                  className="flex-1 py-3 rounded-xl bg-[#252525] hover:bg-[#ffffff14] transition text-[#ffffffeb]"
+                  className="flex-1 py-3 rounded-xl bg-[#1a1a1a] hover:bg-[#292524] transition text-[#f5f0e8]"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleThoughtSubmit}
                   disabled={!thoughtContent.trim()}
-                  className="flex-1 py-3 rounded-xl bg-[#2383e2] hover:bg-[#b08c6a]
-                             disabled:opacity-50 disabled:cursor-not-allowed transition text-[#191919] font-medium"
+                  className="flex-1 py-3 rounded-xl bg-[#d4c4b0] hover:bg-[#b08c6a]
+                             disabled:opacity-50 disabled:cursor-not-allowed transition text-[#141414] font-medium"
                 >
                   Save Thought
                 </button>
@@ -1050,14 +1021,14 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="w-full max-w-lg bg-[#191919] rounded-2xl p-6 border border-[#252525]"
+              className="w-full max-w-lg bg-[#141414] rounded-2xl p-6 border border-[#1a1a1a]"
               onClick={e => e.stopPropagation()}
             >
-              <h2 className="text-xl font-semibold mb-4 text-[#ffffffeb]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Import Tweets</h2>
+              <h2 className="text-xl font-semibold mb-4 text-[#f5f0e8]" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Import Tweets</h2>
 
-              <p className="text-[#9b9a97] text-sm mb-4">
+              <p className="text-[#a8a29e] text-sm mb-4">
                 Paste your bookmarked tweets. Format each as:<br/>
-                <code className="text-[#2383e2]">@username: tweet text</code><br/>
+                <code className="text-[#d4c4b0]">@username: tweet text</code><br/>
                 Or paste a JSON export from X.
               </p>
 
@@ -1065,23 +1036,23 @@ export function DropZone({ onImportClippings, onImportAmazon, onImportJournal, o
                 value={tweetsContent}
                 onChange={(e) => setTweetsContent(e.target.value)}
                 placeholder="@naval: The goal of meditation is not to control your thoughts, it's to stop letting them control you."
-                className="w-full h-48 p-4 rounded-xl bg-[#0a0a0a] border border-[#ffffff14]
-                           focus:border-[#2383e2] focus:outline-none resize-none text-[#ffffffeb] font-mono text-sm"
+                className="w-full h-48 p-4 rounded-xl bg-[#0a0a0a] border border-[#292524]
+                           focus:border-[#d4c4b0] focus:outline-none resize-none text-[#f5f0e8] font-mono text-sm"
                 autoFocus
               />
 
               <div className="flex gap-3 mt-4">
                 <button
                   onClick={() => setShowTweetsModal(false)}
-                  className="flex-1 py-3 rounded-xl bg-[#252525] hover:bg-[#ffffff14] transition text-[#ffffffeb]"
+                  className="flex-1 py-3 rounded-xl bg-[#1a1a1a] hover:bg-[#292524] transition text-[#f5f0e8]"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleTweetsSubmit}
                   disabled={!tweetsContent.trim()}
-                  className="flex-1 py-3 rounded-xl bg-[#2383e2] hover:bg-[#b08c6a]
-                             disabled:opacity-50 disabled:cursor-not-allowed transition text-[#191919] font-medium"
+                  className="flex-1 py-3 rounded-xl bg-[#d4c4b0] hover:bg-[#b08c6a]
+                             disabled:opacity-50 disabled:cursor-not-allowed transition text-[#141414] font-medium"
                 >
                   Import Tweets
                 </button>

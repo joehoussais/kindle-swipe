@@ -5,18 +5,23 @@
 @tailwind utilities;
 
 :root {
-  /* Notion-style palette - clean, fresh, modern */
-  --ink: #191919;
-  --parchment: #ffffff;
-  --stone: #9b9b9b;
-  --accent: #2383e2;
-  --accent-light: #529cca;
-  --muted: #787774;
-  --surface: #252525;
-  --surface-hover: #2f2f2f;
-  --text-primary: #ffffffeb;
-  --text-secondary: #9b9a97;
-  --border: #ffffff14;
+  /* Warm, sophisticated palette - Oku-inspired elegance */
+  --ink: #141414;
+  --parchment: #f5f0e8;
+  --stone: #78716c;
+  --accent: #d4c4b0;
+  --accent-hover: #c4b4a0;
+  --accent-muted: #a89f91;
+  --muted: #78716c;
+  --surface: #141414;
+  --surface-elevated: #1a1a1a;
+  --surface-hover: #242424;
+  --text-primary: #f5f0e8;
+  --text-secondary: #a8a29e;
+  --text-muted: #78716c;
+  --border: #292524;
+  --border-subtle: #1f1e1d;
+  --gold: #b8860b;
 }
 
 * {

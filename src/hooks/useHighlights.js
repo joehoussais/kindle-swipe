@@ -690,6 +690,22 @@ export function useHighlights(onBooksImported, userId = null) {
     );
   }, []);
 
+  // Update book metadata (title/author) for all highlights with a given title
+  const updateBookMetadata = useCallback((oldTitle, newTitle, newAuthor) => {
+    setHighlights(prev =>
+      prev.map(h => {
+        if (h.title === oldTitle) {
+          return {
+            ...h,
+            title: newTitle,
+            author: newAuthor
+          };
+        }
+        return h;
+      })
+    );
+  }, []);
+
   // Get statistics
   const getStats = useCallback(() => {
     const books = new Map();
@@ -877,6 +893,7 @@ export function useHighlights(onBooksImported, userId = null) {
     deleteHighlight,
     editHighlight,
     addComment,
+    updateBookMetadata,
     // Stats & filtering
     getStats,
     getBySource,

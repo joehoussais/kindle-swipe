@@ -314,3 +314,44 @@ export function getCacheStats() {
     pending: pendingRequests.size
   };
 }
+
+/**
+ * Analyze cover status for a list of highlights
+ * Returns stats on how many books have covers, are missing, etc.
+ */
+export function analyzeCoverStatus(highlights) {
+  // Get unique books
+  const books = new Map();
+  for (const h of highlights) {
+    const key = `${h.title}|${h.author}`;
+    if (!books.has(key)) {
+      books.set(key, { title: h.title, author: h.author, highlightCount: 0 });
+    }
+    books.get(key).highlightCount++;
+  }
+
+  const bookList = Array.from(books.values());
+  const withCovers = [];
+  const withoutCovers = [];
+  const failed = [];
+
+  for (const book of bookList) {
+    const cacheKey = `${book.title}|${book.author}`;
+    if (coverCache.has(cacheKey)) {
+      withCovers.push(book);
+    } else if (failedLookups.has(cacheKey)) {
+      failed.push(book);
+    } else {
+      withoutCovers.push(book);
+    }
+  }
+
+  return {
+    totalBooks: bookList.length,
+    withCovers: withCovers.length,
+    withoutCovers: withoutCovers.length,
+    failedLookups: failed.length,
+    // Sort by highlight count to show most important missing covers first
+    missingCoverBooks: [...withoutCovers, ...failed].sort((a, b) => b.highlightCount - a.highlightCount)
+  };
+}

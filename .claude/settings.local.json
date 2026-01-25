@@ -48,7 +48,11 @@
       "Bash(npx vite build:*)",
       "Bash(unzip:*)",
       "Bash(brew list:*)",
-      "Bash(netlify status:*)"
+      "Bash(netlify status:*)",
+      "mcp__c8624afd-1036-4b00-a3ce-09aa21ed93d0__netlify-deploy-services-updater",
+      "Bash(wc:*)",
+      "Bash(xargs ls:*)",
+      "Bash(file:*)"
     ]
   }
 }
