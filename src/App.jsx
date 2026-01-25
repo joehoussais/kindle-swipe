@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, lazy, Suspense } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useHighlights, SOURCE_TYPES } from './hooks/useHighlights';
 import { useAuth } from './context/AuthContext';
@@ -6,14 +6,16 @@ import { useSubscription } from './hooks/useSubscription';
 import { LandingPage } from './components/LandingPage';
 import { DropZone } from './components/DropZone';
 import { SwipeDeck } from './components/SwipeDeck';
-import { SettingsPanel } from './components/SettingsPanel';
-import { LibraryPanel } from './components/LibraryPanel';
-import { BooksHistory } from './components/BooksHistory';
-import { ShareModal } from './components/ShareModal';
-import { QuoteExport } from './components/QuoteExport';
-import { QuickAddQuote } from './components/QuickAddQuote';
 import { FeedView } from './components/FeedView';
 import { CoinAvatar } from './components/CoinAvatar';
+
+// Lazy load heavy modal components
+const SettingsPanel = lazy(() => import('./components/SettingsPanel').then(m => ({ default: m.SettingsPanel })));
+const LibraryPanel = lazy(() => import('./components/LibraryPanel').then(m => ({ default: m.LibraryPanel })));
+const BooksHistory = lazy(() => import('./components/BooksHistory').then(m => ({ default: m.BooksHistory })));
+const ShareModal = lazy(() => import('./components/ShareModal').then(m => ({ default: m.ShareModal })));
+const QuoteExport = lazy(() => import('./components/QuoteExport').then(m => ({ default: m.QuoteExport })));
+const QuickAddQuote = lazy(() => import('./components/QuickAddQuote').then(m => ({ default: m.QuickAddQuote })));
 
 function AppContent() {
   const { isAuthenticated, isGuestMode, trackBook, logout, exitPreviewMode, loginWithGoogle, user } = useAuth();
@@ -527,94 +529,106 @@ function AppContent() {
 
       <AnimatePresence>
         {showSettings && (
-          <SettingsPanel
-            onClose={() => setShowSettings(false)}
-            onClear={() => {
-              clearAll();
-              setShowSettings(false);
-            }}
-            onImportMore={() => {
-              setShowImport(true);
-              setShowSettings(false);
-            }}
-            onOpenLibrary={() => {
-              setShowLibrary(true);
-              setShowSettings(false);
-            }}
-            onOpenBooksHistory={() => {
-              setShowBooksHistory(true);
-              setShowSettings(false);
-            }}
-            onShare={() => setShowShare(true)}
-            onLogout={logout}
-            stats={getStats()}
-            recallStats={getGlobalRecallStats()}
-            user={user}
-            subscription={subscription}
-          />
+          <Suspense fallback={null}>
+            <SettingsPanel
+              onClose={() => setShowSettings(false)}
+              onClear={() => {
+                clearAll();
+                setShowSettings(false);
+              }}
+              onImportMore={() => {
+                setShowImport(true);
+                setShowSettings(false);
+              }}
+              onOpenLibrary={() => {
+                setShowLibrary(true);
+                setShowSettings(false);
+              }}
+              onOpenBooksHistory={() => {
+                setShowBooksHistory(true);
+                setShowSettings(false);
+              }}
+              onShare={() => setShowShare(true)}
+              onLogout={logout}
+              stats={getStats()}
+              recallStats={getGlobalRecallStats()}
+              user={user}
+              subscription={subscription}
+            />
+          </Suspense>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {showLibrary && (
-          <LibraryPanel
-            highlights={highlights}
-            onClose={() => setShowLibrary(false)}
-            onDelete={deleteHighlight}
-            onEdit={editHighlight}
-            onAddComment={addComment}
-            onGoToHighlight={(index) => {
-              // Find the highlight in filtered view
-              const highlight = highlights[index];
-              const filteredIdx = filteredHighlights.findIndex(h => h.id === highlight.id);
-              if (filteredIdx !== -1) {
-                setFilteredIndex(filteredIdx);
-              } else {
-                setActiveFilter('all');
-                setFilteredIndex(index);
-              }
-              setShowLibrary(false);
-            }}
-          />
+          <Suspense fallback={null}>
+            <LibraryPanel
+              highlights={highlights}
+              onClose={() => setShowLibrary(false)}
+              onDelete={deleteHighlight}
+              onEdit={editHighlight}
+              onAddComment={addComment}
+              onGoToHighlight={(index) => {
+                // Find the highlight in filtered view
+                const highlight = highlights[index];
+                const filteredIdx = filteredHighlights.findIndex(h => h.id === highlight.id);
+                if (filteredIdx !== -1) {
+                  setFilteredIndex(filteredIdx);
+                } else {
+                  setActiveFilter('all');
+                  setFilteredIndex(index);
+                }
+                setShowLibrary(false);
+              }}
+            />
+          </Suspense>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {showBooksHistory && (
-          <BooksHistory onClose={() => setShowBooksHistory(false)} />
+          <Suspense fallback={null}>
+            <BooksHistory onClose={() => setShowBooksHistory(false)} />
+          </Suspense>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {showShare && (
-          <ShareModal
-            highlights={highlights}
-            onClose={() => setShowShare(false)}
-            userName={user?.name}
-          />
+          <Suspense fallback={null}>
+            <ShareModal
+              highlights={highlights}
+              onClose={() => setShowShare(false)}
+              userName={user?.name}
+            />
+          </Suspense>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {showExport && exportHighlight && (
-          <QuoteExport
-            highlight={exportHighlight}
-            onClose={() => {
-              setShowExport(false);
-              setExportHighlight(null);
-            }}
-            subscription={subscription}
-          />
+          <Suspense fallback={null}>
+            <QuoteExport
+              highlight={exportHighlight}
+              onClose={() => {
+                setShowExport(false);
+                setExportHighlight(null);
+              }}
+              subscription={subscription}
+            />
+          </Suspense>
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {showQuickAdd && (
-          <QuickAddQuote
-            onClose={() => setShowQuickAdd(false)}
-            onAddQuote={handleQuickAddQuote}
-            onAddAndExport={handleQuickAddAndExport}
-          />
+          <Suspense fallback={null}>
+            <QuickAddQuote
+              onClose={() => setShowQuickAdd(false)}
+              onAddQuote={handleQuickAddQuote}
+              onAddAndExport={handleQuickAddAndExport}
+            />
+          </Suspense>
         )}
       </AnimatePresence>
     </>

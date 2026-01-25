@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import html2canvas from 'html2canvas';
 import { getBookCover, getCachedCover } from '../utils/bookCovers';
 import { BACKGROUNDS } from '../utils/backgrounds';
 import { UpgradeModal } from './UpgradeModal';
@@ -649,11 +648,14 @@ export function QuoteExport({ highlight, onClose, subscription }) {
     return Math.min(scaleW, scaleH);
   };
 
-  // Generate image blob
+  // Generate image blob (dynamically imports html2canvas)
   const generateImage = async () => {
     if (!templateRef.current) return null;
 
     const { width, height } = FORMATS[format];
+
+    // Dynamic import - only loads when user actually exports
+    const html2canvas = (await import('html2canvas')).default;
 
     const canvas = await html2canvas(templateRef.current, {
       scale: 2,

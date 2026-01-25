@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { parseClippings } from '../utils/parseClippings';
 import { parseAmazonNotebook } from '../utils/parseAmazonNotebook';
-import { preloadCovers } from '../utils/bookCovers';
 import { generateStarterHighlights } from '../utils/starterPack';
 import { saveHighlightsToDb, loadHighlightsFromDb, updateHighlightInDb, clearAllHighlightsFromDb } from '../utils/supabase';
 import { cleanHighlights, needsCleaning } from '../utils/cleanBookMetadata';
@@ -336,7 +335,7 @@ export function useHighlights(onBooksImported, userId = null) {
   const [highlights, setHighlights] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [coversLoaded, setCoversLoaded] = useState(false);
+  const [coversLoaded, setCoversLoaded] = useState(true); // Covers load on-demand now
   const [isSyncing, setIsSyncing] = useState(false);
   const [hasLoadedInitial, setHasLoadedInitial] = useState(false);
 
@@ -444,12 +443,8 @@ export function useHighlights(onBooksImported, userId = null) {
     localStorage.setItem(INDEX_KEY, currentIndex.toString());
   }, [currentIndex]);
 
-  // Preload covers when highlights are loaded
-  useEffect(() => {
-    if (highlights.length > 0 && !coversLoaded) {
-      preloadCovers(highlights).then(() => setCoversLoaded(true));
-    }
-  }, [highlights, coversLoaded]);
+  // Covers are now loaded on-demand by individual components
+  // This improves initial load time significantly
 
   // Import from My Clippings.txt
   const importClippings = useCallback((fileContent) => {
