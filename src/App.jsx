@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useHighlights, SOURCE_TYPES } from './hooks/useHighlights';
 import { useAuth } from './context/AuthContext';
+import { useSubscription } from './hooks/useSubscription';
 import { LandingPage } from './components/LandingPage';
 import { DropZone } from './components/DropZone';
 import { SwipeDeck } from './components/SwipeDeck';
@@ -10,11 +11,15 @@ import { LibraryPanel } from './components/LibraryPanel';
 import { BooksHistory } from './components/BooksHistory';
 import { ShareModal } from './components/ShareModal';
 import { QuoteExport } from './components/QuoteExport';
+import { QuickAddQuote } from './components/QuickAddQuote';
 import { FeedView } from './components/FeedView';
 import { CoinAvatar } from './components/CoinAvatar';
 
 function AppContent() {
   const { isAuthenticated, isGuestMode, trackBook, logout, exitPreviewMode, loginWithGoogle, user } = useAuth();
+
+  // Subscription management
+  const subscription = useSubscription(user?.id);
 
   const {
     highlights,
@@ -29,6 +34,7 @@ function AppContent() {
     importTweets,
     loadStarterPack,
     addThought,
+    addQuote,
     goNext,
     goPrev,
     goTo,
@@ -75,6 +81,7 @@ function AppContent() {
   const [showShare, setShowShare] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [exportHighlight, setExportHighlight] = useState(null);
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all'); // 'all', source type, or 'tag:tagname'
   const [filteredIndex, setFilteredIndex] = useState(0);
   const [viewMode, setViewMode] = useState('swipe'); // 'swipe' or 'feed'
@@ -150,6 +157,19 @@ function AppContent() {
 
   // Handle export mode
   const handleExport = (highlight) => {
+    setExportHighlight(highlight);
+    setShowExport(true);
+  };
+
+  // Handle quick add quote
+  const handleQuickAddQuote = (text, author, title) => {
+    return addQuote(text, author, title);
+  };
+
+  // Handle quick add and export
+  const handleQuickAddAndExport = (text, author, title) => {
+    const highlight = addQuote(text, author, title);
+    setShowQuickAdd(false);
     setExportHighlight(highlight);
     setShowExport(true);
   };
@@ -381,6 +401,7 @@ function AppContent() {
           viewMode={viewMode}
           onViewModeChange={setViewMode}
           onImportMore={() => setShowImport(true)}
+          onQuickAdd={() => setShowQuickAdd(true)}
         />
       )}
 
@@ -529,6 +550,7 @@ function AppContent() {
             stats={getStats()}
             recallStats={getGlobalRecallStats()}
             user={user}
+            subscription={subscription}
           />
         )}
       </AnimatePresence>
@@ -581,6 +603,17 @@ function AppContent() {
               setShowExport(false);
               setExportHighlight(null);
             }}
+            subscription={subscription}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showQuickAdd && (
+          <QuickAddQuote
+            onClose={() => setShowQuickAdd(false)}
+            onAddQuote={handleQuickAddQuote}
+            onAddAndExport={handleQuickAddAndExport}
           />
         )}
       </AnimatePresence>

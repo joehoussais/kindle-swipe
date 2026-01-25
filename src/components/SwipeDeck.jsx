@@ -89,7 +89,8 @@ export function SwipeDeck({
   onSignUp,
   viewMode = 'swipe',
   onViewModeChange,
-  onImportMore
+  onImportMore,
+  onQuickAdd
 }) {
   const [direction, setDirection] = useState(0);
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -727,12 +728,12 @@ export function SwipeDeck({
       </div>
 
       {/* Floating Add button - bottom left */}
-      {!isPreviewMode && onImportMore && (
+      {!isPreviewMode && onQuickAdd && (
         <button
-          onClick={onImportMore}
+          onClick={onQuickAdd}
           className="absolute bottom-4 left-4 z-20 p-3 rounded-full bg-[#2383e2] hover:bg-[#1a6bc2]
                      shadow-lg shadow-[#2383e2]/20 transition-all hover:scale-105 active:scale-95"
-          aria-label="Add more content"
+          aria-label="Add quote"
         >
           <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
