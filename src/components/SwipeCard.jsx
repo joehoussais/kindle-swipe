@@ -349,17 +349,38 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
                   textAlign: 'left'
                 }}
               >
-                {/* Yellow highlight like Kindle */}
-                <span
-                  style={{
-                    backgroundColor: '#fff59d',
-                    padding: '2px 0',
-                    boxDecorationBreak: 'clone',
-                    WebkitBoxDecorationBreak: 'clone'
-                  }}
-                >
-                  {highlight.text}
-                </span>
+                {/* Blue highlight on first part, rest normal - like Kindle */}
+                {(() => {
+                  const text = highlight.text;
+                  // Highlight roughly 40% of the text (first portion)
+                  const highlightEnd = Math.min(Math.floor(text.length * 0.4), 150);
+                  // Find a good break point (space, punctuation)
+                  let breakPoint = highlightEnd;
+                  for (let i = highlightEnd; i > highlightEnd - 30 && i > 0; i--) {
+                    if (text[i] === ' ' || text[i] === '.' || text[i] === ',' || text[i] === ';') {
+                      breakPoint = i + 1;
+                      break;
+                    }
+                  }
+                  const highlighted = text.slice(0, breakPoint);
+                  const rest = text.slice(breakPoint);
+
+                  return (
+                    <>
+                      <span
+                        style={{
+                          backgroundColor: '#a8d4ff',
+                          padding: '2px 0',
+                          boxDecorationBreak: 'clone',
+                          WebkitBoxDecorationBreak: 'clone'
+                        }}
+                      >
+                        {highlighted}
+                      </span>
+                      {rest}
+                    </>
+                  );
+                })()}
               </blockquote>
 
               {/* Copy button - inside card */}
