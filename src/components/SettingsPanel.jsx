@@ -1,7 +1,34 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { CoinAvatar } from './CoinAvatar';
 
-export function SettingsPanel({ onClose, onClear, onImportMore, onOpenLibrary, onOpenBooksHistory, onShare, onLogout, stats, recallStats, user }) {
+export function SettingsPanel({ onClose, onClear, onImportMore, onOpenLibrary, onOpenBooksHistory, onShare, onLogout, stats, recallStats, user, subscription }) {
+  const [isUpgrading, setIsUpgrading] = useState(false);
+  const [isOpeningPortal, setIsOpeningPortal] = useState(false);
+
+  const handleUpgrade = async () => {
+    if (!subscription?.createCheckoutSession) return;
+    setIsUpgrading(true);
+    try {
+      await subscription.createCheckoutSession();
+    } catch (err) {
+      console.error('Upgrade failed:', err);
+    } finally {
+      setIsUpgrading(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    if (!subscription?.openCustomerPortal) return;
+    setIsOpeningPortal(true);
+    try {
+      await subscription.openCustomerPortal();
+    } catch (err) {
+      console.error('Portal failed:', err);
+    } finally {
+      setIsOpeningPortal(false);
+    }
+  };
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -62,6 +89,69 @@ export function SettingsPanel({ onClose, onClear, onImportMore, onOpenLibrary, o
               </div>
             </div>
           </div>
+
+          {/* Subscription */}
+          {user && (
+            <div className="p-4 border-b border-[#e1e8ed]">
+              <h3 className="text-xs font-semibold text-[#657786] uppercase tracking-wider mb-3">Subscription</h3>
+              {subscription?.isPro ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">✨</span>
+                    <span className="text-[#14171a] font-semibold">Highlight Pro</span>
+                    <span className="text-xs bg-[#17bf63]/10 text-[#17bf63] px-2 py-0.5 rounded-full">Active</span>
+                  </div>
+                  {subscription.cancelAtPeriodEnd && subscription.periodEnd && (
+                    <p className="text-sm text-[#e0245e]">
+                      Cancels on {new Date(subscription.periodEnd).toLocaleDateString()}
+                    </p>
+                  )}
+                  <button
+                    onClick={handleManageSubscription}
+                    disabled={isOpeningPortal}
+                    className="w-full py-2.5 px-4 rounded-full bg-[#f7f9fa] hover:bg-[#e8f4fd]
+                               border border-[#e1e8ed] transition text-[#14171a] text-sm font-medium
+                               disabled:opacity-50"
+                  >
+                    {isOpeningPortal ? 'Loading...' : 'Manage Subscription'}
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="bg-gradient-to-br from-[#f7f9fa] to-[#e8f4fd] rounded-xl p-4 border border-[#e1e8ed]">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-semibold text-[#14171a]">Upgrade to Pro</span>
+                      <span className="text-[#1da1f2] font-bold">€2/mo</span>
+                    </div>
+                    <ul className="text-sm text-[#657786] space-y-1 mb-3">
+                      <li className="flex items-center gap-2">
+                        <span className="text-[#17bf63]">✓</span> Cloud sync
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="text-[#17bf63]">✓</span> Unlimited exports
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <span className="text-[#17bf63]">✓</span> Notion export
+                      </li>
+                    </ul>
+                    <button
+                      onClick={handleUpgrade}
+                      disabled={isUpgrading}
+                      className="w-full py-2.5 px-4 rounded-full bg-gradient-to-r from-[#1da1f2] to-[#6366f1]
+                                 hover:opacity-90 transition text-white text-sm font-bold disabled:opacity-50"
+                    >
+                      {isUpgrading ? 'Loading...' : 'Upgrade Now'}
+                    </button>
+                  </div>
+                  {subscription?.exportsRemaining !== undefined && subscription.exportsRemaining !== Infinity && (
+                    <p className="text-xs text-[#657786] text-center">
+                      {subscription.exportsRemaining} free export{subscription.exportsRemaining !== 1 ? 's' : ''} remaining this month
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Recall Stats */}
           {recallStats && (

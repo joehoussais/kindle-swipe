@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import { getBookCover, getCachedCover } from '../utils/bookCovers';
 import { BACKGROUNDS } from '../utils/backgrounds';
+import { UpgradeModal } from './UpgradeModal';
 
 // Format dimensions (width x height)
 const FORMATS = {
@@ -589,7 +590,7 @@ function EditorialTemplate({ highlight, format, background }) {
 // ============================================================================
 // MAIN EXPORT COMPONENT
 // ============================================================================
-export function QuoteExport({ highlight, onClose }) {
+export function QuoteExport({ highlight, onClose, subscription }) {
   const [selectedBackground, setSelectedBackground] = useState(BACKGROUNDS[0]);
   const [format, setFormat] = useState('story');
   const [template, setTemplate] = useState('minimal');
@@ -597,7 +598,14 @@ export function QuoteExport({ highlight, onClose }) {
   const [exportSuccess, setExportSuccess] = useState(false);
   const [cover, setCover] = useState(() => getCachedCover(highlight.title, highlight.author));
   const [coverFailed, setCoverFailed] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [isUpgrading, setIsUpgrading] = useState(false);
   const templateRef = useRef(null);
+
+  // Subscription info (passed from parent or default to unlimited for guests)
+  const canExport = subscription?.canExport ?? true;
+  const exportsRemaining = subscription?.exportsRemaining ?? Infinity;
+  const isPro = subscription?.isPro ?? false;
 
   // Load book cover
   useEffect(() => {
@@ -669,8 +677,36 @@ export function QuoteExport({ highlight, onClose }) {
     });
   };
 
+  // Check export limit before exporting
+  const checkExportLimit = () => {
+    if (!canExport) {
+      setShowUpgradeModal(true);
+      return false;
+    }
+    return true;
+  };
+
+  // Handle upgrade
+  const handleUpgrade = async () => {
+    if (!subscription?.createCheckoutSession) {
+      console.error('Checkout not available');
+      return;
+    }
+    setIsUpgrading(true);
+    try {
+      await subscription.createCheckoutSession();
+    } catch (err) {
+      console.error('Upgrade failed:', err);
+      throw err;
+    } finally {
+      setIsUpgrading(false);
+    }
+  };
+
   // Download image
   const handleDownload = async () => {
+    if (!checkExportLimit()) return;
+
     setIsExporting(true);
     try {
       const blob = await generateImage();
@@ -682,6 +718,12 @@ export function QuoteExport({ highlight, onClose }) {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+
+      // Increment export count after successful export
+      if (subscription?.incrementExportCount) {
+        await subscription.incrementExportCount();
+      }
+
       setExportSuccess(true);
       setTimeout(() => setExportSuccess(false), 2000);
     } catch (err) {
@@ -692,6 +734,8 @@ export function QuoteExport({ highlight, onClose }) {
 
   // Copy to clipboard
   const handleCopy = async () => {
+    if (!checkExportLimit()) return;
+
     setIsExporting(true);
     try {
       const blob = await generateImage();
@@ -699,6 +743,12 @@ export function QuoteExport({ highlight, onClose }) {
         await navigator.clipboard.write([
           new window.ClipboardItem({ 'image/png': blob })
         ]);
+
+        // Increment export count after successful export
+        if (subscription?.incrementExportCount) {
+          await subscription.incrementExportCount();
+        }
+
         setExportSuccess(true);
         setTimeout(() => setExportSuccess(false), 2000);
       } else {
@@ -713,6 +763,8 @@ export function QuoteExport({ highlight, onClose }) {
 
   // Share via native API
   const handleShare = async () => {
+    if (!checkExportLimit()) return;
+
     setIsExporting(true);
     try {
       const blob = await generateImage();
@@ -724,6 +776,12 @@ export function QuoteExport({ highlight, onClose }) {
             title: highlight.title,
             text: `"${highlight.text.slice(0, 100)}..." — ${highlight.author || highlight.title}`,
           });
+
+          // Increment export count after successful export
+          if (subscription?.incrementExportCount) {
+            await subscription.incrementExportCount();
+          }
+
           setIsExporting(false);
           return;
         }
@@ -785,7 +843,25 @@ export function QuoteExport({ highlight, onClose }) {
         <div className="px-6 py-4 border-b border-[#252525] flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-white">Create Image</h2>
-            <p className="text-sm text-[#666] mt-0.5">Share your highlight beautifully</p>
+            <p className="text-sm text-[#666] mt-0.5">
+              {isPro ? (
+                'Unlimited exports with Pro'
+              ) : exportsRemaining === Infinity ? (
+                'Share your highlight beautifully'
+              ) : (
+                <span>
+                  {exportsRemaining} free export{exportsRemaining !== 1 ? 's' : ''} remaining
+                  {exportsRemaining <= 1 && (
+                    <button
+                      onClick={() => setShowUpgradeModal(true)}
+                      className="ml-2 text-indigo-400 hover:text-indigo-300 underline"
+                    >
+                      Upgrade
+                    </button>
+                  )}
+                </span>
+              )}
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -974,6 +1050,18 @@ export function QuoteExport({ highlight, onClose }) {
           )}
         </AnimatePresence>
       </motion.div>
+
+      {/* Upgrade Modal */}
+      <AnimatePresence>
+        {showUpgradeModal && (
+          <UpgradeModal
+            onClose={() => setShowUpgradeModal(false)}
+            onUpgrade={handleUpgrade}
+            isLoading={isUpgrading}
+            feature="export"
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
