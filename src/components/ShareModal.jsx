@@ -300,7 +300,7 @@ export function ShareModal({ highlights, onClose, userName }) {
                     <button
                       key={book.id}
                       onClick={() => toggleSelect(book.id)}
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#d4c4b0] text-white text-sm"
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#2d3748] text-white text-sm"
                     >
                       <span className="font-medium">{i + 1}</span>
                       <span className="truncate max-w-[150px]">{book.title}</span>
@@ -332,7 +332,7 @@ export function ShareModal({ highlights, onClose, userName }) {
                         disabled={isDisabled}
                         className={`w-full text-left p-3 rounded-lg border transition flex items-center gap-3 ${
                           isSelected
-                            ? 'bg-[#d4c4b0]/20 border-[#d4c4b0]'
+                            ? 'bg-[#2d3748]/20 border-[#2d3748]'
                             : isDisabled
                               ? 'bg-[#1a1a1a]/30 border-[#1a1a1a] opacity-50 cursor-not-allowed'
                               : 'bg-[#1a1a1a]/50 border-[#292524] hover:bg-[#1a1a1a]'
@@ -373,7 +373,7 @@ export function ShareModal({ highlights, onClose, userName }) {
                         {/* Selection indicator */}
                         <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                           isSelected
-                            ? 'bg-[#d4c4b0] border-[#d4c4b0]'
+                            ? 'bg-[#2d3748] border-[#2d3748]'
                             : 'border-[#4d4a46]'
                         }`}>
                           {isSelected && (
@@ -430,7 +430,7 @@ export function ShareModal({ highlights, onClose, userName }) {
                 disabled={selectedIds.size !== 5}
                 className={`flex-1 py-3 px-4 rounded-lg transition text-sm font-medium ${
                   selectedIds.size === 5
-                    ? 'bg-[#d4c4b0] hover:bg-[#1a6dc0] text-white'
+                    ? 'bg-[#2d3748] hover:bg-[#1a6dc0] text-white'
                     : 'bg-[#1a1a1a]/50 border border-[#292524] text-[#78716c] cursor-not-allowed'
                 }`}
               >
@@ -579,7 +579,7 @@ function ShareTemplate({ books, bookCovers, userName }) {
           <h1 className="text-[#f5f0e8] text-6xl font-light tracking-wide">
             {monthYear}
           </h1>
-          <div className="w-24 h-px bg-[#d4c4b0] mx-auto mt-8" />
+          <div className="w-24 h-px bg-[#2d3748] mx-auto mt-8" />
         </div>
 
         {/* Books grid */}
@@ -590,7 +590,7 @@ function ShareTemplate({ books, bookCovers, userName }) {
             return (
               <div key={book.id} className="flex items-center gap-8">
                 {/* Number */}
-                <div className="text-[#d4c4b0]/40 text-8xl font-light w-24 text-right">
+                <div className="text-[#2d3748]/40 text-8xl font-light w-24 text-right">
                   {index + 1}
                 </div>
 
@@ -644,7 +644,7 @@ function ShareTemplate({ books, bookCovers, userName }) {
 
         {/* Footer */}
         <div className="text-center mt-12">
-          <div className="w-24 h-px bg-[#d4c4b0] mx-auto mb-8" />
+          <div className="w-24 h-px bg-[#2d3748] mx-auto mb-8" />
           {userName && (
             <p className="text-[#a8a29e] text-2xl mb-3">
               Curated by {userName}

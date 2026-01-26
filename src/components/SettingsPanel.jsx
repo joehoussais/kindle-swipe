@@ -76,13 +76,13 @@ export function SettingsPanel({ onClose, onClear, onImportMore, onOpenLibrary, o
             <h3 className="text-xs font-semibold text-[#657786] uppercase tracking-wider mb-3">Your Collection</h3>
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-[#f7f9fa] rounded-xl p-4 border border-[#e1e8ed]">
-                <div className="text-2xl font-bold text-[#1da1f2]">
+                <div className="text-2xl font-bold text-[#2d3748]">
                   {stats.totalHighlights}
                 </div>
                 <div className="text-xs text-[#657786] mt-1">Passages</div>
               </div>
               <div className="bg-[#f7f9fa] rounded-xl p-4 border border-[#e1e8ed]">
-                <div className="text-2xl font-bold text-[#1da1f2]">
+                <div className="text-2xl font-bold text-[#2d3748]">
                   {stats.totalBooks}
                 </div>
                 <div className="text-xs text-[#657786] mt-1">Sources</div>
@@ -121,7 +121,7 @@ export function SettingsPanel({ onClose, onClear, onImportMore, onOpenLibrary, o
                   <div className="bg-gradient-to-br from-[#f7f9fa] to-[#e8f4fd] rounded-xl p-4 border border-[#e1e8ed]">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-semibold text-[#14171a]">Upgrade to Pro</span>
-                      <span className="text-[#1da1f2] font-bold">€2/mo</span>
+                      <span className="text-[#2d3748] font-bold">€2/mo</span>
                     </div>
                     <ul className="text-sm text-[#657786] space-y-1 mb-3">
                       <li className="flex items-center gap-2">
@@ -137,7 +137,7 @@ export function SettingsPanel({ onClose, onClear, onImportMore, onOpenLibrary, o
                     <button
                       onClick={handleUpgrade}
                       disabled={isUpgrading}
-                      className="w-full py-2.5 px-4 rounded-full bg-gradient-to-r from-[#1da1f2] to-[#6366f1]
+                      className="w-full py-2.5 px-4 rounded-full bg-gradient-to-r from-[#2d3748] to-[#4a5568]
                                  hover:opacity-90 transition text-white text-sm font-bold disabled:opacity-50"
                     >
                       {isUpgrading ? 'Loading...' : 'Upgrade Now'}
@@ -243,7 +243,7 @@ export function SettingsPanel({ onClose, onClear, onImportMore, onOpenLibrary, o
                 onShare();
                 onClose();
               }}
-              className="w-full py-3 px-4 rounded-full bg-[#1da1f2] hover:bg-[#1a91da]
+              className="w-full py-3 px-4 rounded-full bg-[#2d3748] hover:bg-[#1a202c]
                          transition text-white text-sm font-bold
                          flex items-center justify-center gap-2"
             >

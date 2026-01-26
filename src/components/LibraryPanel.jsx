@@ -39,7 +39,7 @@ function getPersonalCover(title, source) {
 
   // Imperial/stoic color palettes for personal entries
   const palettes = [
-    { bg: '#1a1a1a', accent: '#d4c4b0', icon: '◇' }, // Charcoal & bronze
+    { bg: '#1a1a1a', accent: '#2d3748', icon: '◇' }, // Charcoal & bronze
     { bg: '#1a2a2a', accent: '#7ab3a2', icon: '◎' }, // Deep teal
     { bg: '#2a1a2a', accent: '#a87ca8', icon: '❧' }, // Plum
     { bg: '#2a2a1a', accent: '#a8a87c', icon: '▣' }, // Olive
@@ -285,7 +285,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
             <div className="flex items-center gap-3">
               <button
                 onClick={selectedBook ? () => setSelectedBook(null) : onClose}
-                className="p-2 rounded-full hover:bg-[#e8f4fd] transition text-[#657786]"
+                className="p-2 rounded-full hover:bg-gray-100 transition text-[#657786]"
               >
                 {selectedBook ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -306,7 +306,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
               <div className="flex rounded-full overflow-hidden border border-[#e1e8ed]">
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 transition ${viewMode === 'list' ? 'bg-[#1da1f2] text-white' : 'text-[#657786] hover:bg-[#e8f4fd]'}`}
+                  className={`p-2 transition ${viewMode === 'list' ? 'bg-[#2d3748] text-white' : 'text-[#657786] hover:bg-gray-100'}`}
                   title="List view"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -315,7 +315,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                 </button>
                 <button
                   onClick={() => setViewMode('gallery')}
-                  className={`p-2 transition ${viewMode === 'gallery' ? 'bg-[#1da1f2] text-white' : 'text-[#657786] hover:bg-[#e8f4fd]'}`}
+                  className={`p-2 transition ${viewMode === 'gallery' ? 'bg-[#2d3748] text-white' : 'text-[#657786] hover:bg-gray-100'}`}
                   title="Gallery view"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -336,8 +336,8 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search passages..."
-              className="w-full pl-10 pr-4 py-2 rounded-full bg-[#e8f4fd] border border-transparent
-                         focus:border-[#1da1f2] focus:bg-white focus:outline-none text-sm text-[#14171a] placeholder-[#657786]"
+              className="w-full pl-10 pr-4 py-2 rounded-full bg-gray-100 border border-transparent
+                         focus:border-[#2d3748] focus:bg-white focus:outline-none text-sm text-[#14171a] placeholder-[#657786]"
             />
           </div>
         </div>
@@ -415,7 +415,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                             {book.highlights.length} passage{book.highlights.length !== 1 ? 's' : ''}
                           </p>
                         </div>
-                        <svg className="w-5 h-5 text-[#aab8c2] group-hover:text-[#1da1f2] transition flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 text-[#aab8c2] group-hover:text-[#2d3748] transition flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
                         </svg>
                       </div>
@@ -456,8 +456,8 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                     <div className="flex gap-2 mt-3">
                       <button
                         onClick={() => onEditBook && onEditBook(selectedBook)}
-                        className="px-3 py-1.5 rounded-full bg-[#e8f4fd] hover:bg-[#d4ebfc]
-                                   text-[#1da1f2] text-sm transition border border-[#bee4f8] flex items-center gap-1.5"
+                        className="px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200
+                                   text-[#2d3748] text-sm transition border border-gray-300 flex items-center gap-1.5"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -494,7 +494,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                             value={editText}
                             onChange={(e) => setEditText(e.target.value)}
                             className="w-full h-32 p-3 rounded-xl bg-white border border-[#e1e8ed]
-                                       focus:border-[#1da1f2] focus:outline-none resize-none text-sm text-[#14171a]"
+                                       focus:border-[#2d3748] focus:outline-none resize-none text-sm text-[#14171a]"
                             autoFocus
                           />
                           <div className="flex gap-2">
@@ -506,7 +506,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                             </button>
                             <button
                               onClick={handleSaveEdit}
-                              className="flex-1 py-2 rounded-full bg-[#1da1f2] hover:bg-[#1a91da] text-sm text-white font-bold transition"
+                              className="flex-1 py-2 rounded-full bg-[#2d3748] hover:bg-[#1a202c] text-sm text-white font-bold transition"
                             >
                               Save
                             </button>
@@ -523,7 +523,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                             onChange={(e) => setCommentText(e.target.value)}
                             placeholder="Add your thoughts about this passage..."
                             className="w-full h-24 p-3 rounded-xl bg-white border border-[#e1e8ed]
-                                       focus:border-[#1da1f2] focus:outline-none resize-none text-sm text-[#14171a]
+                                       focus:border-[#2d3748] focus:outline-none resize-none text-sm text-[#14171a]
                                        placeholder-[#657786]"
                             autoFocus
                           />
@@ -536,7 +536,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                             </button>
                             <button
                               onClick={handleSaveComment}
-                              className="flex-1 py-2 rounded-full bg-[#1da1f2] hover:bg-[#1a91da] text-sm text-white font-bold transition"
+                              className="flex-1 py-2 rounded-full bg-[#2d3748] hover:bg-[#1a202c] text-sm text-white font-bold transition"
                             >
                               Save Comment
                             </button>
@@ -554,7 +554,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
 
                           {/* Show existing comment */}
                           {highlight.comment && (
-                            <div className="mt-3 pl-3 border-l-2 border-[#1da1f2]">
+                            <div className="mt-3 pl-3 border-l-2 border-[#2d3748]">
                               <p className="text-sm text-[#657786] italic">{highlight.comment}</p>
                             </div>
                           )}
@@ -573,7 +573,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                                     onClose();
                                   }
                                 }}
-                                className="text-[#657786] hover:text-[#1da1f2] transition"
+                                className="text-[#657786] hover:text-[#2d3748] transition"
                                 title="View in swiper"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -583,7 +583,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                               </button>
                               <button
                                 onClick={() => handleStartComment(highlight)}
-                                className="text-[#657786] hover:text-[#1da1f2] transition"
+                                className="text-[#657786] hover:text-[#2d3748] transition"
                                 title="Add comment"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -592,7 +592,7 @@ export function LibraryPanel({ highlights, onClose, onDelete, onEdit, onGoToHigh
                               </button>
                               <button
                                 onClick={() => handleStartEdit(highlight)}
-                                className="text-[#657786] hover:text-[#1da1f2] transition"
+                                className="text-[#657786] hover:text-[#2d3748] transition"
                                 title="Edit"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

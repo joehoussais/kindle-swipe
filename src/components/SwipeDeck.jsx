@@ -324,31 +324,31 @@ export function SwipeDeck({
   return (
     <div
       ref={containerRef}
-      className="h-screen w-screen flex flex-col bg-[#0a0a0a] relative overflow-hidden"
+      className="h-screen w-screen flex flex-col bg-white relative overflow-hidden"
       onWheel={handleWheel}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
       {/* Floating header */}
-      <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-4 py-3 z-30 bg-gradient-to-b from-black/60 to-transparent">
+      <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-4 py-3 z-30 bg-white/95 backdrop-blur-sm border-b border-gray-100">
         {isPreviewMode ? (
           <button
             onClick={onExitPreview}
-            className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 transition border border-white/10"
+            className="flex items-center gap-2 px-3 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition border border-gray-200"
             aria-label="Back to home"
           >
-            <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            <span className="text-white/70 text-sm">Back</span>
+            <span className="text-gray-600 text-sm">Back</span>
           </button>
         ) : (
           <button
             onClick={onSettings}
-            className="p-2 rounded-full hover:bg-white/10 transition"
+            className="p-2 rounded-full hover:bg-gray-100 transition"
             aria-label="Settings"
           >
-            <svg className="w-6 h-6 text-[#a8a29e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
@@ -357,13 +357,13 @@ export function SwipeDeck({
         {/* View toggle + Filter - center */}
         <div className="flex items-center gap-2">
           {/* View mode toggle */}
-          <div className="flex items-center bg-[#1a1a1a]/60 rounded-lg border border-[#292524]/50 p-0.5">
+          <div className="flex items-center bg-gray-100 rounded-lg border border-gray-200 p-0.5">
             <button
               onClick={() => viewMode !== 'swipe' && onViewModeChange?.('swipe')}
               className={`px-2.5 py-1 rounded-md text-xs font-medium transition ${
                 viewMode === 'swipe'
-                  ? 'bg-[#d4c4b0] text-white'
-                  : 'text-[#a8a29e] hover:text-white'
+                  ? 'bg-[#2d3748] text-white'
+                  : 'text-gray-500 hover:text-gray-900'
               }`}
               aria-label="Card view"
             >
@@ -375,8 +375,8 @@ export function SwipeDeck({
               onClick={() => viewMode !== 'feed' && onViewModeChange?.('feed')}
               className={`px-2.5 py-1 rounded-md text-xs font-medium transition ${
                 viewMode === 'feed'
-                  ? 'bg-[#d4c4b0] text-white'
-                  : 'text-[#a8a29e] hover:text-white'
+                  ? 'bg-[#2d3748] text-white'
+                  : 'text-gray-500 hover:text-gray-900'
               }`}
               aria-label="Feed view"
             >
@@ -389,12 +389,12 @@ export function SwipeDeck({
           {/* Filter button */}
           <button
             onClick={() => setShowFilterMenu(!showFilterMenu)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1a1a1a]/60 hover:bg-[#1a1a1a] border border-[#292524]/50 transition"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 border border-gray-200 transition"
           >
-            <span className="text-[#d4c4b0] text-sm">{currentFilter.icon}</span>
-            <span className="text-[#f5f0e8] text-sm">{currentFilter.label}</span>
+            <span className="text-gray-600 text-sm">{currentFilter.icon}</span>
+            <span className="text-gray-900 text-sm">{currentFilter.label}</span>
             <svg
-              className={`w-3 h-3 text-[#78716c] transition-transform ${showFilterMenu ? 'rotate-180' : ''}`}
+              className={`w-3 h-3 text-gray-400 transition-transform ${showFilterMenu ? 'rotate-180' : ''}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -407,36 +407,36 @@ export function SwipeDeck({
         <div className="flex items-center gap-1">
           <button
             onClick={onLibrary}
-            className="p-2 rounded-full hover:bg-white/10 transition"
+            className="p-2 rounded-full hover:bg-gray-100 transition"
             aria-label="Library"
           >
-            <svg className="w-6 h-6 text-[#a8a29e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
           </button>
           <button
             onClick={onShuffle}
-            className="p-2 rounded-full hover:bg-white/10 transition"
+            className="p-2 rounded-full hover:bg-gray-100 transition"
             aria-label="Shuffle"
           >
-            <svg className="w-6 h-6 text-[#a8a29e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
           {user ? (
             <button
               onClick={onProfile}
-              className="p-1 rounded-full hover:bg-white/10 transition ml-1"
+              className="p-1 rounded-full hover:bg-gray-100 transition ml-1"
               aria-label="Your profile"
             >
-              <div className="w-7 h-7 rounded-full bg-[#1a1a1a] border border-[#292524] flex items-center justify-center text-[#d4c4b0] text-xs font-medium">
+              <div className="w-7 h-7 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-700 text-xs font-medium">
                 {user.name?.charAt(0).toUpperCase() || 'U'}
               </div>
             </button>
           ) : isPreviewMode && (
             <button
               onClick={onSignUp}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#d4c4b0] hover:bg-[#c4b4a0] transition text-[#0a0a0a] text-sm font-medium ml-1"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#2d3748] hover:bg-[#1a202c] transition text-white text-sm font-medium ml-1"
               aria-label="Sign up"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -458,7 +458,7 @@ export function SwipeDeck({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 z-[35] bg-black/50"
+              className="absolute inset-0 z-[35] bg-black/20"
               onClick={() => setShowFilterMenu(false)}
             />
 
@@ -467,11 +467,11 @@ export function SwipeDeck({
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="absolute top-14 left-1/2 -translate-x-1/2 z-40 w-80 max-h-[70vh] bg-[#0a0a0a] backdrop-blur-xl rounded-lg border border-[#292524] overflow-hidden shadow-2xl flex flex-col"
+              className="absolute top-14 left-1/2 -translate-x-1/2 z-40 w-80 max-h-[70vh] bg-white backdrop-blur-xl rounded-xl border border-gray-200 overflow-hidden shadow-lucis-xl flex flex-col"
             >
               <div className="p-2 overflow-y-auto flex-1">
                 {/* Source filters */}
-                <p className="text-[#78716c] text-xs uppercase tracking-wider mb-2 px-3 py-1">Filter by source</p>
+                <p className="text-gray-500 text-xs uppercase tracking-wider mb-2 px-3 py-1">Filter by source</p>
                 {availableFilters.map((filter) => (
                   <button
                     key={filter.id}
@@ -481,28 +481,28 @@ export function SwipeDeck({
                     }}
                     className={`w-full flex items-center gap-3 p-3 rounded-lg transition
                       ${activeFilter === filter.id
-                        ? 'bg-[#1a1a1a] text-[#f5f0e8]'
+                        ? 'bg-gray-100 text-gray-900'
                         : filter.special
-                          ? 'hover:bg-[#d4c4b0]/10 text-[#d4c4b0] hover:text-[#f5f0e8]'
-                          : 'hover:bg-[#1a1a1a]/50 text-[#a8a29e] hover:text-[#f5f0e8]'
+                          ? 'hover:bg-gray-50 text-[#2d3748] hover:text-gray-900'
+                          : 'hover:bg-gray-50 text-gray-600 hover:text-gray-900'
                       }`}
                   >
-                    <span className={`text-lg ${activeFilter === filter.id ? 'text-[#d4c4b0]' : filter.special ? 'text-[#d4c4b0]' : 'text-[#78716c]'}`}>
+                    <span className={`text-lg ${activeFilter === filter.id ? 'text-[#2d3748]' : filter.special ? 'text-[#2d3748]' : 'text-gray-400'}`}>
                       {filter.icon}
                     </span>
                     <div className="flex-1 text-left">
                       <div className="text-sm flex items-center gap-2">
                         {filter.label}
                         {filter.id === 'focus-review' && focusReviewCount > 0 && (
-                          <span className="px-1.5 py-0.5 text-[10px] bg-[#d4c4b0]/30 text-[#d4c4b0] rounded">
+                          <span className="px-1.5 py-0.5 text-[10px] bg-[#2d3748]/10 text-[#2d3748] rounded">
                             {focusReviewCount}
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-[#78716c] italic">{filter.description}</div>
+                      <div className="text-xs text-gray-500 italic">{filter.description}</div>
                     </div>
                     {activeFilter === filter.id && (
-                      <svg className="w-4 h-4 text-[#d4c4b0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-[#2d3748]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
                       </svg>
                     )}
@@ -512,7 +512,7 @@ export function SwipeDeck({
                 {/* Tag filters */}
                 {availableTags.length > 0 && (
                   <>
-                    <p className="text-[#78716c] text-xs uppercase tracking-wider mt-4 mb-2 px-3 py-1">Filter by tag</p>
+                    <p className="text-gray-500 text-xs uppercase tracking-wider mt-4 mb-2 px-3 py-1">Filter by tag</p>
                     <div className="flex flex-wrap gap-2 px-3 pb-2">
                       {availableTags.slice(0, 15).map(({ tag, count }) => {
                         const isActive = activeFilter === `tag:${tag}`;
@@ -529,16 +529,16 @@ export function SwipeDeck({
                             }}
                             className={`px-2.5 py-1.5 rounded-full text-xs transition flex items-center gap-1.5
                               ${isActive
-                                ? 'bg-[#d4c4b0] text-[#0a0a0a]'
+                                ? 'bg-[#2d3748] text-white'
                                 : isAuthor
-                                  ? 'bg-blue-900/30 text-blue-300 hover:bg-blue-900/50'
+                                  ? 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                                   : isBook
-                                    ? 'bg-purple-900/30 text-purple-300 hover:bg-purple-900/50'
-                                    : 'bg-[#1a1a1a] text-[#a8a29e] hover:bg-[#292524]'
+                                    ? 'bg-purple-50 text-purple-700 hover:bg-purple-100'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                               }`}
                           >
                             <span className="truncate max-w-[120px]">{displayTag}</span>
-                            <span className={`text-[10px] ${isActive ? 'text-[#0a0a0a]/60' : 'text-[#78716c]'}`}>
+                            <span className={`text-[10px] ${isActive ? 'text-white/70' : 'text-gray-400'}`}>
                               {count}
                             </span>
                           </button>
@@ -546,7 +546,7 @@ export function SwipeDeck({
                       })}
                     </div>
                     {availableTags.length > 15 && (
-                      <p className="text-[#292524] text-xs text-center italic pb-2">
+                      <p className="text-gray-400 text-xs text-center italic pb-2">
                         +{availableTags.length - 15} more tags
                       </p>
                     )}
@@ -555,8 +555,8 @@ export function SwipeDeck({
               </div>
 
               {/* Counter */}
-              <div className="px-4 py-2.5 bg-[#1a1a1a]/50 border-t border-[#292524] flex-shrink-0">
-                <p className="text-[#78716c] text-xs text-center">
+              <div className="px-4 py-2.5 bg-gray-50 border-t border-gray-100 flex-shrink-0">
+                <p className="text-gray-500 text-xs text-center">
                   {totalCount} {totalCount === 1 ? 'passage' : 'passages'}
                 </p>
               </div>
@@ -653,8 +653,8 @@ export function SwipeDeck({
                 exit={{ opacity: 0 }}
                 className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 pointer-events-none"
               >
-                <div className="px-4 py-2 rounded-full bg-[#d4c4b0]/20 backdrop-blur-sm border border-[#d4c4b0]/30">
-                  <span className="text-[#d4c4b0] text-sm">Next</span>
+                <div className="px-4 py-2 rounded-full bg-gray-900/10 backdrop-blur-sm border border-gray-200">
+                  <span className="text-gray-700 text-sm">Next</span>
                 </div>
               </motion.div>
 
@@ -665,8 +665,8 @@ export function SwipeDeck({
                 exit={{ opacity: 0 }}
                 className="absolute top-20 left-1/2 -translate-x-1/2 z-30 pointer-events-none"
               >
-                <div className="px-4 py-2 rounded-full bg-[#d4c4b0]/20 backdrop-blur-sm border border-[#d4c4b0]/30">
-                  <span className="text-[#d4c4b0] text-sm">Previous</span>
+                <div className="px-4 py-2 rounded-full bg-gray-900/10 backdrop-blur-sm border border-gray-200">
+                  <span className="text-gray-700 text-sm">Previous</span>
                 </div>
               </motion.div>
             </>
@@ -680,7 +680,7 @@ export function SwipeDeck({
         {currentIndex > 0 && (
           <button
             onClick={() => { setDirection(-1); onPrev(); }}
-            className="p-2 rounded-full bg-black/30 text-[#78716c] hover:text-[#d4c4b0] hover:bg-black/50 transition"
+            className="p-2 rounded-full bg-white/80 text-gray-400 hover:text-gray-700 hover:bg-white shadow-sm border border-gray-200 transition"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 15l7-7 7 7" />
@@ -692,7 +692,7 @@ export function SwipeDeck({
         {currentIndex < highlights.length - 1 && (
           <button
             onClick={() => { setDirection(1); onNext(); }}
-            className="p-2 rounded-full bg-black/30 text-[#78716c] hover:text-[#d4c4b0] hover:bg-black/50 transition"
+            className="p-2 rounded-full bg-white/80 text-gray-400 hover:text-gray-700 hover:bg-white shadow-sm border border-gray-200 transition"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
@@ -702,9 +702,9 @@ export function SwipeDeck({
       </div>
 
       {/* Vertical progress bar (left side) */}
-      <div className="absolute left-2 top-1/2 -translate-y-1/2 w-0.5 h-32 bg-[#1a1a1a] rounded-full overflow-hidden z-20">
+      <div className="absolute left-2 top-1/2 -translate-y-1/2 w-0.5 h-32 bg-gray-200 rounded-full overflow-hidden z-20">
         <motion.div
-          className="w-full bg-gradient-to-b from-[#d4c4b0] to-[#d4c4b0] rounded-full"
+          className="w-full bg-gradient-to-b from-[#2d3748] to-[#2d3748] rounded-full"
           initial={false}
           animate={{ height: `${((currentIndex + 1) / totalCount) * 100}%` }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
@@ -713,8 +713,8 @@ export function SwipeDeck({
 
       {/* Counter at bottom */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20">
-        <div className="px-3 py-1.5 rounded-lg bg-black/30 backdrop-blur-sm border border-[#292524]">
-          <span className="text-[#78716c] text-sm">{currentIndex + 1} / {totalCount}</span>
+        <div className="px-3 py-1.5 rounded-lg bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm">
+          <span className="text-gray-500 text-sm">{currentIndex + 1} / {totalCount}</span>
         </div>
       </div>
 
@@ -722,8 +722,8 @@ export function SwipeDeck({
       {!isPreviewMode && onQuickAdd && (
         <button
           onClick={onQuickAdd}
-          className="absolute bottom-4 left-4 z-20 p-3 rounded-full bg-[#d4c4b0] hover:bg-[#c4b4a0]
-                     shadow-lg shadow-[#d4c4b0]/20 transition-all hover:scale-105 active:scale-95"
+          className="absolute bottom-4 left-4 z-20 p-3 rounded-full bg-[#2d3748] hover:bg-[#1a202c]
+                     shadow-lucis-lg transition-all hover:scale-105 active:scale-95"
           aria-label="Add quote"
         >
           <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -735,7 +735,7 @@ export function SwipeDeck({
       {/* Scroll hint for first-time users */}
       {currentIndex === 0 && highlights.length > 1 && !showFilterMenu && (
         <motion.div
-          className="absolute bottom-16 left-1/2 -translate-x-1/2 text-[#78716c] text-sm flex flex-col items-center gap-2 z-20"
+          className="absolute bottom-16 left-1/2 -translate-x-1/2 text-gray-500 text-sm flex flex-col items-center gap-2 z-20"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1 }}

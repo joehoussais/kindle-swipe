@@ -116,7 +116,7 @@ export function ChallengeMode({ highlight, onComplete, onCancel }) {
             </svg>
           </button>
 
-          <div className="text-[#d4c4b0] text-sm font-medium">
+          <div className="text-[#2d3748] text-sm font-medium">
             Challenge Mode
           </div>
 
@@ -174,7 +174,7 @@ export function ChallengeMode({ highlight, onComplete, onCancel }) {
                     <button
                       onClick={handleSubmit}
                       disabled={!userResponse.trim() || isJudging}
-                      className="px-6 py-2 rounded-lg bg-[#d4c4b0] hover:bg-[#d4b892] disabled:opacity-50 disabled:cursor-not-allowed transition text-[#141414] font-medium"
+                      className="px-6 py-2 rounded-lg bg-[#2d3748] hover:bg-[#1a202c] disabled:opacity-50 disabled:cursor-not-allowed transition text-white font-medium"
                     >
                       {isJudging ? 'Checking...' : 'Check Recall'}
                     </button>
@@ -228,7 +228,7 @@ export function ChallengeMode({ highlight, onComplete, onCancel }) {
                   >
                     {RESULT_COPY[result].title}
                   </h2>
-                  <p className="text-[#d4c4b0]">{RESULT_COPY[result].subtitle}</p>
+                  <p className="text-[#2d3748]">{RESULT_COPY[result].subtitle}</p>
                 </div>
 
                 {/* Explanation */}
@@ -263,7 +263,7 @@ export function ChallengeMode({ highlight, onComplete, onCancel }) {
                 <div className="flex gap-3">
                   <button
                     onClick={handleComplete}
-                    className="flex-1 py-3 rounded-lg bg-[#d4c4b0] hover:bg-[#d4b892] transition text-[#141414] font-medium"
+                    className="flex-1 py-3 rounded-lg bg-[#2d3748] hover:bg-[#1a202c] transition text-white font-medium"
                   >
                     Continue
                   </button>

@@ -130,7 +130,7 @@ function FeedCard({ highlight, index, onGoToSwipe, onDelete, onAddNote, onTagCli
 
           {/* Comment if exists */}
           {highlight.comment && (
-            <div className="mt-2 pl-3 border-l-2 border-[#1da1f2]">
+            <div className="mt-2 pl-3 border-l-2 border-[#2d3748]">
               <p className="text-[#657786] text-sm italic">
                 {highlight.comment}
               </p>
@@ -147,7 +147,7 @@ function FeedCard({ highlight, index, onGoToSwipe, onDelete, onAddNote, onTagCli
                     e.stopPropagation();
                     onTagClick?.(tag);
                   }}
-                  className="px-2 py-0.5 bg-[#e8f4fd] text-[#1da1f2] text-xs rounded-full hover:bg-[#cce4f7] transition"
+                  className="px-2 py-0.5 bg-gray-100 text-[#2d3748] text-xs rounded-full hover:bg-gray-200 transition"
                 >
                   #{tag}
                 </button>
@@ -159,7 +159,7 @@ function FeedCard({ highlight, index, onGoToSwipe, onDelete, onAddNote, onTagCli
           <div className="flex items-center gap-6 mt-3">
             {/* View count */}
             <button
-              className="flex items-center gap-1.5 text-[#657786] hover:text-[#1da1f2] transition group"
+              className="flex items-center gap-1.5 text-[#657786] hover:text-[#2d3748] transition group"
               onClick={(e) => {
                 e.stopPropagation();
                 onGoToSwipe(index);
@@ -174,7 +174,7 @@ function FeedCard({ highlight, index, onGoToSwipe, onDelete, onAddNote, onTagCli
 
             {/* Comment */}
             <button
-              className="flex items-center gap-1.5 text-[#657786] hover:text-[#1da1f2] transition"
+              className="flex items-center gap-1.5 text-[#657786] hover:text-[#2d3748] transition"
               onClick={(e) => {
                 e.stopPropagation();
                 onAddNote(highlight.id);
@@ -338,7 +338,7 @@ export function FeedView({
           {/* Back to swipe */}
           <button
             onClick={onExitFeed}
-            className="flex items-center gap-2 text-[#1da1f2] hover:text-[#1a91da] transition flex-shrink-0"
+            className="flex items-center gap-2 text-[#2d3748] hover:text-[#1a202c] transition flex-shrink-0"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -365,7 +365,7 @@ export function FeedView({
                 onFocus={() => setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 placeholder="Search highlights, tags, authors..."
-                className="w-full pl-10 pr-8 py-2 bg-[#e8f4fd] border border-transparent rounded-full text-sm text-[#14171a] placeholder-[#657786] focus:outline-none focus:border-[#1da1f2] focus:bg-white transition"
+                className="w-full pl-10 pr-8 py-2 bg-gray-100 border border-transparent rounded-full text-sm text-[#14171a] placeholder-[#657786] focus:outline-none focus:border-[#2d3748] focus:bg-white transition"
               />
               {searchQuery && (
                 <button
@@ -395,9 +395,9 @@ export function FeedView({
                         <button
                           key={tag}
                           onClick={() => handleSuggestionClick(tag)}
-                          className="w-full text-left px-2 py-1.5 text-sm text-[#14171a] hover:bg-[#e8f4fd] rounded flex items-center gap-2"
+                          className="w-full text-left px-2 py-1.5 text-sm text-[#14171a] hover:bg-gray-100 rounded flex items-center gap-2"
                         >
-                          <span className="text-[#1da1f2]">#</span>
+                          <span className="text-[#2d3748]">#</span>
                           {tag}
                         </button>
                       ))}
@@ -410,7 +410,7 @@ export function FeedView({
                         <button
                           key={author}
                           onClick={() => handleSuggestionClick(author)}
-                          className="w-full text-left px-2 py-1.5 text-sm text-[#14171a] hover:bg-[#e8f4fd] rounded flex items-center gap-2"
+                          className="w-full text-left px-2 py-1.5 text-sm text-[#14171a] hover:bg-gray-100 rounded flex items-center gap-2"
                         >
                           <span className="text-[#657786]">👤</span>
                           {author}
@@ -425,7 +425,7 @@ export function FeedView({
                         <button
                           key={book}
                           onClick={() => handleSuggestionClick(book)}
-                          className="w-full text-left px-2 py-1.5 text-sm text-[#14171a] hover:bg-[#e8f4fd] rounded truncate flex items-center gap-2"
+                          className="w-full text-left px-2 py-1.5 text-sm text-[#14171a] hover:bg-gray-100 rounded truncate flex items-center gap-2"
                         >
                           <span className="text-[#657786]">📖</span>
                           <span className="truncate">{book}</span>
@@ -442,7 +442,7 @@ export function FeedView({
           {isPreviewMode ? (
             <button
               onClick={onSignUp}
-              className="px-3 py-1.5 bg-[#1da1f2] text-white text-sm font-semibold rounded-full hover:bg-[#1a91da] transition flex-shrink-0"
+              className="px-3 py-1.5 bg-[#2d3748] text-white text-sm font-semibold rounded-full hover:bg-[#1a202c] transition flex-shrink-0"
             >
               Sign up
             </button>
@@ -483,7 +483,7 @@ export function FeedView({
                   </p>
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="mt-4 px-4 py-2 bg-[#1da1f2] text-white text-sm rounded-full hover:bg-[#1a91da] transition"
+                    className="mt-4 px-4 py-2 bg-[#2d3748] text-white text-sm rounded-full hover:bg-[#1a202c] transition"
                   >
                     Clear search
                   </button>
@@ -526,7 +526,7 @@ export function FeedView({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={scrollToTop}
-            className="fixed bottom-6 right-6 w-12 h-12 bg-[#1da1f2] text-white rounded-full shadow-lg hover:bg-[#1a91da] transition flex items-center justify-center"
+            className="fixed bottom-6 right-6 w-12 h-12 bg-[#2d3748] text-white rounded-full shadow-lg hover:bg-[#1a202c] transition flex items-center justify-center"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />

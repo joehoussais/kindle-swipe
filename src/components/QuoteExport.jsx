@@ -73,7 +73,7 @@ function KindleTemplate({ highlight }) {
             <span
               style={{
                 // Blue underline like Kindle highlighting
-                borderBottom: '3px solid #d4c4b0',
+                borderBottom: '3px solid #2d3748',
                 paddingBottom: '2px',
                 // Slight blue tint to simulate Kindle highlight
                 backgroundColor: 'rgba(35, 131, 226, 0.08)'

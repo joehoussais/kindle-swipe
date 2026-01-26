@@ -40,7 +40,7 @@ function getTagColor(tag) {
     return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
   }
   // Source types
-  return 'bg-[#d4c4b0]/20 text-[#d4c4b0] border-[#d4c4b0]/30';
+  return 'bg-[#2d3748]/20 text-[#2d3748] border-[#2d3748]/30';
 }
 
 export function TagPills({ highlight, onAddTag, onRemoveTag, compact = false }) {
@@ -112,7 +112,7 @@ export function TagPills({ highlight, onAddTag, onRemoveTag, compact = false }) 
             e.stopPropagation();
             setShowAddTag(true);
           }}
-          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border border-dashed border-[#3d3a36] text-[#6b5c4c] hover:border-[#d4c4b0] hover:text-[#d4c4b0] transition"
+          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border border-dashed border-[#3d3a36] text-[#6b5c4c] hover:border-[#2d3748] hover:text-[#2d3748] transition"
         >
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -143,12 +143,12 @@ export function TagPills({ highlight, onAddTag, onRemoveTag, compact = false }) 
                 }
               }}
               placeholder="new tag"
-              className="w-20 px-2 py-0.5 rounded text-xs bg-[#2d2a26] border border-[#3d3a36] text-[#ebe6dc] placeholder-[#6b5c4c] focus:outline-none focus:border-[#d4c4b0]"
+              className="w-20 px-2 py-0.5 rounded text-xs bg-[#2d2a26] border border-[#3d3a36] text-[#ebe6dc] placeholder-[#6b5c4c] focus:outline-none focus:border-[#2d3748]"
               autoFocus
             />
             <button
               onClick={handleAddTag}
-              className="p-0.5 rounded hover:bg-[#d4c4b0]/20 text-[#d4c4b0] transition"
+              className="p-0.5 rounded hover:bg-[#2d3748]/20 text-[#2d3748] transition"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

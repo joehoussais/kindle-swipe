@@ -262,8 +262,8 @@ function AppContent() {
   // For guest mode, skip waiting for DB check since there's no DB to check
   if (isLoading || (!hasCheckedDb && !isGuestMode)) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-[#0a0a0a]">
-        <div className="text-white/50">Loading...</div>
+      <div className="h-screen w-screen flex items-center justify-center bg-gray-50">
+        <div className="text-gray-500">Loading...</div>
       </div>
     );
   }
@@ -420,20 +420,20 @@ function AppContent() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4"
             onClick={() => setShowOnThisDay(false)}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="w-full max-w-lg bg-[#0a0a0a] rounded-2xl border border-[#292524] overflow-hidden shadow-2xl"
+              className="w-full max-w-lg bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-lucis-xl"
               onClick={e => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="p-5 border-b border-[#1a1a1a] text-center">
-                <p className="text-[#78716c] text-xs uppercase tracking-widest mb-2">On This Day</p>
-                <h2 className="text-[#f5f0e8] text-xl" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+              <div className="p-5 border-b border-gray-100 text-center">
+                <p className="text-gray-500 text-xs uppercase tracking-widest mb-2">On This Day</p>
+                <h2 className="text-gray-900 text-xl" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
                   {onThisDayHighlights[0].yearsAgo === 1
                     ? 'A year ago today'
                     : `${onThisDayHighlights[0].yearsAgo} years ago today`}
@@ -443,33 +443,33 @@ function AppContent() {
               {/* Content */}
               <div className="p-5 max-h-[60vh] overflow-y-auto">
                 {onThisDayHighlights.slice(0, 3).map((h, i) => (
-                  <div key={h.id} className={`${i > 0 ? 'mt-4 pt-4 border-t border-[#1a1a1a]' : ''}`}>
+                  <div key={h.id} className={`${i > 0 ? 'mt-4 pt-4 border-t border-gray-100' : ''}`}>
                     <p
-                      className="text-[#f5f0e8] text-lg italic leading-relaxed"
+                      className="text-gray-900 text-lg italic leading-relaxed"
                       style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
                     >
                       "{h.text.length > 200 ? h.text.slice(0, 200) + '...' : h.text}"
                     </p>
-                    <p className="text-[#78716c] text-sm mt-3">
+                    <p className="text-gray-500 text-sm mt-3">
                       — {h.title}
                       {h.author && h.author !== 'You' && h.author !== 'Unknown' && (
-                        <span className="text-[#292524]">, {h.author}</span>
+                        <span className="text-gray-400">, {h.author}</span>
                       )}
                     </p>
                   </div>
                 ))}
                 {onThisDayHighlights.length > 3 && (
-                  <p className="text-[#292524] text-sm text-center mt-4 italic">
+                  <p className="text-gray-400 text-sm text-center mt-4 italic">
                     +{onThisDayHighlights.length - 3} more from this day
                   </p>
                 )}
               </div>
 
               {/* Footer */}
-              <div className="p-4 border-t border-[#1a1a1a]">
+              <div className="p-4 border-t border-gray-100">
                 <button
                   onClick={() => setShowOnThisDay(false)}
-                  className="w-full py-3 px-4 rounded-lg bg-[#d4c4b0] hover:bg-[#c4b4a0] transition text-[#0a0a0a] font-medium"
+                  className="w-full py-3 px-4 rounded-lg bg-[#2d3748] hover:bg-[#1a202c] transition text-white font-medium"
                 >
                   Continue
                 </button>
@@ -488,22 +488,22 @@ function AppContent() {
             exit={{ opacity: 0, y: 50 }}
             className="fixed bottom-24 left-4 right-4 z-30 flex justify-center"
           >
-            <div className="bg-[#0a0a0a]/95 backdrop-blur-xl rounded-2xl border border-[#292524] p-4 max-w-sm shadow-2xl">
+            <div className="bg-white/95 backdrop-blur-xl rounded-2xl border border-gray-200 p-4 max-w-sm shadow-lucis-lg">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#d4c4b0]/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-[#d4c4b0] text-lg">◐</span>
+                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                  <span className="text-gray-600 text-lg">◐</span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[#f5f0e8] text-sm font-medium" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+                  <p className="text-gray-900 text-sm font-medium" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
                     Some passages have been waiting for you
                   </p>
-                  <p className="text-[#78716c] text-xs mt-1">
+                  <p className="text-gray-500 text-xs mt-1">
                     {reviewQueueStats.fadingCount} {reviewQueueStats.fadingCount === 1 ? 'highlight is' : 'highlights are'} fading from memory
                   </p>
                 </div>
                 <button
                   onClick={() => setShowReturnPrompt(false)}
-                  className="p-1 rounded-full hover:bg-white/10 transition text-[#78716c]"
+                  className="p-1 rounded-full hover:bg-gray-100 transition text-gray-400"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -517,13 +517,13 @@ function AppContent() {
                     setFilteredIndex(0);
                     setShowReturnPrompt(false);
                   }}
-                  className="flex-1 py-2 px-3 rounded-lg bg-[#d4c4b0] hover:bg-[#c4b4a0] transition text-[#0a0a0a] text-sm font-medium"
+                  className="flex-1 py-2 px-3 rounded-lg bg-[#2d3748] hover:bg-[#1a202c] transition text-white text-sm font-medium"
                 >
                   Review Now
                 </button>
                 <button
                   onClick={() => setShowReturnPrompt(false)}
-                  className="py-2 px-3 rounded-lg bg-[#1a1a1a] hover:bg-[#292524] transition text-[#a8a29e] text-sm"
+                  className="py-2 px-3 rounded-lg bg-gray-100 hover:bg-gray-200 transition text-gray-600 text-sm"
                 >
                   Later
                 </button>
@@ -682,8 +682,8 @@ function App() {
   // Show loading while checking auth
   if (isLoading) {
     return (
-      <div className="h-screen w-screen flex items-center justify-center bg-[#0a0a0a]">
-        <div className="text-white/50">Loading...</div>
+      <div className="h-screen w-screen flex items-center justify-center bg-gray-50">
+        <div className="text-gray-500">Loading...</div>
       </div>
     );
   }

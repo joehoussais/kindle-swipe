@@ -85,7 +85,7 @@ function BookSearchModal({ onClose, onSelectBook, existingBooks }) {
             autoFocus
             className="w-full px-4 py-3 bg-[#1a1a1a] border border-[#292524] rounded-xl
                        text-[#f5f0e8] placeholder-[#78716c] text-sm
-                       focus:outline-none focus:border-[#d4c4b0]/50 transition"
+                       focus:outline-none focus:border-[#2d3748]/50 transition"
           />
         </div>
 
@@ -130,7 +130,7 @@ function BookSearchModal({ onClose, onSelectBook, existingBooks }) {
                       )}
                     </div>
                     {selected && (
-                      <span className="text-[#d4c4b0] text-xs">Added</span>
+                      <span className="text-[#2d3748] text-xs">Added</span>
                     )}
                   </button>
                 );

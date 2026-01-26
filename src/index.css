@@ -5,23 +5,42 @@
 @tailwind utilities;
 
 :root {
-  /* Warm, sophisticated palette - Oku-inspired elegance */
-  --ink: #141414;
-  --parchment: #f5f0e8;
-  --stone: #78716c;
-  --accent: #d4c4b0;
-  --accent-hover: #c4b4a0;
-  --accent-muted: #a89f91;
-  --muted: #78716c;
-  --surface: #141414;
-  --surface-elevated: #1a1a1a;
-  --surface-hover: #242424;
-  --text-primary: #f5f0e8;
-  --text-secondary: #a8a29e;
-  --text-muted: #78716c;
-  --border: #292524;
-  --border-subtle: #1f1e1d;
-  --gold: #b8860b;
+  /* Lucis-inspired clean, minimalist palette */
+  /* Backgrounds */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #f1f3f5;
+  --bg-elevated: #ffffff;
+
+  /* Text */
+  --text-primary: #1a1a2e;
+  --text-secondary: #4a5568;
+  --text-muted: #718096;
+  --text-placeholder: #a0aec0;
+
+  /* Accent - Dark slate */
+  --accent-primary: #2d3748;
+  --accent-hover: #1a202c;
+  --accent-muted: #4a5568;
+
+  /* Borders */
+  --border-light: #e2e8f0;
+  --border-medium: #cbd5e0;
+
+  /* Quote highlight (Kindle blue) */
+  --highlight-blue: #a8d4ff;
+
+  /* Status colors */
+  --success: #48bb78;
+  --warning: #ecc94b;
+  --error: #f56565;
+
+  /* Legacy mappings for gradual migration */
+  --ink: #1a1a2e;
+  --parchment: #f8f9fa;
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+  --border: #e2e8f0;
 }
 
 * {
@@ -30,14 +49,14 @@
 
 body {
   margin: 0;
-  background: #0a0a0a;
-  color: white;
+  background: #ffffff;
+  color: #1a1a2e;
   font-family: 'Inter', system-ui, sans-serif;
   overflow: hidden;
   touch-action: pan-y;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - dark on light */
 ::-webkit-scrollbar {
   width: 4px;
 }
@@ -47,8 +66,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.15);
   border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
 }
 
 /* Prevent text selection during swipe */
@@ -57,181 +80,67 @@ body {
   -webkit-user-select: none;
 }
 
-/* ===== LANDING PAGE - Sky & Clouds Animation ===== */
+/* ===== LUCIS-STYLE LANDING PAGE ===== */
 
-.landing-sky {
+/* Clean hero background with subtle gradient */
+.landing-hero {
   position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
   background: linear-gradient(
     180deg,
-    #0a0c10 0%,
-    #111827 15%,
-    #1e293b 30%,
-    #334155 50%,
-    #475569 70%,
-    #64748b 100%
+    #ffffff 0%,
+    #f8f9fa 100%
   );
 }
 
-/* Primary light beam / sun glow */
-.landing-glow {
-  position: absolute;
-  top: 30%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 1000px;
-  height: 800px;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255, 200, 130, 0.5) 0%,
-    rgba(255, 180, 100, 0.3) 20%,
-    rgba(255, 160, 80, 0.15) 40%,
-    rgba(255, 140, 60, 0.05) 60%,
-    transparent 80%
-  );
-  filter: blur(60px);
-  animation: glowPulse 10s ease-in-out infinite;
-  z-index: 1;
-}
-
-/* Secondary warm glow */
-.landing-glow::after {
+/* Subtle decorative element */
+.landing-hero::before {
   content: '';
   position: absolute;
-  top: 50%;
+  top: 0;
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: 600px;
-  height: 400px;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255, 220, 180, 0.6) 0%,
-    rgba(255, 200, 150, 0.3) 40%,
-    transparent 70%
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 1200px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #e2e8f0 50%,
+    transparent 100%
   );
-  filter: blur(30px);
 }
 
-@keyframes glowPulse {
-  0%, 100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
-}
-
-/* Cloud layers - dramatic storm clouds */
-.cloud-layer {
-  position: absolute;
-  width: 300%;
-  height: 100%;
-  background-repeat: repeat-x;
-  pointer-events: none;
-}
-
-/* Dark distant clouds - top layer */
-.cloud-layer-1 {
-  top: 15%;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 300'%3E%3Cdefs%3E%3ClinearGradient id='c1' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%231a1f2e' stop-opacity='0.9'/%3E%3Cstop offset='100%25' stop-color='%231a1f2e' stop-opacity='0.3'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23c1)' d='M0 150 Q100 80 200 130 Q300 180 400 120 Q500 60 600 140 Q700 200 800 110 Q900 50 1000 130 Q1100 180 1200 100 L1200 300 L0 300 Z'/%3E%3C/svg%3E");
-  background-size: 1200px 300px;
-  animation: cloudMove 180s linear infinite;
-  opacity: 0.8;
-  z-index: 2;
-}
-
-/* Mid-layer dramatic clouds */
-.cloud-layer-2 {
-  top: 30%;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 350'%3E%3Cdefs%3E%3ClinearGradient id='c2' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%232d3748' stop-opacity='0.95'/%3E%3Cstop offset='50%25' stop-color='%233d4a5c' stop-opacity='0.7'/%3E%3Cstop offset='100%25' stop-color='%234a5568' stop-opacity='0.2'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23c2)' d='M0 180 Q80 100 180 160 Q280 220 380 140 Q480 60 580 150 Q680 240 780 130 Q880 40 980 160 Q1000 180 1000 180 L1000 350 L0 350 Z'/%3E%3C/svg%3E");
-  background-size: 1000px 350px;
-  animation: cloudMove 120s linear infinite reverse;
-  opacity: 0.85;
-  z-index: 3;
-}
-
-/* Foreground dramatic clouds with golden edges */
-.cloud-layer-3 {
-  top: 45%;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400'%3E%3Cdefs%3E%3ClinearGradient id='c3' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234a5568' stop-opacity='0.9'/%3E%3Cstop offset='30%25' stop-color='%23606878' stop-opacity='0.8'/%3E%3Cstop offset='100%25' stop-color='%23718096' stop-opacity='0.4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23c3)' d='M0 200 Q60 120 150 180 Q240 240 340 150 Q440 60 540 170 Q640 280 740 140 Q800 80 800 200 L800 400 L0 400 Z'/%3E%3C/svg%3E");
-  background-size: 800px 400px;
-  animation: cloudMove 90s linear infinite;
-  opacity: 0.9;
-  z-index: 4;
-}
-
-/* Bottom horizon clouds */
-.cloud-layer-4 {
-  bottom: 0;
-  top: auto;
-  height: 40%;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 200'%3E%3Cdefs%3E%3ClinearGradient id='c4' x1='0%25' y1='0%25' x2='0%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23374151' stop-opacity='0.95'/%3E%3Cstop offset='100%25' stop-color='%231f2937' stop-opacity='1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23c4)' d='M0 80 Q75 40 150 70 Q225 100 300 50 Q375 0 450 60 Q525 120 600 40 L600 200 L0 200 Z'/%3E%3C/svg%3E");
-  background-size: 600px 200px;
-  background-position: bottom;
-  animation: cloudMove 150s linear infinite reverse;
-  opacity: 1;
-  z-index: 5;
-}
-
-@keyframes cloudMove {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-33.33%); }
-}
-
-/* Dictionary entry styling */
-.dictionary-entry {
-  position: relative;
-  z-index: 10;
-  text-align: left;
-  max-width: 600px;
-  padding: 2rem;
-}
-
-.dictionary-word {
+/* Typography for landing page */
+.landing-title {
   font-family: 'Playfair Display', Georgia, serif;
   font-size: clamp(3rem, 8vw, 5rem);
   font-weight: 400;
-  color: #f5f0e8;
+  color: #1a1a2e;
   letter-spacing: -0.02em;
   line-height: 1.1;
-  margin-bottom: 0.5rem;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+  margin-bottom: 1rem;
 }
 
-.dictionary-phonetic {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 1.1rem;
-  color: rgba(245, 240, 232, 0.6);
-  font-style: italic;
-  margin-bottom: 1.5rem;
-}
-
-.dictionary-pos {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 0.9rem;
-  color: rgba(245, 240, 232, 0.5);
-  font-style: italic;
-  margin-bottom: 0.75rem;
-}
-
-.dictionary-definition {
+.landing-subtitle {
   font-family: 'Cormorant Garamond', Georgia, serif;
   font-size: clamp(1.1rem, 3vw, 1.4rem);
-  color: rgba(245, 240, 232, 0.85);
+  color: #4a5568;
   line-height: 1.6;
   font-style: italic;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
 }
 
-.dictionary-definition strong {
-  color: #f5f0e8;
-  font-weight: 500;
+/* Feature cards on landing */
+.feature-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
 }
 
-/* Animated underline for the word */
-.dictionary-word::after {
-  content: '';
-  display: block;
-  width: 60px;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(255, 200, 150, 0.8), transparent);
-  margin-top: 0.5rem;
+.feature-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e0;
 }

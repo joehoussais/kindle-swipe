@@ -35,7 +35,7 @@ export function BooksHistory({ onClose }) {
             <div className="flex items-center gap-3">
               <button
                 onClick={onClose}
-                className="p-2 rounded-full hover:bg-[#e8f4fd] transition text-[#657786]"
+                className="p-2 rounded-full hover:bg-gray-100 transition text-[#657786]"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
@@ -55,7 +55,7 @@ export function BooksHistory({ onClose }) {
         <div className="p-4 bg-[#f7f9fa] border-b border-[#e1e8ed]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-[#1da1f2] flex items-center justify-center text-white font-bold text-lg">
+              <div className="w-12 h-12 rounded-full bg-[#2d3748] flex items-center justify-center text-white font-bold text-lg">
                 {user?.name?.charAt(0).toUpperCase() || 'U'}
               </div>
               <div>
@@ -84,8 +84,8 @@ export function BooksHistory({ onClose }) {
         <div className="overflow-y-auto h-[calc(100%-180px)]">
           {userBooks.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center px-6">
-              <div className="w-16 h-16 rounded-full bg-[#e8f4fd] flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-[#1da1f2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-[#2d3748]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>

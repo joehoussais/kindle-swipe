@@ -191,15 +191,15 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
   };
 
   return (
-    <div className="absolute inset-0 overflow-hidden bg-[#0a0a0a]" style={{ willChange: 'transform' }}>
-      {/* Clean dark background */}
-      <div className="absolute inset-0 bg-[#0a0a0a]" />
+    <div className="absolute inset-0 overflow-hidden bg-[#f8f9fa]" style={{ willChange: 'transform' }}>
+      {/* Clean light background */}
+      <div className="absolute inset-0 bg-[#f8f9fa]" />
 
       {/* Subtle gradient overlay for depth */}
       <div
         className="absolute inset-0"
         style={{
-          background: 'radial-gradient(ellipse at 30% 20%, rgba(212, 196, 176, 0.03) 0%, transparent 50%)'
+          background: 'radial-gradient(ellipse at 30% 20%, rgba(45, 55, 72, 0.02) 0%, transparent 50%)'
         }}
       />
 
@@ -216,17 +216,17 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
           {isPersonalEntry ? (
             // Personal entry header (thoughts, voice, journal)
             <div className="flex items-center gap-3 max-w-2xl mx-auto">
-              <div className="w-12 h-12 rounded-xl bg-[#1a1a1a] border border-[#292524] flex items-center justify-center text-[#a8a29e]">
+              <div className="w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 shadow-sm">
                 {getSourceIcon(highlight.source)}
               </div>
               <div>
                 <h3
-                  className="font-medium text-[#f5f0e8] text-base md:text-lg"
+                  className="font-medium text-gray-900 text-base md:text-lg"
                   style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
                 >
                   {highlight.title}
                 </h3>
-                <p className="text-[#78716c] text-sm">
+                <p className="text-gray-500 text-sm">
                   {timestampMessage}
                 </p>
               </div>
@@ -236,8 +236,8 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
             <div className="flex items-start gap-4 max-w-2xl mx-auto">
               {/* Book cover - medium size, top-left */}
               <div
-                className="w-16 h-24 md:w-20 md:h-28 rounded-lg overflow-hidden flex-shrink-0 bg-[#1a1a1a] border border-[#292524]"
-                style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}
+                className="w-16 h-24 md:w-20 md:h-28 rounded-lg overflow-hidden flex-shrink-0 bg-white border border-gray-200"
+                style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
               >
                 {cover ? (
                   <img
@@ -248,7 +248,7 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <svg className="w-6 h-6 text-[#78716c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
                   </div>
@@ -258,7 +258,7 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
               {/* Book info */}
               <div className="flex-1 min-w-0 pt-1">
                 <h3
-                  className="font-medium text-[#f5f0e8] text-base md:text-lg line-clamp-2 leading-tight"
+                  className="font-medium text-gray-900 text-base md:text-lg line-clamp-2 leading-tight"
                   style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
                 >
                   {highlight.title}
@@ -270,10 +270,10 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
                       src={authorPhoto}
                       alt={highlight.author}
                       className="w-6 h-6 rounded-full object-cover"
-                      style={{ border: '1px solid #292524' }}
+                      style={{ border: '1px solid #e2e8f0' }}
                     />
                   )}
-                  <p className="text-[#a8a29e] text-sm">
+                  <p className="text-gray-600 text-sm">
                     {highlight.author}
                   </p>
 
@@ -282,11 +282,11 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
                     href={goodreadsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-1.5 rounded-full hover:bg-[#1a1a1a] transition-colors ml-1"
+                    className="p-1.5 rounded-full hover:bg-gray-100 transition-colors ml-1"
                     title="View on Goodreads"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <svg className="w-4 h-4 text-[#78716c] hover:text-[#d4c4b0]" viewBox="0 0 24 24" fill="currentColor">
+                    <svg className="w-4 h-4 text-gray-400 hover:text-gray-600" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M11.43 23.995c-3.608-.208-6.274-2.077-6.448-5.078.695.007 1.375-.013 2.07-.006.224 1.342 1.065 2.43 2.683 3.026 1.558.496 3.085.31 4.354-.763.949-.726 1.427-1.796 1.427-3.612V15.87c-.975 1.09-2.574 1.725-4.514 1.725-4.292 0-6.549-3.168-6.549-7.108 0-4.004 2.456-7.242 6.665-7.242 1.913 0 3.392.65 4.398 1.888V3.705h1.963v13.263c0 2.595-.62 4.404-2.003 5.59-1.396 1.201-3.396 1.564-5.046 1.437zm.502-8.965c2.395 0 4.238-1.724 4.238-5.18 0-3.39-1.851-5.126-4.238-5.126-2.445 0-4.36 1.8-4.36 5.126 0 3.382 1.856 5.18 4.36 5.18z"/>
                     </svg>
                   </a>
@@ -296,18 +296,18 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
                     href={`https://x.com/intent/tweet?text=${encodeURIComponent(`"${highlight.text.slice(0, 200)}${highlight.text.length > 200 ? '...' : ''}"\n\n— ${highlight.author}, ${highlight.title}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-1.5 rounded-full hover:bg-[#1a1a1a] transition-colors"
+                    className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
                     title="Share on X"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <svg className="w-4 h-4 text-[#78716c] hover:text-[#d4c4b0]" viewBox="0 0 24 24" fill="currentColor">
+                    <svg className="w-4 h-4 text-gray-400 hover:text-gray-600" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                     </svg>
                   </a>
                 </div>
 
                 {(highlight.page || highlight.location) && (
-                  <p className="text-[#78716c] text-xs mt-1">
+                  <p className="text-gray-500 text-xs mt-1">
                     {highlight.page && `Page ${highlight.page}`}
                     {highlight.page && highlight.location && ' · '}
                     {highlight.location && `Loc ${highlight.location}`}
@@ -454,10 +454,10 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
               e.stopPropagation();
               onExport(highlight);
             }}
-            className="p-3 rounded-xl bg-[#1a1a1a] border border-[#292524] hover:bg-[#242424] hover:border-[#d4c4b0]/30 transition-colors group"
+            className="p-3 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors group shadow-sm"
             title="Export as image"
           >
-            <svg className="w-5 h-5 text-[#78716c] group-hover:text-[#d4c4b0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </button>
@@ -470,10 +470,10 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
               e.stopPropagation();
               onChallenge(highlight);
             }}
-            className="p-3 rounded-xl bg-[#1a1a1a] border border-[#292524] hover:bg-[#242424] hover:border-[#d4c4b0]/30 transition-colors group"
+            className="p-3 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors group shadow-sm"
             title="Challenge me"
           >
-            <svg className="w-5 h-5 text-[#78716c] group-hover:text-[#d4c4b0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
             </svg>
           </button>
@@ -485,14 +485,14 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
             e.stopPropagation();
             setShowNoteInput(true);
           }}
-          className="p-3 rounded-xl bg-[#1a1a1a] border border-[#292524] hover:bg-[#242424] hover:border-[#d4c4b0]/30 transition-colors relative"
+          className="p-3 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors relative shadow-sm"
           title="Add note"
         >
-          <svg className="w-5 h-5 text-[#78716c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
           </svg>
           {(notes.length > 0 || highlight.comment) && (
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#d4c4b0] text-[#0a0a0a] text-xs rounded-full flex items-center justify-center font-medium">
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#2d3748] text-white text-xs rounded-full flex items-center justify-center font-medium">
               {notes.length || (highlight.comment ? 1 : 0)}
             </span>
           )}
@@ -505,10 +505,10 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
               e.stopPropagation();
               setShowConfirmDelete(true);
             }}
-            className="p-3 rounded-xl bg-[#1a1a1a] border border-[#292524] hover:bg-red-950/50 hover:border-red-900/50 transition-colors group"
+            className="p-3 rounded-xl bg-white border border-gray-200 hover:bg-red-50 hover:border-red-200 transition-colors group shadow-sm"
             title="Delete"
           >
-            <svg className="w-5 h-5 text-[#78716c] group-hover:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-gray-400 group-hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -521,18 +521,18 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
           initial={{ opacity: 0, x: 100 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 100 }}
-          className="absolute top-20 right-4 bottom-24 w-72 bg-[#141414] rounded-2xl border border-[#292524] overflow-hidden flex flex-col"
+          className="absolute top-20 right-4 bottom-24 w-72 bg-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col shadow-lucis-lg"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="p-4 border-b border-[#292524] flex items-center justify-between">
-            <h3 className="text-[#f5f0e8] font-medium" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+          <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 className="text-gray-900 font-medium" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
               Notes
             </h3>
             <button
               onClick={() => setShowNoteInput(false)}
-              className="p-1 rounded-full hover:bg-[#1a1a1a] transition"
+              className="p-1 rounded-full hover:bg-gray-100 transition"
             >
-              <svg className="w-5 h-5 text-[#78716c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -541,32 +541,32 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
           {/* Existing notes */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {highlight.comment && (
-              <div className="p-3 bg-[#1a1a1a] rounded-lg border border-[#292524]">
-                <p className="text-[#f5f0e8] text-sm">{highlight.comment}</p>
-                <p className="text-[#78716c] text-xs mt-1">Earlier</p>
+              <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <p className="text-gray-900 text-sm">{highlight.comment}</p>
+                <p className="text-gray-400 text-xs mt-1">Earlier</p>
               </div>
             )}
             {notes.map((note, i) => (
-              <div key={i} className="p-3 bg-[#1a1a1a] rounded-lg border border-[#292524]">
-                <p className="text-[#f5f0e8] text-sm">{note.text}</p>
-                <p className="text-[#78716c] text-xs mt-1">{note.timestamp}</p>
+              <div key={i} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <p className="text-gray-900 text-sm">{note.text}</p>
+                <p className="text-gray-400 text-xs mt-1">{note.timestamp}</p>
               </div>
             ))}
             {!highlight.comment && notes.length === 0 && (
-              <p className="text-[#78716c] text-sm italic text-center py-4">
+              <p className="text-gray-400 text-sm italic text-center py-4">
                 No notes yet. Add your thoughts below.
               </p>
             )}
           </div>
 
           {/* Add note input */}
-          <div className="p-4 border-t border-[#292524]">
+          <div className="p-4 border-t border-gray-100">
             <textarea
               value={noteText}
               onChange={(e) => setNoteText(e.target.value)}
               onKeyDown={(e) => e.stopPropagation()}
               placeholder="What does this inspire in you?"
-              className="w-full h-20 p-3 rounded-lg bg-[#0a0a0a] border border-[#292524] focus:border-[#d4c4b0] focus:outline-none resize-none text-[#f5f0e8] text-sm placeholder-[#78716c]"
+              className="w-full h-20 p-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900/10 resize-none text-gray-900 text-sm placeholder-gray-400"
               autoFocus
             />
             <button
@@ -577,7 +577,7 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
                 }
               }}
               disabled={!noteText.trim()}
-              className="w-full mt-2 py-2 rounded-lg bg-[#d4c4b0] hover:bg-[#c4b4a0] disabled:opacity-50 disabled:cursor-not-allowed transition text-[#0a0a0a] font-medium text-sm"
+              className="w-full mt-2 py-2 rounded-lg bg-[#2d3748] hover:bg-[#1a202c] disabled:opacity-50 disabled:cursor-not-allowed transition text-white font-medium text-sm"
             >
               Add Note
             </button>
@@ -590,26 +590,26 @@ function SwipeCardInner({ highlight, isTop = false, onDelete, onAddNote, onChall
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50"
+          className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm z-50"
           onClick={(e) => {
             e.stopPropagation();
             setShowConfirmDelete(false);
           }}
         >
           <div
-            className="bg-[#141414] rounded-2xl p-6 border border-[#292524] max-w-sm mx-4"
+            className="bg-white rounded-2xl p-6 border border-gray-200 max-w-sm mx-4 shadow-lucis-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-[#f5f0e8] font-medium text-lg mb-2" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+            <h3 className="text-gray-900 font-medium text-lg mb-2" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
               Delete this highlight?
             </h3>
-            <p className="text-[#a8a29e] text-sm mb-4">
+            <p className="text-gray-500 text-sm mb-4">
               This will permanently remove it from your collection.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowConfirmDelete(false)}
-                className="flex-1 py-2 rounded-lg bg-[#1a1a1a] border border-[#292524] hover:bg-[#242424] transition text-[#f5f0e8]"
+                className="flex-1 py-2 rounded-lg bg-gray-100 border border-gray-200 hover:bg-gray-200 transition text-gray-700"
               >
                 Cancel
               </button>
